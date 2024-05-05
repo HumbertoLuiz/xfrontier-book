@@ -56,10 +56,10 @@ spring:
 
 # Tokens
     access:
-      key: eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY4NTk5MTIwOSwiaWF0IjoxNjg1OTkxMjA5fQ.e5UFOp7IgcPA09CYRgk0OqyBqXUAeXQxLJBgeFi3CsM
+      key: ***********************************************************************
       expiration: 604800
     refresh:
-      key: GEbRxBN...edjnXbL
+      key: **************
       expiration: 9000000
         
 springdoc:
