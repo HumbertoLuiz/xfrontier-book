@@ -38,4 +38,4 @@ src/main/resources/application-development.yml
 src/main/resources/application-production.yml
 src/main/resources/flyway.properties
 
-../.metadata/
+.././.metadata/
