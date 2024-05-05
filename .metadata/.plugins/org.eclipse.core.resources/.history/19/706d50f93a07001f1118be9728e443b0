@@ -1,0 +1,92 @@
+package com.nofrontier.book.config;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.nofrontier.book.core.security.jwt.JwtTokenFilter;
+import com.nofrontier.book.core.security.jwt.JwtTokenProvider;
+
+import lombok.RequiredArgsConstructor;
+
+@Configuration
+@RequiredArgsConstructor
+@EnableWebSecurity
+//@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+public class SecurityConfig {
+
+	private final JwtTokenProvider tokenProvider;
+
+	private final AuthenticationEntryPoint authenticationEntryPoint;
+
+	private final AccessDeniedHandler accessDeniedHandler;
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		Map<String, PasswordEncoder> encoders = new HashMap<>();
+
+		Pbkdf2PasswordEncoder pbkdf2Encoder = new Pbkdf2PasswordEncoder("", 8, 185000,
+				SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
+		encoders.put("pbkdf2", pbkdf2Encoder);
+		DelegatingPasswordEncoder passwordEncoder = new DelegatingPasswordEncoder("pbkdf2", encoders);
+		passwordEncoder.setDefaultPasswordEncoderForMatches(pbkdf2Encoder);
+		return passwordEncoder;
+	}
+
+	@Bean
+	AuthenticationManager authenticationManagerBean(AuthenticationConfiguration authenticationConfiguration)
+			throws Exception {
+		return authenticationConfiguration.getAuthenticationManager();
+	}
+
+	@Bean
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+		JwtTokenFilter customFilter = new JwtTokenFilter(tokenProvider);
+
+		http.httpBasic(AbstractHttpConfigurer::disable).csrf(AbstractHttpConfigurer::disable)
+				.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class)
+				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()						
+						.requestMatchers(new AntPathRequestMatcher("/unsecured/**")).permitAll()
+						.requestMatchers(new AntPathRequestMatcher("/error")).permitAll()
+						.requestMatchers(HttpMethod.POST, "/auth/signin").permitAll()
+						.requestMatchers("/auth/refresh/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+						.anyRequest().authenticated());
+		http.cors(AbstractHttpConfigurer::disable);
+		http.exceptionHandling(exceptionHandlingCustomizer -> exceptionHandlingCustomizer
+				.authenticationEntryPoint(authenticationEntryPoint).accessDeniedHandler(accessDeniedHandler));
+		return http.build();
+	}
+
+	@GetMapping("/unsecured/error")
+	public String unsecuredError() {
+		throw new RuntimeException("Here is an error");
+	}
+
+	@Bean
+	WebSecurityCustomizer webSecurityCustomizer() {
+		return (web) -> web.ignoring().requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**", "/favicon.ico");
+	}
+}

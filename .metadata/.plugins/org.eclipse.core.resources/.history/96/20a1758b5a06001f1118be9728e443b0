@@ -1,0 +1,38 @@
+package com.nofrontier.book.domain.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+
+import com.nofrontier.book.core.security.jwt.JwtTokenProvider;
+import com.nofrontier.book.domain.repository.UserRepository;
+import com.nofrontier.book.dto.v1.security.AccountCredentialsDto;
+
+@Service
+public class AuthService {
+
+	@Autowired
+	private JwtTokenProvider tokenProvider;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private UserRepository userRepository;
+	
+	public ResponseEntity signin(AccountCredentialsDto data) {
+		
+		try {
+			var username = data.getUsername();
+			var password = data.getPassword();
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+			return ResponseEntity.ok(null);
+		} catch (Exception e) {
+			throw new BadCredentialsException("Invalid username/password supplied!");
+		}
+	}
+
+}

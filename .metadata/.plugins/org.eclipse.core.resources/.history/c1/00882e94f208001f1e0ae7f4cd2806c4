@@ -1,0 +1,93 @@
+server:
+  port: 8080
+  
+#não colocar espaço depois da virgula entre os domínios
+cors:
+  originPatterns: http://localhost:3000,http://localhost:8080,https://nofrontier.com.br
+
+spring:
+  application:
+    name: nofrontier-book  
+  
+  main:
+    allow-bean-definition-overriding: true
+    lazy-initialization: true
+  
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver   
+    url: jdbc:mysql://${DB_HOST:localhost:3306}/book-db?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password: cabula132
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      databasePlataform: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+    open-in-view: false
+    
+# Flyway Configs
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+    url: jdbc:mysql://localhost/book-db?createDatabaseIfNotExist=true&serverTimezone=UTC
+    schemas: book-db
+    user: root
+    password: cabula132
+    locations: classpath:db/migration
+
+# Jackson Configs
+  jackson:
+    default-property-inclusion: NON_NULL
+
+#Email
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: postmaster@sandbox671166aa8eb44f39b0b179a67f691aee.mailgun.org
+    password: e8781c162c8b39ed38aeef12e123713f-135a8d32-2b84c50d
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            
+# Remember Me
+  security:
+    com:
+      nofrontier:
+        rememberMe:
+          key: wv_JCH0)0=KLEpzSs9{Mg#o}'T9"$Y]09#..SA?e6+)"y#aX"3LK|8CBD%D/9c)
+          validitySeconds: 172800
+          remember-me-parameter: "com.nofrontier"
+# Tokens
+      access:
+        key: eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY4NTk5MTIwOSwiaWF0IjoxNjg1OTkxMjA5fQ.e5UFOp7IgcPA09CYRgk0OqyBqXUAeXQxLJBgeFi3CsM
+        expiration: 604800
+      refresh:
+        key: GEbRxBN...edjnXbL
+        expiration: 9000000
+
+springdoc:
+  pathsToMatch: 
+    - /auth/**
+    - /api/**/v1/**
+  swagger-ui:
+    use-root-path: true
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+
+
+#spring.servlet.multipart.enabled=true
+#spring.servlet.multipart.file-size-threshold=2KB
+#spring.servlet.multipart.max-file-size=200MB
+#spring.servlet.multipart.max-request-size=215MB
+#
+#file.upload-dir=/Code/NoFrontierSpringBoot/UploadDir

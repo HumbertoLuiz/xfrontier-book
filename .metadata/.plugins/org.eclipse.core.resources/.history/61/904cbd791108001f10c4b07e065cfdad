@@ -1,0 +1,42 @@
+package com.nofrontier.book.dto.v1.security;
+
+import java.io.Serializable;
+import java.util.Date;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonNaming(SnakeCaseStrategy.class)
+public class TokenDto implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+    @NotNull
+    @NotEmpty
+    @Size(max= 255)	
+	private String username;
+	
+    @NotNull
+    @NotEmpty
+    @Size(max= 255)
+    private String password;
+    
+	private Boolean authenticated;
+	private Date created;
+	private Date expiration;
+	private String accessToken;
+	private String refreshToken;
+	
+}

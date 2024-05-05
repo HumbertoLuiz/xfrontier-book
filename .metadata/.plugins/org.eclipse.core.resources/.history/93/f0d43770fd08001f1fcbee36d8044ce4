@@ -1,0 +1,18 @@
+﻿CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `complete_name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `cpf` varchar(11) DEFAULT NULL,
+  `birth` date DEFAULT NULL,
+  `phone_number` varchar(11) DEFAULT NULL,
+  `key_pix` varchar(255) DEFAULT NULL,
+  `document_picture` bigint DEFAULT NULL,
+  `user_picture` bigint DEFAULT NULL,
+  `enabled` bit(1) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`cpf`),
+  UNIQUE KEY (`key_pix`),
+  CONSTRAINT `fk_user_picture` FOREIGN KEY (`id_picture`) REFERENCES `picture` (`id`),
+  CONSTRAINT `fk_document_picture` FOREIGN KEY (`id_picture`) REFERENCES `picture` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

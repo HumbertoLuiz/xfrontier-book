@@ -1,0 +1,24 @@
+package com.nofrontier.book.dto.v1.security;
+
+import java.io.Serializable;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonNaming(SnakeCaseStrategy.class)
+public class AccountCredentialsDto implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private String username;
+	private String password;
+}

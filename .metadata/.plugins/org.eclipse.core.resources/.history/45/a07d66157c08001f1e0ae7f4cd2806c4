@@ -1,0 +1,5 @@
+package com.nofrontier.book.domain.services;
+
+public class ApiAuthService {
+
+}

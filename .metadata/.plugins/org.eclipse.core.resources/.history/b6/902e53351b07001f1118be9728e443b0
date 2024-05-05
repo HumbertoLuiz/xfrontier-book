@@ -1,0 +1,5 @@
+package com.nofrontier.book.config;
+
+public class FileStorageConfig {
+
+}

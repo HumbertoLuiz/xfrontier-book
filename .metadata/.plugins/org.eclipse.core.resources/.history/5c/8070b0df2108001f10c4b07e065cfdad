@@ -1,0 +1,8 @@
+package com.nofrontier.book.dto.v1.security;
+
+public class Snippet {
+	public static void main(String[] args) {
+		TokenResponse
+	}
+}
+

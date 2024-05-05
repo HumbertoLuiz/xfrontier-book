@@ -1,0 +1,15 @@
+package com.nofrontier.book.domain.repository;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.nofrontier.book.domain.model.User;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+
+//	@Query("SELECT u FROM User u WHERE u.username =:username")
+//	User findByUsername(@Param("username") String username);
+
+	Optional<User> findByUsername(String username);
+}

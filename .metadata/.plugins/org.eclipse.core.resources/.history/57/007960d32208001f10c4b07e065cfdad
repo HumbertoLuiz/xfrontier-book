@@ -1,0 +1,33 @@
+package com.nofrontier.book.dto.v1.security;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.nofrontier.book.dto.v1.UserDto;
+
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper= false)
+public class UserRegisterResponse extends UserDto implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
+	private TokenResponse token;
+	
+	private List<String> roles;
+
+	public void setToken(TokenDto tokenResponse) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+}

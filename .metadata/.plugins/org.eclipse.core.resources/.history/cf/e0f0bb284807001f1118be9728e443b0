@@ -1,0 +1,61 @@
+package com.nofrontier.book.domain.services;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import com.nofrontier.book.core.security.jwt.JwtTokenProvider;
+import com.nofrontier.book.domain.repository.UserRepository;
+import com.nofrontier.book.dto.v1.security.AccountCredentialsDto;
+import com.nofrontier.book.dto.v1.security.TokenDto;
+
+@Service
+public class AuthService {
+
+	@Autowired
+	private JwtTokenProvider tokenProvider;
+
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	//--------------------------------------------------------------------------------------------------------------------------
+	
+	public ResponseEntity<?> signin(AccountCredentialsDto data) {
+		try {
+			var userName = data.getUsername();
+			var password = data.getPassword();
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+			var user = userRepository.findByUsername(userName);
+			var tokenResponse = new TokenDto();
+			if (user != null) {
+				tokenResponse = tokenProvider.createAccessToken(userName, user.getRoles());
+			} else {
+				throw new UsernameNotFoundException("Username " + userName + " not found");
+			}
+			return ResponseEntity.ok(tokenResponse);
+		} catch (Exception e) {
+			throw new BadCredentialsException("Invalid userName/password supplied!");
+		}
+	}
+
+	//--------------------------------------------------------------------------------------------------------------------------
+
+	public ResponseEntity<?> refreshToken(String userName, String refreshToken) {
+		var user = userRepository.findByUsername(userName);
+		var tokenResponse = new TokenDto();
+		if (user != null) {
+			tokenResponse = tokenProvider.refreshToken(refreshToken);
+		} else {
+			throw new UsernameNotFoundException("Username " + userName + " not found!");
+		}
+		return ResponseEntity.ok(tokenResponse);
+	}
+
+}
