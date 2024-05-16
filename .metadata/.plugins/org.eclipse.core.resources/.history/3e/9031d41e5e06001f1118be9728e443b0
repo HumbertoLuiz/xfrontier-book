@@ -1,5 +1,0 @@
-package com.nofrontier.book.api.v1.controller;
-
-public class AuthController {
-
-}

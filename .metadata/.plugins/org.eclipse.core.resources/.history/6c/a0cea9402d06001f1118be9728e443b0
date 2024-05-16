@@ -1,5 +1,0 @@
-package com.nofrontier.book.core.security.jwt;
-
-public class JwtTokenFilter {
-
-}
