@@ -4,19 +4,22 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nofrontier.book.core.enums.StatusOrder;
 import com.nofrontier.book.domain.event.OrderCanceledEvent;
 import com.nofrontier.book.domain.event.OrderConfirmedEvent;
 import com.nofrontier.book.domain.exceptions.BusinessException;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,9 +28,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,6 +46,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
+@Table(name = "order_entity")
 public class Order extends AbstractAggregateRoot<Order>
 		implements
 			Serializable {
@@ -58,26 +65,32 @@ public class Order extends AbstractAggregateRoot<Order>
 	private BigDecimal shippingRate;
 	private BigDecimal totalValue;
 
-	@Embedded
-	private Address shippingAddress;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shipping_address_id", nullable = false)
+    private Address shippingAddress;
 
 	@Enumerated(EnumType.STRING)
 	private StatusOrder status = StatusOrder.CREATED;
 
 	@CreationTimestamp
-	private OffsetDateTime dateCreated;
+	private OffsetDateTime creationDate;
 
-	private OffsetDateTime dataConfirmacao;
-	private OffsetDateTime dataCancelamento;
-	private OffsetDateTime dataEntrega;
+	private OffsetDateTime confirmationDate;
+	private OffsetDateTime cancellationDate;
+	private OffsetDateTime deliveryDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = false)
+	@JoinColumn(name = "payment_method_id", nullable = false)
 	private PaymentMethod paymentMethod;
-
-	@ManyToOne
-	@JoinColumn(nullable = false)
-	private Book book;
+	
+	@JsonIgnore
+	@ManyToMany
+	@JoinTable(name = "order_payment_method", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
+	private Set<PaymentMethod> paymentMethods = new HashSet<>();
+	
+	@JsonManagedReference
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
+	private List<Book> books = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "user_customer_id", nullable = false)
@@ -97,19 +110,19 @@ public class Order extends AbstractAggregateRoot<Order>
 
 	public void confirm() {
 		setStatus(StatusOrder.CONFIRMED);
-		setDataConfirmacao(OffsetDateTime.now());
+		setConfirmationDate(OffsetDateTime.now());
 
 		registerEvent(new OrderConfirmedEvent(this));
 	}
 
 	public void deliver() {
 		setStatus(StatusOrder.DELIVERED);
-		setDataEntrega(OffsetDateTime.now());
+		setDeliveryDate(OffsetDateTime.now());
 	}
 
 	public void cancel() {
 		setStatus(StatusOrder.CANCELED);
-		setDataCancelamento(OffsetDateTime.now());
+		setCancellationDate(OffsetDateTime.now());
 
 		registerEvent(new OrderCanceledEvent(this));
 	}

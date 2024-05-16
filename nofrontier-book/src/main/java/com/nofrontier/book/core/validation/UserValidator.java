@@ -1,4 +1,4 @@
-package com.nofrontier.book.core.validators;
+package com.nofrontier.book.core.validation;
 
 import java.util.List;
 

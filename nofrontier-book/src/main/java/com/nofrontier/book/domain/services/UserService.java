@@ -20,7 +20,7 @@ import com.nofrontier.book.config.PasswordEnconderConfig;
 import com.nofrontier.book.core.modelmapper.ModelMapperConfig;
 import com.nofrontier.book.core.publishers.NewUserPublisher;
 import com.nofrontier.book.core.services.token.adapters.TokenService;
-import com.nofrontier.book.core.validators.UserValidator;
+import com.nofrontier.book.core.validation.UserValidator;
 import com.nofrontier.book.domain.exceptions.PasswordDoesntMatchException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;

@@ -27,6 +27,6 @@ public class PaymentMethod extends IdBaseEntity implements Serializable {
 	private String description;
 	
 	@UpdateTimestamp
-	private OffsetDateTime dateUpdate;
+	private OffsetDateTime updateDate;
 	
 }

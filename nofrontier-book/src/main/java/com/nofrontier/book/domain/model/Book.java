@@ -10,11 +10,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -70,8 +71,9 @@ public class Book extends IdBaseEntity implements Serializable {
 	@Column(nullable = false)
 	private Boolean active;
 
-	@OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
-	@JoinColumn(name = "book_picture", nullable = true)
-	private Picture bookPicture;
+	@JsonBackReference
+	@ManyToOne
+	@JoinColumn(name = "order_id")
+	private Order order;
 
 }

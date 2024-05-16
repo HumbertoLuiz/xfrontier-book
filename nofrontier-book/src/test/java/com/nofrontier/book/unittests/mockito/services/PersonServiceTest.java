@@ -32,13 +32,13 @@ import com.nofrontier.book.unittests.mapper.mocks.MockPerson;
 class PersonServiceTest {
 
 	MockPerson input;
-	
+
 	@InjectMocks
 	private PersonService personService;
-	
+
 	@Mock
 	private PersonRepository personRepository;
-	
+
 	@BeforeEach
 	void setUpMocks() throws Exception {
 		input = new MockPerson();
@@ -49,102 +49,113 @@ class PersonServiceTest {
 
 	@Test
 	void testFindById() {
-		Person entity = input.mockEntity(1); 
-		entity.setId(1L);		
-		when(personRepository.findById(1L)).thenReturn(Optional.of(entity));		
+		Person entity = input.mockEntity(1);
+		entity.setId(1L);
+		when(personRepository.findById(1L)).thenReturn(Optional.of(entity));
 		var result = personService.findById(1L);
 		assertNotNull(result);
 		assertNotNull(result.getKey());
-		assertNotNull(result.getLinks());		
-		assertTrue(result.toString().contains("links: [</api/person/v1/1>;rel=\"self\"]"));
+		assertNotNull(result.getLinks());
+		assertTrue(result.toString()
+				.contains("links: [</api/person/v1/1>;rel=\"self\"]"));
 		assertEquals("First Name Test1", result.getFirstName());
 		assertEquals("Last Name Test1", result.getLastName());
 		assertEquals("Female", result.getGender());
 		assertEquals("Cpf Test", result.getCpf());
 		assertEquals(LocalDate.of(0, 0, 0), result.getBirth());
 		assertEquals("Phone Number Test", result.getPhoneNumber());
+		assertEquals("Mobile Number Test", result.getPhoneNumber());
 		assertEquals("Key Pix Test", result.getKeyPix());
+		assertEquals(Boolean.valueOf(true), result.getEnabled());
 	}
-	
+
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Test
 	void testCreate() {
 		Person persisted = input.mockEntity(1);
-		persisted.setId(1L);		
+		persisted.setId(1L);
 		PersonDto vo = input.mockDto(1);
-		vo.setKey(1L);		
-		when(personRepository.save(any(Person.class))).thenReturn(persisted);		
-		var result = personService.create(vo);		
+		vo.setKey(1L);
+		when(personRepository.save(any(Person.class))).thenReturn(persisted);
+		var result = personService.create(vo);
 		assertNotNull(result);
 		assertNotNull(result.getKey());
 		assertNotNull(result.getLinks());
-				assertTrue(result.toString().contains("links: [</api/person/v1/1>;rel=\"self\"]"));
+		assertTrue(result.toString()
+				.contains("links: [</api/person/v1/1>;rel=\"self\"]"));
 		assertEquals("First Name Test1", result.getFirstName());
 		assertEquals("Last Name Test1", result.getLastName());
 		assertEquals("Female", result.getGender());
 		assertEquals("Cpf Test", result.getCpf());
 		assertEquals(LocalDate.of(0, 0, 0), result.getBirth());
 		assertEquals("Phone Number Test", result.getPhoneNumber());
+		assertEquals("Mobile Number Test", result.getPhoneNumber());
 		assertEquals("Key Pix Test", result.getKeyPix());
+		assertEquals(Boolean.valueOf(true), result.getEnabled());
 	}
-	
+
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Test
 	void testCreateWithNullPerson() {
-		Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> {
-			personService.create(null);
-		});		
+		Exception exception = assertThrows(RequiredObjectIsNullException.class,
+				() -> {
+					personService.create(null);
+				});
 		String expectedMessage = "It is not allowed to persist a null object!";
 		String actualMessage = exception.getMessage();
-				assertTrue(actualMessage.contains(expectedMessage));
+		assertTrue(actualMessage.contains(expectedMessage));
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Test
 	void testUpdate() {
-		Person entity = input.mockEntity(1); 		
+		Person entity = input.mockEntity(1);
 		Person persisted = entity;
-		persisted.setId(1L);		
+		persisted.setId(1L);
 		PersonDto vo = input.mockDto(1);
-		vo.setKey(1L);		
+		vo.setKey(1L);
 		when(personRepository.findById(1L)).thenReturn(Optional.of(entity));
-		when(personRepository.save(entity)).thenReturn(persisted);		
-		var result = personService.update(vo);		
+		when(personRepository.save(entity)).thenReturn(persisted);
+		var result = personService.update(vo);
 		assertNotNull(result);
 		assertNotNull(result.getKey());
-		assertNotNull(result.getLinks());		
-		assertTrue(result.toString().contains("links: [</api/person/v1/1>;rel=\"self\"]"));
+		assertNotNull(result.getLinks());
+		assertTrue(result.toString()
+				.contains("links: [</api/person/v1/1>;rel=\"self\"]"));
 		assertEquals("First Name Test1", result.getFirstName());
 		assertEquals("Last Name Test1", result.getLastName());
 		assertEquals("Female", result.getGender());
 		assertEquals("Cpf Test", result.getCpf());
 		assertEquals(LocalDate.of(0, 0, 0), result.getBirth());
 		assertEquals("Phone Number Test", result.getPhoneNumber());
+		assertEquals("Mobile Number Test", result.getPhoneNumber());
 		assertEquals("Key Pix Test", result.getKeyPix());
+		assertEquals(Boolean.valueOf(true), result.getEnabled());
 	}
-	
+
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Test
 	void testUpdateWithNullPerson() {
-		Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> {
-			personService.update(null);
-		});		
+		Exception exception = assertThrows(RequiredObjectIsNullException.class,
+				() -> {
+					personService.update(null);
+				});
 		String expectedMessage = "It is not allowed to persist a null object!";
 		String actualMessage = exception.getMessage();
-				assertTrue(actualMessage.contains(expectedMessage));
+		assertTrue(actualMessage.contains(expectedMessage));
 	}
-	
+
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Test
 	void testDelete() {
-		Person entity = input.mockEntity(1); 
-		entity.setId(1L);		
+		Person entity = input.mockEntity(1);
+		entity.setId(1L);
 		when(personRepository.findById(1L)).thenReturn(Optional.of(entity));
-				personService.delete(1L);
+		personService.delete(1L);
 	}
 }

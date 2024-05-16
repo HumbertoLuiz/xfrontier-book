@@ -1,14 +1,18 @@
 package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nofrontier.book.core.enums.UserType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,6 +59,10 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private String password;
 
+	@CreationTimestamp
+	@Column(nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime registerDate;
+
 	@Column(length = 11, nullable = false)
 	@Enumerated(EnumType.STRING)
 	private UserType userType;
@@ -76,9 +84,15 @@ public class User implements Serializable {
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "user_permission", joinColumns = {
-			@JoinColumn(name = "id_user")}, inverseJoinColumns = {
-					@JoinColumn(name = "id_permission")})
+			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
+					@JoinColumn(name = "permission_id")})
 	private Set<Permission> permissions = new HashSet<>();
+
+	@ManyToMany
+	@JoinTable(name = "user_group", joinColumns = {
+			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
+					@JoinColumn(name = "group_id")})
+	private Set<Group> groups = new HashSet<>();
 
 	public List<String> getRoles() {
 		List<String> roles = new ArrayList<>();
@@ -86,6 +100,26 @@ public class User implements Serializable {
 			roles.add(permission.getDescription());
 		}
 		return roles;
+	}
+	
+	@ManyToMany
+	@JoinTable(name = "city_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "city_id"))
+	private List<City> cities;
+
+	@OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@JoinColumn(name = "address_id", nullable = true)
+	private Address address;
+
+	public boolean removeGroup(Group group) {
+		return getGroups().remove(group);
+	}
+
+	public boolean addGrupo(Group group) {
+		return getGroups().add(group);
+	}
+
+	public boolean isNew() {
+		return getId() == null;
 	}
 
 	public Boolean isCustomer() {

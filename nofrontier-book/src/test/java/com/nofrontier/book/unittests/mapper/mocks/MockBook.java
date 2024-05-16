@@ -48,8 +48,7 @@ public class MockBook {
         book.setLastModified(LocalDateTime.of(2024, 5, 6, 10, 40));
         book.setCreatedBy(number);
     	book.setLastModifiedBy(number);
-    	book.setActive(true);
-    	book.setBookPicture(book.getBookPicture());    	
+    	book.setActive(true); 	
         return book;
     }
 
@@ -65,8 +64,7 @@ public class MockBook {
         book.setLastModified(LocalDateTime.of(2024, 5, 6, 10, 40));
         book.setCreatedBy(number);
     	book.setLastModifiedBy(number);
-    	book.setActive(true);
-    	book.setBookPicture(book.getBookPicture());         
+    	book.setActive(true);   
         return book;
     }
 }

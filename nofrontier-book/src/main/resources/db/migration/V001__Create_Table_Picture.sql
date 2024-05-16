@@ -5,5 +5,5 @@ CREATE TABLE `picture` (
   `content_type` varchar(255) NOT NULL,
   `url` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY (`filename`)  
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  UNIQUE KEY (`filename`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

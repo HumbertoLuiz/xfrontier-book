@@ -8,7 +8,9 @@ import lombok.Getter;
 public enum UserType {
 	
 	ADMIN (1),
-    CUSTOMER (2);
+	MANAGER (2),
+	CUSTOMER (3),
+    REGISTER (4);
 
     private Integer id;
 }

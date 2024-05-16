@@ -28,7 +28,7 @@ public class Address extends IdBaseEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Column(nullable = false, length = 64)
-	protected String address;
+	protected String street;
 
 	@Column(nullable = false, length = 10)
 	private String number;
@@ -39,7 +39,7 @@ public class Address extends IdBaseEntity implements Serializable {
 	@Column(nullable = true)
 	private String complement;
 
-	@Column(name = "zip_code", nullable = false, length = 10)
+	@Column(name = "zip_code", nullable = false, length = 9, unique = true)
 	protected String zipCode;
 
 	@Column(length = 11, nullable = false)
@@ -47,7 +47,7 @@ public class Address extends IdBaseEntity implements Serializable {
 	protected AddressType addressType;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "endereco_cidade_id")
+	@JoinColumn(name = "city_id")
 	private City city;
 
 	public Boolean isResidential() {

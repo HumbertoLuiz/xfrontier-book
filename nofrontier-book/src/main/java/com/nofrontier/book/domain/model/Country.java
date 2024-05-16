@@ -1,8 +1,12 @@
 package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -24,14 +28,14 @@ public class Country extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(nullable = false, length = 45)
+	@Column(nullable = false, unique = true)
 	private String name;
+	
+	@Column(nullable = false, length = 5, unique = true)
+	private String initials;
 
-	@Column(nullable = false, length = 5)
-	private String code;
-
-	// @JsonBackReference
-	@OneToMany(mappedBy = "country")
-	private Set<State> states;
+	@JsonManagedReference
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "country")
+	private List<State> states = new ArrayList<>();
 
 }

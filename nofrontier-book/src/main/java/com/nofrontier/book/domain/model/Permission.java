@@ -25,6 +25,9 @@ public class Permission extends IdBaseEntity
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(nullable = false)
+	private String name;
+	
 	@Column
 	private String description;
 

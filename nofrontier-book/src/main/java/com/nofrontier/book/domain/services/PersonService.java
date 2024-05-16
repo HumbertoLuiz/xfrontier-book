@@ -98,7 +98,9 @@ public class PersonService {
 		entity.setCpf(person.getCpf());
 		entity.setBirth(person.getBirth());
 		entity.setPhoneNumber(person.getPhoneNumber());
+		entity.setMobileNumber(person.getMobileNumber());
 		entity.setKeyPix(person.getKeyPix());
+		entity.setEnabled(person.getEnabled());
 		var vo = ModelMapperConfig.parseObject(personRepository.save(entity), PersonDto.class);
 		vo.add(linkTo(methodOn(PersonRestController.class).findById(vo.getKey())).withSelfRel());
 		return vo;

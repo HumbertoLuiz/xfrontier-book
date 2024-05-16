@@ -43,10 +43,10 @@ public class Person extends IdBaseEntity implements Serializable {
 	@Column(nullable = true)
 	private LocalDate birth;
 
-	@Column(name = "phone_number", nullable = false, length = 15)
+	@Column(name = "phone_number", nullable = false, length = 11)
 	protected String phoneNumber;
 	
-	@Column(name = "mobile_number", nullable = false, length = 15)
+	@Column(name = "mobile_number", nullable = false, length = 11)
 	protected String mobileNumber;
 
 	@Column(name = "key_pix", nullable = true, unique = true)

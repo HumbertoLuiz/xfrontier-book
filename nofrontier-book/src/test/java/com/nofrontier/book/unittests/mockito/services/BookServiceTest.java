@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -60,13 +61,11 @@ class BookServiceTest {
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
 		assertEquals(new BigDecimal("25"), result.getPrice());
-		assertNotNull(result.getLaunchDate());
-		assertNotNull(result.getCreateDate());
-		assertNotNull(result.getLastModified());
-		assertNotNull(result.getCreatedBy());
-		assertNotNull(result.getLastModifiedBy());
-		assertNotNull(result.getActive());
-		assertNotNull(result.getBookPicture()); 
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getCreateDate());
+		assertEquals(Integer.valueOf(0), result.getCreatedBy());
+		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
+		assertEquals(Boolean.valueOf(true), result.getActive());
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -86,14 +85,11 @@ class BookServiceTest {
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
 		assertEquals(new BigDecimal("25"), result.getPrice());
-		assertNotNull(result.getLaunchDate());
-		assertNotNull(result.getLaunchDate());
-		assertNotNull(result.getCreateDate());
-		assertNotNull(result.getLastModified());
-		assertNotNull(result.getCreatedBy());
-		assertNotNull(result.getLastModifiedBy());
-		assertNotNull(result.getActive());
-		assertNotNull(result.getBookPicture()); 
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getCreateDate());
+		assertEquals(Integer.valueOf(0), result.getCreatedBy());
+		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
+		assertEquals(Boolean.valueOf(true), result.getActive());
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -127,14 +123,11 @@ class BookServiceTest {
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
 		assertEquals(new BigDecimal("25"), result.getPrice());
-		assertNotNull(result.getLaunchDate());
-		assertNotNull(result.getLaunchDate());
-		assertNotNull(result.getCreateDate());
-		assertNotNull(result.getLastModified());
-		assertNotNull(result.getCreatedBy());
-		assertNotNull(result.getLastModifiedBy());
-		assertNotNull(result.getActive());
-		assertNotNull(result.getBookPicture()); 
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getCreateDate());
+		assertEquals(Integer.valueOf(0), result.getCreatedBy());
+		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
+		assertEquals(Boolean.valueOf(true), result.getActive()); 
 	}
 
 	// -------------------------------------------------------------------------------------------------------------

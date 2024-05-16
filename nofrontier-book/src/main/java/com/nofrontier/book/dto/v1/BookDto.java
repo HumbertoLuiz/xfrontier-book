@@ -13,6 +13,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.domain.model.Picture;
 
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,21 +28,31 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonNaming(SnakeCaseStrategy.class)
 @JsonPropertyOrder({ "id", "author", "launchDate", "price", "title" })
-public class BookDto extends RepresentationModel<BookDto> implements Serializable{
+public class BookDto extends RepresentationModel<BookDto> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty("id")
 	private Long key;
 	
+	@NotNull
+	@Size(min = 3, max = 255)
 	private String title;
 
+	@NotNull
+	@Size(min = 3, max = 255)
 	private String author;
 
+    @NotNull
+    @Size(min = 13, max = 13)
 	private String isbn;
 
+    @NotNull
+    @Positive
 	private BigDecimal price;
 
+    @NotNull
+    @Future
 	private Date launchDate;
 
 	private LocalDateTime createDate;

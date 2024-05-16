@@ -1,28 +1,44 @@
 package com.nofrontier.book.dto.v1.requests;
 
-import java.time.LocalDate;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Set;
 
-import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nofrontier.book.core.validators.Age;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.domain.model.Permission;
+import com.nofrontier.book.domain.model.Person;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequest {
+@JsonNaming(SnakeCaseStrategy.class)
+@JsonPropertyOrder({ "id", "completeName", "email", "password", "passwordConfirmation", 
+	"userType", "documentPicture", "userPicture", "enabled", "persons", "permissions" })
+public class UserRequest extends RepresentationModel<UserRequest> implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
+	@JsonProperty("id")
+	private Long key;
+	
 	@NotNull
 	@Size(min = 3, max = 255)
 	private String completeName;
@@ -41,50 +57,21 @@ public class UserRequest {
 	private String passwordConfirmation;
 
 	@NotNull
+	@Future
+	private OffsetDateTime registerDate;
+	
+	@NotNull
 	private Integer userType;
 
 	@NotNull
-	@Size(min = 11, max = 11)
-	@CPF
-	private String cpf;
-
-    @NotNull
-	@Past
-	@Age(min = 18, max = 100)
-    @DateTimeFormat(iso= ISO.DATE)
-	private LocalDate birth;
-
-	@NotNull
-	@Size(min = 11, max = 11)
-	private String phoneNumber;
-
-	@Size(min = 11, max = 255)
-	private String keyPix;
-
-	@NotNull
 	private MultipartFile documentPicture;
+	
+	@NotNull
+	private MultipartFile userPicture;
 
-    public void setComplete_name(String completeName) {
-        setCompleteName(completeName);
-    }
+	private Boolean enabled;
 
-    public void setPassword_confirmation(String passwordConfirmation) {
-        setPasswordConfirmation(passwordConfirmation);
-    }
+	private List<Person> persons;
 
-    public void setUser_type(Integer userType) {
-        setUserType(userType);
-    }
-
-    public void setKey_pix(String keyPix) {
-        setKeyPix(keyPix);
-    }
-    
-    public void setPhone_number(String phoneNumber) {
-        setPhoneNumber(phoneNumber);
-    }
-
-    public void setDocument_picture(MultipartFile documentPicture) {
-        setDocumentPicture(documentPicture);
-    }
+	private Set<Permission> permissions;
 }

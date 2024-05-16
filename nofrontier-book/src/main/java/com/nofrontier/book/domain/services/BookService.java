@@ -113,7 +113,6 @@ public class BookService {
 		entity.setCreatedBy(book.getCreatedBy());
 		entity.setLastModifiedBy(book.getLastModifiedBy());
 		entity.setActive(book.getActive());
-		entity.setBookPicture(book.getBookPicture());
 		var vo = ModelMapperConfig.parseObject(bookRepository.save(entity),
 				BookDto.class);
 		vo.add(linkTo(methodOn(BookRestController.class).findById(vo.getKey()))

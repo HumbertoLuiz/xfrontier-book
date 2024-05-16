@@ -14,15 +14,17 @@ import com.nofrontier.book.domain.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+	public static final PersonRepository personRepository = null;
+	
 	Optional<User> findByEmail(String email);
 
-	Optional<User> findByCpf(String cpf);
+//	Optional<User> findByCpf(String cpf);
+//
+//	Optional<User> findByKeyPix(String keyPix);
 
-	Optional<User> findByKeyPix(String keyPix);
+	Page<User> findByCitiesIbgeCode(String ibgeCode, Pageable pageable);
 
-	Page<User> findByCitiesAttendedIbgeCode(String ibgeCode, Pageable pageable);
-
-	Boolean existsByCitiesAttendedIbgeCode(String ibgeCode);
+	Boolean existsByCitiesIbgeCode(String ibgeCode);
 
 	default Boolean isEmailAlreadyRegistered(User user) {
 		if (user.getEmail() == null) {
@@ -33,8 +35,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 				.orElse(false);
 	}
 
-	@Query("SELECT COUNT(u) > 0 FROM User u WHERE u.person.cpf = :cpf")
-	boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
+//	@Query("SELECT COUNT(u) > 0 FROM User u WHERE u.persons.cpf = :cpf")
+//	boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
+	
+    @Query("SELECT COUNT(p) > 0 FROM User u JOIN u.persons p WHERE ELEMENT(p).cpf = :cpf")
+    boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
 
 	default Boolean isCpfAlreadyRegistered(User user) {
 		List<Person> people = user.getPersons();
@@ -43,14 +48,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		}
 		for (Person person : people) {
 			if (person.getCpf() != null
-					&& findByCpf(person.getCpf()).isPresent()) {
+					&& personRepository.findByCpf(person.getCpf()).isPresent()) {
 				return true; // CPF encontrado, retorna true
 			}
 		}
 		return false; // CPF não encontrado em nenhuma pessoa
 	}
-
-    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.keyPix = :keyPix")
+    
+    @Query("SELECT COUNT(p) > 0 FROM User u JOIN u.persons p WHERE ELEMENT(p).keyPix = :keyPix")
     boolean isKeyPixAlreadyRegistered(@Param("keyPix") String keyPix);
     
 	default Boolean isKeyPixAlreadyRegistered(User user) {
@@ -60,7 +65,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 		}
 		for (Person person : people) {
 			if (person.getKeyPix() != null
-					&& findByKeyPix(person.getKeyPix()).isPresent()) {
+					&& personRepository.findByKeyPix(person.getKeyPix()).isPresent()) {
 				return true; // KeyPix encontrado, retorna true
 			}
 		}

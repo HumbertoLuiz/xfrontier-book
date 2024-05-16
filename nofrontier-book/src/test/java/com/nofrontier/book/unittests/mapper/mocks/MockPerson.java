@@ -42,7 +42,9 @@ public class MockPerson {
 		person.setCpf("Cpf Test" + number);
 		person.setBirth(LocalDate.of(0, 0, 0));
 		person.setPhoneNumber("Phone Number Test" + number);
-		person.setKeyPix("Key Pix Test" + number);		
+		person.setMobileNumber("Mobile Number Test" + number);
+		person.setKeyPix("Key Pix Test" + number);
+		person.setEnabled(true);;
 		return person;
 	}
 
@@ -55,7 +57,9 @@ public class MockPerson {
 		person.setCpf("Cpf Test" + number);
 		person.setBirth(LocalDate.of(0, 0, 0));
 		person.setPhoneNumber("Phone Number Test" + number);
+		person.setMobileNumber("Mobile Number Test" + number);
 		person.setKeyPix("Key Pix Test" + number);
+		person.setEnabled(true);
 		return person;
 	}
 

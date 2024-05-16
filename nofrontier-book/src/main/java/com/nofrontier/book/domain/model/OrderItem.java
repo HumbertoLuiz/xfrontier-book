@@ -28,11 +28,11 @@ public class OrderItem extends IdBaseEntity implements Serializable {
 	private String observation;
 
 	@ManyToOne
-	@JoinColumn(nullable = false)
+	@JoinColumn(nullable = false, name = "order_id")
 	private Order order;
 
 	@ManyToOne
-	@JoinColumn(nullable = false)
+	@JoinColumn(nullable = false, name = "book_id")
 	private Book book;
 
 	public void calculateTotalPrice() {

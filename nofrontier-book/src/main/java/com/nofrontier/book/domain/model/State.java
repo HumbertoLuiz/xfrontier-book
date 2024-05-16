@@ -2,6 +2,8 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -28,7 +30,10 @@ public class State extends IdBaseEntity implements Serializable{
 	@Column(nullable = false, length = 45)
 	private String name;
 
-	//@JsonManagedReference
+    @Column(name = "ibge_code", unique = true)
+    private String ibgeCode;
+    
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "country_id")
 	private Country country;
