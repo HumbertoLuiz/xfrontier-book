@@ -61,16 +61,6 @@ INSERT INTO payment_method (id, description, update_date) VALUES
     (3, 'Cash', UTC_TIMESTAMP());
 
 
-INSERT INTO users (id, complete_name, email, password, register_date, user_type, document_picture, user_picture, enabled) VALUES
-(1, 'João da Silva', 'joao.ger@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'ADMIN', null, null, true),
-(2, 'Maria Joaquina', 'maria.vnd@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'MANAGER', null, null, true),
-(3, 'José Souza', 'jose.aux@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'REGISTER', null, null, true),
-(4, 'Sebastião Martins', 'sebastiao.cad@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', null, null, true),
-(5, 'Manoel Lima', 'manoel.loja@gmail.com', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', null, null, true),
-(6, 'Débora Mendonça', 'email.teste.aw+debora@gmail.com', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', null, null, true),
-(7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', null, null, true);
-
-
 INSERT INTO `countries` (`id`, `name`, `initials`) VALUES 
 (1, 'Afeganistão', 'AFG'),
 (2, 'África do Sul', 'ZAF'),
@@ -5927,6 +5917,16 @@ INSERT INTO address (id, street, number, neighborhood, complement, zip_code, add
 (5, 'Rua 10', '930', 'Martins', 'Casa 20', '38400200', 'RESIDENTIAL', 1);
 
 
+INSERT INTO users (id, complete_name, email, password, register_date, user_type, enabled, document_picture, user_picture, address_id) VALUES
+(1, 'João da Silva', 'joao.ger@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'ADMIN', true, null, null, 1),
+(2, 'Maria Joaquina', 'maria.vnd@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'MANAGER', true, null, null, 1),
+(3, 'José Souza', 'jose.aux@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'REGISTER', true, null, null, 1),
+(4, 'Sebastião Martins', 'sebastiao.cad@nofrontierfood.com.br', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', true, null, null, 1),
+(5, 'Manoel Lima', 'manoel.loja@gmail.com', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', true, null, null, 1),
+(6, 'Débora Mendonça', 'email.teste.aw+debora@gmail.com', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', true, null, null, 1),
+(7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '$2y$12$NSsM4gEOR7MKogflKR7GMeYugkttjNhAJMvFdHrBLaLp2HzlggP5W', UTC_TIMESTAMP(), 'CUSTOMER', true, null, null, 1);
+
+
 INSERT INTO `person` (`id`, `first_name`, `last_name`, `gender`, `cpf`, `birth`, `phone_number`, `mobile_number`, `key_pix`, `enabled`, `user_id`, `address_id`) VALUES
 	(1, 'João', 'da Silva', 'Male', '04888053685', '1991-02-24', '3436834703', '34988681043', '04888053685', true, 1, 1),
 	(2, 'Maria', 'Joaquina', 'Female', '76790211632', '1995-05-05', '3128455360', '31987205645', '76790211632', true, 1, 1),
@@ -5963,7 +5963,6 @@ INSERT INTO books (id, title, author, isbn, price, launch_date, create_date, las
 (13, 'O verdadeiro valor de TI', 'Richard Hunter e George Westerman', '9788576801047', 95.00, '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
 (14, 'Os 11 segredos de líderes de TI altamente influentes', 'Marc J. Schiller', '9780615436289', 45.00, '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
 (15, 'Implantando a governança de TI', 'Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu', '9788574526584', 54.00, '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true);
-
 
 
 INSERT INTO order_item (id, order_id, book_id, quantity, unit_price, total_price, observation) VALUES 
@@ -6036,7 +6035,7 @@ INSERT INTO user_group (user_id, group_id) VALUES
 	(4, 4);
 
 
-﻿INSERT INTO `user_permission` (`id_user`, `id_permission`) VALUES
+﻿INSERT INTO `user_permission` (`user_id`, `permission_id`) VALUES
 	(1, 1),
 	(2, 1),
 	(1, 2);

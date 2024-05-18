@@ -11,3 +11,8 @@ CREATE TABLE IF NOT EXISTS `address` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_address_city` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `users`
+  ADD `address_id` bigint DEFAULT NULL,
+  ADD KEY (`address_id`),
+  ADD CONSTRAINT FOREIGN KEY (`address_id`) REFERENCES `address` (`id`);

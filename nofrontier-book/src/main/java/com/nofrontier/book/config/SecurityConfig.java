@@ -3,7 +3,6 @@ package com.nofrontier.book.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -56,21 +55,25 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		
 		http.authorizeHttpRequests(
-				requestMatcherCustomizer -> requestMatcherCustomizer
-						.requestMatchers("/**").permitAll())
-				.authorizeHttpRequests(
-						authorizeRequestsCustomizer -> authorizeRequestsCustomizer
-								.requestMatchers("/**").permitAll()
-								.requestMatchers(HttpMethod.POST,
-										"/auth/token")
-								.permitAll()
-								.requestMatchers("/css/**", "/js/**", "/img/**",
-										"/lib/**", "/favicon.ico")
-								.permitAll()
-								.requestMatchers("/auth/refresh/**",
-										"/swagger-ui/**", "/v3/api-docs/**")
-								.permitAll().anyRequest().authenticated());
+				authorizeHttpRequestsCustomizer -> authorizeHttpRequestsCustomizer.anyRequest().permitAll());
+		
+//		http.authorizeHttpRequests(
+//				requestMatcherCustomizer -> requestMatcherCustomizer
+//						.requestMatchers("/**").permitAll())
+//				.authorizeHttpRequests(
+//						authorizeRequestsCustomizer -> authorizeRequestsCustomizer
+//								.requestMatchers("/**").permitAll()
+//								.requestMatchers(HttpMethod.POST,
+//										"/auth/token")
+//								.permitAll()
+//								.requestMatchers("/css/**", "/js/**", "/img/**",
+//										"/lib/**", "/favicon.ico")
+//								.permitAll()
+//								.requestMatchers("/auth/refresh/**",
+//										"/swagger-ui/**", "/v3/api-docs/**")
+//								.permitAll().anyRequest().authenticated());
 
 		http.sessionManagement(
 				sessionManagementCustomizer -> sessionManagementCustomizer
