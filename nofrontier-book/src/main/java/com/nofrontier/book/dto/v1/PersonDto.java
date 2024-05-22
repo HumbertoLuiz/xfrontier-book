@@ -2,6 +2,8 @@ package com.nofrontier.book.dto.v1;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.core.validation.Age;
+import com.nofrontier.book.domain.model.Address;
+import com.nofrontier.book.domain.model.User;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -74,4 +78,8 @@ public class PersonDto extends RepresentationModel<PersonDto>
 	private String keyPix;
 
 	private Boolean enabled;
+	
+	private Set<User> users = new HashSet<>();		
+	
+    private Set<Address> addresses = new HashSet<>();
 }

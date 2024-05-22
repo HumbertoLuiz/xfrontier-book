@@ -1,6 +1,5 @@
 package com.nofrontier.book.domain.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -15,7 +14,7 @@ import com.nofrontier.book.domain.model.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
 	public static final PersonRepository personRepository = null;
-	
+
 	Optional<User> findByEmail(String email);
 
 //	Optional<User> findByCpf(String cpf);
@@ -35,41 +34,41 @@ public interface UserRepository extends JpaRepository<User, Long> {
 				.orElse(false);
 	}
 
-//	@Query("SELECT COUNT(u) > 0 FROM User u WHERE u.persons.cpf = :cpf")
-//	boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
-	
-    @Query("SELECT COUNT(p) > 0 FROM User u JOIN u.persons p WHERE ELEMENT(p).cpf = :cpf")
-    boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
+//	 @Query("SELECT COUNT(p) > 0 FROM User u JOIN u.persons p WHERE ELEMENT(p).cpf = :cpf")
+//	 boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
+	 
+	@Query("SELECT COUNT(u) > 0 FROM User u JOIN u.person p WHERE p.cpf = :cpf")
+	boolean isCpfAlreadyRegistered(@Param("cpf") String cpf);
 
 	default Boolean isCpfAlreadyRegistered(User user) {
-		List<Person> people = user.getPersons();
-		if (people == null || people.isEmpty()) {
-			return false;
+		Person person = user.getPerson(); // Obter a pessoa associada ao usuário
+		if (person == null) {
+			return false; // Se a pessoa não estiver definida, não há necessidade de validação
 		}
-		for (Person person : people) {
-			if (person.getCpf() != null
-					&& personRepository.findByCpf(person.getCpf()).isPresent()) {
-				return true; // CPF encontrado, retorna true
-			}
+		if (person.getCpf() != null
+				&& personRepository.findByCpf(person.getCpf()).isPresent()) {
+			return true; // CPF encontrado, retorna true
 		}
-		return false; // CPF não encontrado em nenhuma pessoa
+		return false; // CPF não encontrado na pessoa associada
 	}
-    
-    @Query("SELECT COUNT(p) > 0 FROM User u JOIN u.persons p WHERE ELEMENT(p).keyPix = :keyPix")
-    boolean isKeyPixAlreadyRegistered(@Param("keyPix") String keyPix);
-    
+
+	// @Query("SELECT COUNT(p) > 0 FROM User u JOIN u.persons p WHERE
+	// ELEMENT(p).keyPix = :keyPix")
+	// boolean isKeyPixAlreadyRegistered(@Param("keyPix") String keyPix);
+	
+	@Query("SELECT COUNT(u) > 0 FROM User u JOIN u.person p WHERE p.keyPix = :keyPix")
+	boolean isKeyPixAlreadyRegistered(@Param("keyPix") String keyPix);
+
 	default Boolean isKeyPixAlreadyRegistered(User user) {
-		List<Person> people = user.getPersons();
-		if (people == null || people.isEmpty()) {
-			return false;
+		Person person = user.getPerson(); // Obter a pessoa associada ao usuário
+		if (person == null) {
+			return false; // Se a pessoa não estiver definida, não há necessidade de validação
 		}
-		for (Person person : people) {
-			if (person.getKeyPix() != null
-					&& personRepository.findByKeyPix(person.getKeyPix()).isPresent()) {
-				return true; // KeyPix encontrado, retorna true
-			}
+		if (person.getKeyPix() != null && personRepository
+				.findByKeyPix(person.getKeyPix()).isPresent()) {
+			return true; // KeyPix encontrado, retorna true
 		}
-		return false; // KeyPix não encontrado em nenhuma pessoa
+		return false; // KeyPix não encontrado na pessoa associada
 	}
 
 	boolean existsByEmail(String email);

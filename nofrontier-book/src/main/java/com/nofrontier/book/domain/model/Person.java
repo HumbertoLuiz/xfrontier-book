@@ -2,16 +2,16 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -55,13 +55,14 @@ public class Person extends IdBaseEntity implements Serializable {
 	@Column(nullable = false)
 	private Boolean enabled;
 	
-	@JsonBackReference
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User users;	
+	@JsonManagedReference
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<User> users = new HashSet<>();	
 	
-	@OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "address_id", nullable = true)
-	private Address address;
-	
+	@JsonManagedReference
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Address> addresses = new HashSet<>();
+
+	public void setAddresses(Address address) {}
+
 }

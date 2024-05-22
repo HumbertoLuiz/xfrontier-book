@@ -13,30 +13,29 @@ import com.nofrontier.book.dto.v1.requests.RefreshRequest;
 import com.nofrontier.book.dto.v1.requests.TokenRequest;
 import com.nofrontier.book.dto.v1.responses.TokenResponse;
 
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@Tag(name = "Authentication Endpoint")
 @RestController
 @RequestMapping("/auth")
 public class AuthRestController {
 
     @Autowired
-    private ApiAuthService apiAuthService;
+    private ApiAuthService service;
 
     @PostMapping("/token")
-    public TokenResponse authenticate(@RequestBody @Valid TokenRequest toquenRequest) {
-        return apiAuthService.authenticate(toquenRequest);
+    public TokenResponse autenticar(@RequestBody @Valid TokenRequest tokenRequest) {
+        return service.authenticate(tokenRequest);
     }
 
     @PostMapping("/refresh")
-    public TokenResponse reauthenticate(@RequestBody @Valid RefreshRequest refreshRequest) {
-        return apiAuthService.reauthenticate(refreshRequest);
+    public TokenResponse reautenticar(@RequestBody @Valid RefreshRequest refrehRequest) {
+        return service.reauthenticate(refrehRequest);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody @Valid RefreshRequest refreshRequest) {
-        apiAuthService.logout(refreshRequest);
+    public ResponseEntity<Void> logout(@RequestBody @Valid RefreshRequest refrehRequest) {
+        service.logout(refrehRequest);
         return new ResponseEntity<>(HttpStatus.RESET_CONTENT);
     }
+
 }

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.nofrontier.book.core.enums.UserType;
 
 import jakarta.persistence.CascadeType;
@@ -18,13 +18,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -40,15 +37,9 @@ import lombok.ToString;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
 @Table(name = "users")
-public class User implements Serializable {
+public class User extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	@EqualsAndHashCode.Include
-	@ToString.Include
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
 
 	@Column(nullable = false)
 	private String completeName;
@@ -63,8 +54,8 @@ public class User implements Serializable {
 	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime registerDate;
 
-	@Column(length = 11, nullable = false)
 	@Enumerated(EnumType.STRING)
+	@Column(length = 11, nullable = false)
 	private UserType userType;
 
 	@OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
@@ -78,17 +69,18 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private Boolean enabled;
 
-	@JsonManagedReference
-	@OneToMany(mappedBy = "users")
-	private List<Person> persons = new ArrayList<>();
+	@JsonBackReference
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "person_id")
+	private Person person;
 
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
 	@JoinTable(name = "user_permission", joinColumns = {
 			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
 					@JoinColumn(name = "permission_id")})
 	private Set<Permission> permissions = new HashSet<>();
 
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
 	@JoinTable(name = "user_group", joinColumns = {
 			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
 					@JoinColumn(name = "group_id")})
@@ -101,14 +93,14 @@ public class User implements Serializable {
 		}
 		return roles;
 	}
-	
-	@ManyToMany
-	@JoinTable(name = "city_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "city_id"))
-	private List<City> cities;
 
-	@OneToOne(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "address_id", nullable = true)
-	private Address address;
+	public void addRole(Permission role) {
+		permissions.add(role);
+	}
+
+	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
+	@JoinTable(name = "city_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "city_id"))
+	private Set<City> cities = new HashSet<>();
 
 	public boolean removeGroup(Group group) {
 		return getGroups().remove(group);
@@ -124,5 +116,9 @@ public class User implements Serializable {
 
 	public Boolean isCustomer() {
 		return userType.equals(UserType.CUSTOMER);
+	}
+
+	public Boolean isAdmin() {
+		return userType.equals(UserType.ADMIN);
 	}
 }

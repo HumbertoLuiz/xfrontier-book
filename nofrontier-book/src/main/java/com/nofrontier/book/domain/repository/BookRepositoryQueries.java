@@ -1,18 +1,15 @@
 package com.nofrontier.book.domain.repository;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import java.math.BigDecimal;
+import java.util.List;
 
-import com.nofrontier.book.domain.model.ProductImage;
-
-import jakarta.transaction.Transactional;
+import com.nofrontier.book.domain.model.Book;
 
 public interface BookRepositoryQueries {
 
-	ProductImage save(ProductImage image);
-	
-	@Transactional
-	@Modifying(clearAutomatically = true, flushAutomatically = true)
-	@Query("delete from ProductImage pi where pi.id = :id")
-	void removeProductImage(Long id);
+	List<Book> find(String title, BigDecimal initialShippingRate,
+			BigDecimal finalShippingRate);
+
+	List<Book> findWithFreeShipping(String title);
+
 }

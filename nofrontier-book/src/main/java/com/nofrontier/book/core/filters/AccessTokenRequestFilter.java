@@ -22,16 +22,22 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+
+
 @Component
 public class AccessTokenRequestFilter extends OncePerRequestFilter {
 
-    private static final String TOKEN_TYPE= "Bearer ";
+    private final static String TOKEN_TYPE = "Bearer ";
 
-    @Autowired
-    private TokenService tokenService;
+	private final TokenService tokenService;
+    private final UserDetailsService userDetailsService;
+    
+	public AccessTokenRequestFilter(TokenService tokenService,
+			UserDetailsService userDetailsService) {
+		this.tokenService = tokenService;
+		this.userDetailsService = userDetailsService;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+	}
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -40,20 +46,21 @@ public class AccessTokenRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
         HttpServletRequest request,
         HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+        FilterChain filterChain
+    ) throws ServletException, IOException {
         try {
             tryDoFilterInternal(request, response, filterChain);
         } catch (TokenServiceException exception) {
-            var status= HttpStatus.UNAUTHORIZED;
+            var status = HttpStatus.UNAUTHORIZED;
 
-            var errorResponse= ErrorResponse.builder()
+            var errorResponse = ErrorResponse.builder()
                 .status(status.value())
                 .timestamp(LocalDateTime.now())
                 .message(exception.getLocalizedMessage())
                 .path(request.getRequestURI())
                 .build();
 
-            var json= objectMapper.writeValueAsString(errorResponse);
+            var json = objectMapper.writeValueAsString(errorResponse);
 
             response.setStatus(status.value());
             response.setHeader("Content-Type", "application/json");
@@ -62,17 +69,16 @@ public class AccessTokenRequestFilter extends OncePerRequestFilter {
         }
     }
 
-    private void tryDoFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain)
-        throws IOException, ServletException {
-        var token= "";
-        var email= "";
+    private void tryDoFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
+        var token = "";
+        var email = "";
 
-        var authorizationHeader= request.getHeader("Authorization");
+        var authorizationHeader = request.getHeader("Authorization");
 
         if (isTokenPresent(authorizationHeader)) {
-            token= authorizationHeader.substring(TOKEN_TYPE.length());
-            email= tokenService.getSubjetDoAccessToken(token);
+            token = authorizationHeader.substring(TOKEN_TYPE.length());
+            email = tokenService.getSubjetDoAccessToken(token);
         }
 
         if (isEmailNotInContext(email)) {
@@ -91,13 +97,12 @@ public class AccessTokenRequestFilter extends OncePerRequestFilter {
     }
 
     private void addEmailInContext(HttpServletRequest request, String email) {
-        var user= userDetailsService.loadUserByUsername(email);
+        var user = userDetailsService.loadUserByUsername(email);
 
-        var autentication= new UsernamePasswordAuthenticationToken(user, null,
-            user.getAuthorities());
-        autentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        SecurityContextHolder.getContext().setAuthentication(autentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
 }

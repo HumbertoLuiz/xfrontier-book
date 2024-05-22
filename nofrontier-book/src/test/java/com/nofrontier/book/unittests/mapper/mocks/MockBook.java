@@ -1,7 +1,6 @@
 package com.nofrontier.book.unittests.mapper.mocks;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,10 +41,9 @@ public class MockBook {
         book.setTitle("Some Title" + number);
         book.setAuthor("Some Author" + number);
         book.setIsbn("Some Isbn" + number);
-        book.setPrice(new BigDecimal("25"));
         book.setLaunchDate(new Date());
-        book.setCreateDate(LocalDateTime.of(2024, 5, 6, 10, 30));
-        book.setLastModified(LocalDateTime.of(2024, 5, 6, 10, 40));
+        book.setRegistrationDate(OffsetDateTime.of(2024, 5, 6, 10, 30, number, number, null));
+        book.setUpdateDate(OffsetDateTime.of(2024, 5, 6, 10, 40, number, number, null));
         book.setCreatedBy(number);
     	book.setLastModifiedBy(number);
     	book.setActive(true); 	
@@ -58,10 +56,9 @@ public class MockBook {
         book.setTitle("Some Title" + number);
         book.setAuthor("Some Author" + number);
         book.setIsbn("Some Isbn" + number);
-        book.setPrice(new BigDecimal("25"));
         book.setLaunchDate(new Date());
-        book.setCreateDate(LocalDateTime.of(2024, 5, 6, 10, 30));
-        book.setLastModified(LocalDateTime.of(2024, 5, 6, 10, 40));
+        book.setRegistrationDate(OffsetDateTime.of(2024, 5, 6, 10, 30, number, number, null));
+        book.setUpdateDate(OffsetDateTime.of(2024, 5, 6, 10, 40, number, number, null));
         book.setCreatedBy(number);
     	book.setLastModifiedBy(number);
     	book.setActive(true);   

@@ -25,20 +25,23 @@ import com.nofrontier.book.core.filters.AccessTokenRequestFilter;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
+	private final AuthenticationEntryPoint authenticationEntryPoint;
+	private final AccessDeniedHandler accessDeniedHandler;
+	private final AccessTokenRequestFilter accessTokenRequestFilter;
+
+	public SecurityConfig(UserDetailsService userDetailsService,
+			AuthenticationEntryPoint authenticationEntryPoint,
+			AccessDeniedHandler accessDeniedHandler,
+			AccessTokenRequestFilter accessTokenRequestFilter) {
+		this.authenticationEntryPoint = authenticationEntryPoint;
+		this.userDetailsService = userDetailsService;
+		this.accessDeniedHandler = accessDeniedHandler;
+		this.accessTokenRequestFilter = accessTokenRequestFilter;
+	}
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-
-	@Autowired
-	private AuthenticationEntryPoint authenticationEntryPoint;
-
-	@Autowired
-	private AccessDeniedHandler accessDeniedHandler;
-
-	@Autowired
-	private AccessTokenRequestFilter accessTokenRequestFilter;
 
 	protected void configure(AuthenticationManagerBuilder auth)
 			throws Exception {
@@ -55,25 +58,26 @@ public class SecurityConfig {
 
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		
+
 		http.authorizeHttpRequests(
-				authorizeHttpRequestsCustomizer -> authorizeHttpRequestsCustomizer.anyRequest().permitAll());
-		
-//		http.authorizeHttpRequests(
-//				requestMatcherCustomizer -> requestMatcherCustomizer
-//						.requestMatchers("/**").permitAll())
-//				.authorizeHttpRequests(
-//						authorizeRequestsCustomizer -> authorizeRequestsCustomizer
-//								.requestMatchers("/**").permitAll()
-//								.requestMatchers(HttpMethod.POST,
-//										"/auth/token")
-//								.permitAll()
-//								.requestMatchers("/css/**", "/js/**", "/img/**",
-//										"/lib/**", "/favicon.ico")
-//								.permitAll()
-//								.requestMatchers("/auth/refresh/**",
-//										"/swagger-ui/**", "/v3/api-docs/**")
-//								.permitAll().anyRequest().authenticated());
+				authorizeHttpRequestsCustomizer -> authorizeHttpRequestsCustomizer
+						.anyRequest().permitAll());
+
+		// http.authorizeHttpRequests(
+		// requestMatcherCustomizer -> requestMatcherCustomizer
+		// .requestMatchers("/**").permitAll())
+		// .authorizeHttpRequests(
+		// authorizeRequestsCustomizer -> authorizeRequestsCustomizer
+		// .requestMatchers("/**").permitAll()
+		// .requestMatchers(HttpMethod.POST,
+		// "/auth/token")
+		// .permitAll()
+		// .requestMatchers("/css/**", "/js/**", "/img/**",
+		// "/lib/**", "/favicon.ico")
+		// .permitAll()
+		// .requestMatchers("/auth/refresh/**",
+		// "/swagger-ui/**", "/v3/api-docs/**")
+		// .permitAll().anyRequest().authenticated());
 
 		http.sessionManagement(
 				sessionManagementCustomizer -> sessionManagementCustomizer

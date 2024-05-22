@@ -6,11 +6,11 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum UserType {
-	
-	ADMIN (1),
-	MANAGER (2),
-	CUSTOMER (3),
-    REGISTER (4);
+    ADMIN(1),
+    MANAGER(2),
+    CUSTOMER(3),
+    REGISTER(4);
 
-    private Integer id;
+    private final Integer id;
+
 }

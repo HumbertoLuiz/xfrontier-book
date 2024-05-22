@@ -1,21 +1,28 @@
 package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -44,21 +51,18 @@ public class Book extends IdBaseEntity implements Serializable {
 
 	@Column(nullable = false, unique = true, length = 13)
 	private String isbn;
-	
-	@Column(nullable = false)
-	private BigDecimal price;
 
 	@Column(nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date launchDate;
 
-	@CreatedDate
-	@Column(nullable = false, updatable = false)
-	private LocalDateTime createDate;
+	@CreationTimestamp
+	@Column(nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime registrationDate;
 
-	@LastModifiedDate
-	@Column(insertable = false)
-	private LocalDateTime lastModified;
+	@UpdateTimestamp
+	@Column(nullable = false, columnDefinition = "datetime")
+	private OffsetDateTime updateDate;
 
 	@CreatedBy
 	@Column(nullable = false, updatable = false)
@@ -67,13 +71,29 @@ public class Book extends IdBaseEntity implements Serializable {
 	@LastModifiedBy
 	@Column(insertable = false)
 	private Integer lastModifiedBy;
-	
+
 	@Column(nullable = false)
 	private Boolean active;
 
 	@JsonBackReference
-	@ManyToOne
-	@JoinColumn(name = "order_id")
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "order_id", nullable = false)
 	private Order order;
+	
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+	@ManyToMany
+	@JoinTable(name = "book_payment_method", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
+	private Set<PaymentMethod> paymentMethods = new HashSet<>();
+
+	@ManyToMany
+	@JoinTable(name = "book_user_responsible", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> responsible = new HashSet<>();
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private Set<Product> products = new HashSet<>();
 
 }

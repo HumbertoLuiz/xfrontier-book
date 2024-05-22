@@ -19,26 +19,30 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class TokenAccessDeniedHandler implements AccessDeniedHandler {
 
-	@Autowired
-	private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-	@Override
-	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException)
-			throws IOException, ServletException {
-		var status = HttpStatus.FORBIDDEN;
+    @Override
+    public void handle(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        AccessDeniedException accessDeniedException
+    ) throws IOException, ServletException {
+        var status = HttpStatus.FORBIDDEN;
 
-		var errorResponse = ErrorResponse.builder().status(status.value())
-				.timestamp(LocalDateTime.now())
-				.message(accessDeniedException.getLocalizedMessage())
-				.path(request.getRequestURI()).build();
+        var errorResponse = ErrorResponse.builder()
+            .status(status.value())
+            .timestamp(LocalDateTime.now())
+            .message(accessDeniedException.getLocalizedMessage())
+            .path(request.getRequestURI())
+            .build();
 
-		var json = objectMapper.writeValueAsString(errorResponse);
+        var json = objectMapper.writeValueAsString(errorResponse);
 
-		response.setStatus(status.value());
-		response.setHeader("Content-Type", "application/json");
-		response.setCharacterEncoding("utf-8");
-		response.getWriter().write(json);
-	}
+        response.setStatus(status.value());
+        response.setHeader("Content-Type", "application/json");
+        response.setCharacterEncoding("utf-8");
+        response.getWriter().write(json);
+    }
 
 }

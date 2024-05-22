@@ -22,7 +22,7 @@
 		<lombok.version>1.18.32</lombok.version>
 		<modelmapper.version>3.2.0</modelmapper.version>
 		<springdoc.version>2.5.0</springdoc.version>
-		<jjwt.version>0.12.5</jjwt.version>
+		<jjwt.version>0.11.5</jjwt.version>
 		<google-maps-services.version>2.2.0</google-maps-services.version>
 		<aws-java-sdk-version>1.12.479</aws-java-sdk-version>
 		<maven-processor.version>5.0</maven-processor.version>
@@ -149,26 +149,20 @@
 
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt</artifactId>
+			<artifactId>jjwt-api</artifactId>
 			<version>${jjwt.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>io.jsonwebtoken</groupId>
-			<artifactId>jjwt-api</artifactId>
-			<version>0.11.5</version>
-		</dependency>
-
+		
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
-			<version>0.11.5</version>
+			<version>${jjwt.version}</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.11.5</version>
+			<version>${jjwt.version}</version>
 		</dependency>
 
 		<dependency>

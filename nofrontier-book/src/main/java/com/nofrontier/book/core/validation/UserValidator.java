@@ -1,7 +1,5 @@
 package com.nofrontier.book.core.validation;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;
@@ -37,46 +35,45 @@ public class UserValidator {
 	// ---------------------------------------------------------------------------------------------------------------------
 
 	private void validateCpf(User user) {
-		List<Person> people = user.getPersons();
-		if (people == null || people.isEmpty()) {
-			return;
+		Person person = user.getPerson(); // Obter a pessoa associada ao usuário
+		if (person == null || person.getCpf() == null) {
+			return; // Se a pessoa ou CPF não estiver definido, não há
+					// necessidade de validação
 		}
-		for (Person person : people) {
-			if (person.getCpf() != null
-					&& repository.isCpfAlreadyRegistered(person.getCpf())) {
-				var message = "There is already a user registered with this cpf";
-				var fieldError = new FieldError(person.getClass().getName(),
-						"cpf", person.getCpf(), false, null, null, message);
-				throw new UserAlreadyRegisteredException(message, fieldError);
-			}
+		// Verificar se o CPF já está registrado
+		if (repository.isCpfAlreadyRegistered(person.getCpf())) {
+			String message = "There is already a user registered with this CPF";
+			FieldError fieldError = new FieldError(person.getClass().getName(),
+					"cpf", person.getCpf(), false, null, null, message);
+			throw new UserAlreadyRegisteredException(message, fieldError);
 		}
+
+		// Chamada para outra validação
 		validateKeyPix(user);
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------------
 
 	private void validateKeyPix(User user) {
-		List<Person> people = user.getPersons();
-		if (people == null || people.isEmpty()) {
-			return;
+		Person person = user.getPerson(); // Obter a pessoa associada ao usuário
+		if (person == null) {
+			return; // Se a pessoa não estiver definida, não há necessidade de
+					// validação
 		}
-		for (Person person : people) {
-			if (person.getKeyPix() != null && repository
-					.isKeyPixAlreadyRegistered(person.getKeyPix())) {
-				var message = "There is already a user registered with this key pix";
-				var fieldError = new FieldError(person.getClass().getName(),
-						"keyPix", person.getKeyPix(), false, null, null,
-						message);
-				throw new UserAlreadyRegisteredException(message, fieldError);
-			}
+		// Verificar se a chave Pix já está registrada
+		if (person.getKeyPix() != null
+				&& repository.isKeyPixAlreadyRegistered(person.getKeyPix())) {
+			String message = "There is already a user registered with this key pix";
+			FieldError fieldError = new FieldError(person.getClass().getName(),
+					"keyPix", person.getKeyPix(), false, null, null, message);
+			throw new UserAlreadyRegisteredException(message, fieldError);
 		}
-		for (Person person : people) {
-			if (user.isCustomer() && person.getKeyPix() == null) {
-				var message = "User type Housekeeper must have a pix key";
-				var fieldError = new FieldError(person.getClass().getName(),
-						"keyPix", null, false, null, null, message);
-				throw new ValidatingException(message, fieldError);
-			}
+		// Verificar se o usuário do tipo CUSTOMER tem uma chave Pix
+		if (user.isCustomer() && person.getKeyPix() == null) {
+			String message = "User type Customer must have a pix key";
+			FieldError fieldError = new FieldError(person.getClass().getName(),
+					"keyPix", null, false, null, null, message);
+			throw new ValidatingException(message, fieldError);
 		}
 	}
 

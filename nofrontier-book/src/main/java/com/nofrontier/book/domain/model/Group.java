@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -30,7 +32,7 @@ public class Group extends IdBaseEntity implements Serializable {
 	@Column(nullable = false)
 	private String name;
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER, cascade= (CascadeType.ALL))
 	@JoinTable(name = "group_permission", joinColumns = @JoinColumn(name = "group_id"),
 			inverseJoinColumns = @JoinColumn(name = "permission_id"))
 	private Set<Permission> permissions = new HashSet<>();

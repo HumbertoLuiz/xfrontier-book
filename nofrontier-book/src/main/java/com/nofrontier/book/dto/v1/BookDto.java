@@ -1,9 +1,10 @@
 package com.nofrontier.book.dto.v1;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.hateoas.RepresentationModel;
 
@@ -11,11 +12,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.nofrontier.book.domain.model.Picture;
+import com.nofrontier.book.domain.model.Order;
+import com.nofrontier.book.domain.model.PaymentMethod;
+import com.nofrontier.book.domain.model.Product;
+import com.nofrontier.book.domain.model.User;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,16 +51,12 @@ public class BookDto extends RepresentationModel<BookDto> implements Serializabl
 	private String isbn;
 
     @NotNull
-    @Positive
-	private BigDecimal price;
-
-    @NotNull
     @Future
 	private Date launchDate;
 
-	private LocalDateTime createDate;
+	private OffsetDateTime registrationDate;
 
-	private LocalDateTime lastModified;
+	private OffsetDateTime updateDate;
 
 	private Integer createdBy;
 
@@ -65,6 +64,11 @@ public class BookDto extends RepresentationModel<BookDto> implements Serializabl
 
 	private Boolean active;
 
-	private Picture bookPicture;
+	private Order order;
 
+	private Set<PaymentMethod> paymentMethods = new HashSet<>();
+
+	private Set<User> responsible = new HashSet<>();
+
+	private Set<Product> products = new HashSet<>();
 }

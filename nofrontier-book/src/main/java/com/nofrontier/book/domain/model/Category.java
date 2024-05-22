@@ -2,10 +2,9 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 
-import org.springframework.security.core.GrantedAuthority;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,26 +17,17 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
-public class Permission extends IdBaseEntity
-		implements
-			GrantedAuthority,
-			Serializable {
+public class Category extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(nullable = false)
-	private String name;
-	
-	@Column
-	private String description;
+    @Column(nullable = false)
+    private String title;
+    
+    @Column(nullable = false)
+    private String name;
 
-    public Permission(String aRoleName) {
-        this.name= aRoleName;
-    }
-
-    @Override
-    public String getAuthority() {
-        return this.description;
-    }
-	
+    @Lob
+    @Column(nullable = true)
+    private String description;
 }

@@ -19,26 +19,30 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class TokenAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-	@Autowired
-	private ObjectMapper objectMapper;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-	@Override
-	public void commence(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException authException)
-			throws IOException, ServletException {
-		var status = HttpStatus.UNAUTHORIZED;
+    @Override
+    public void commence(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        AuthenticationException authException
+    ) throws IOException, ServletException {
+        var status = HttpStatus.UNAUTHORIZED;
 
-		var errorResponse = ErrorResponse.builder().status(status.value())
-				.timestamp(LocalDateTime.now())
-				.message(authException.getLocalizedMessage())
-				.path(request.getRequestURI()).build();
+        var errorResponse = ErrorResponse.builder()
+            .status(status.value())
+            .timestamp(LocalDateTime.now())
+            .message(authException.getLocalizedMessage())
+            .path(request.getRequestURI())
+            .build();
 
-		var json = objectMapper.writeValueAsString(errorResponse);
+        var json = objectMapper.writeValueAsString(errorResponse);
 
-		response.setStatus(status.value());
-		response.setHeader("Content-Type", "application/json");
-		response.setCharacterEncoding("utf-8");
-		response.getWriter().write(json);
-	}
+        response.setStatus(status.value());
+        response.setHeader("Content-Type", "application/json");
+        response.setCharacterEncoding("utf-8");
+        response.getWriter().write(json);
+    }
 
 }

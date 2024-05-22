@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -60,9 +59,8 @@ class BookServiceTest {
 		assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
-		assertEquals(new BigDecimal("25"), result.getPrice());
 		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getCreateDate());
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getRegistrationDate());
 		assertEquals(Integer.valueOf(0), result.getCreatedBy());
 		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
 		assertEquals(Boolean.valueOf(true), result.getActive());
@@ -84,9 +82,8 @@ class BookServiceTest {
 		assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
-		assertEquals(new BigDecimal("25"), result.getPrice());
 		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getCreateDate());
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getRegistrationDate());
 		assertEquals(Integer.valueOf(0), result.getCreatedBy());
 		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
 		assertEquals(Boolean.valueOf(true), result.getActive());
@@ -122,9 +119,8 @@ class BookServiceTest {
 		assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
-		assertEquals(new BigDecimal("25"), result.getPrice());
 		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getCreateDate());
+		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getRegistrationDate());
 		assertEquals(Integer.valueOf(0), result.getCreatedBy());
 		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
 		assertEquals(Boolean.valueOf(true), result.getActive()); 

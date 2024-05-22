@@ -12,14 +12,16 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.nofrontier.book.core.enums.StatusOrder;
-import com.nofrontier.book.domain.event.OrderCanceledEvent;
-import com.nofrontier.book.domain.event.OrderConfirmedEvent;
+import com.nofrontier.book.core.enums.OrderStatus;
+import com.nofrontier.book.core.events.OrderCancelledEvent;
+import com.nofrontier.book.core.events.OrderConfirmedEvent;
 import com.nofrontier.book.domain.exceptions.BusinessException;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -58,45 +60,60 @@ public class Order extends AbstractAggregateRoot<Order>
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
+	
+	@Column(nullable = false)
 	private String code;
 
+	@Column(nullable = false)
 	private BigDecimal subtotal;
+	
+	@Column(nullable = false)
 	private BigDecimal shippingRate;
+	
+	@Column(nullable = false)
 	private BigDecimal totalValue;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_address_id", nullable = false)
-    private Address shippingAddress;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "shipping_address_id", nullable = false)
+	private Address shippingAddress;
 
 	@Enumerated(EnumType.STRING)
-	private StatusOrder status = StatusOrder.CREATED;
+	private OrderStatus status = OrderStatus.CREATED;
 
 	@CreationTimestamp
+	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime creationDate;
 
+	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime confirmationDate;
+	
+	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime cancellationDate;
+	
+	@Column(nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime deliveryDate;
-
-	@ManyToOne(fetch = FetchType.LAZY)
+	
+	@JsonBackReference
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "payment_method_id", nullable = false)
 	private PaymentMethod paymentMethod;
-	
+
 	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "order_payment_method", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
 	private Set<PaymentMethod> paymentMethods = new HashSet<>();
-	
+
 	@JsonManagedReference
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "order")
+	@OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Book> books = new ArrayList<>();
 
-	@ManyToOne
+	@JsonBackReference
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "user_customer_id", nullable = false)
 	private User customer;
 
-	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+	@JsonManagedReference
+	@OneToMany(mappedBy = "order",  fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<OrderItem> items = new ArrayList<>();
 
 	public void calculateTotalValue() {
@@ -109,37 +126,37 @@ public class Order extends AbstractAggregateRoot<Order>
 	}
 
 	public void confirm() {
-		setStatus(StatusOrder.CONFIRMED);
+		setStatus(OrderStatus.CONFIRMED);
 		setConfirmationDate(OffsetDateTime.now());
 
 		registerEvent(new OrderConfirmedEvent(this));
 	}
 
 	public void deliver() {
-		setStatus(StatusOrder.DELIVERED);
+		setStatus(OrderStatus.DELIVERED);
 		setDeliveryDate(OffsetDateTime.now());
 	}
 
 	public void cancel() {
-		setStatus(StatusOrder.CANCELED);
+		setStatus(OrderStatus.CANCELLED);
 		setCancellationDate(OffsetDateTime.now());
 
-		registerEvent(new OrderCanceledEvent(this));
+		registerEvent(new OrderCancelledEvent(this));
 	}
 
 	public boolean canBeConfirmed() {
-		return getStatus().canChangeTo(StatusOrder.CONFIRMED);
+		return getStatus().canChangeTo(OrderStatus.CONFIRMED);
 	}
 
 	public boolean podeSerEntregue() {
-		return getStatus().canChangeTo(StatusOrder.DELIVERED);
+		return getStatus().canChangeTo(OrderStatus.DELIVERED);
 	}
 
 	public boolean canBeCanceled() {
-		return getStatus().canChangeTo(StatusOrder.CANCELED);
+		return getStatus().canChangeTo(OrderStatus.CANCELLED);
 	}
 
-	private void setStatus(StatusOrder newStatus) {
+	private void setStatus(OrderStatus newStatus) {
 		if (getStatus().cannotChangeTo(newStatus)) {
 			throw new BusinessException(String.format(
 					"Order status %s cannot be changed from %s to %s",

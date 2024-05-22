@@ -1,8 +1,11 @@
 package com.nofrontier.book.core.services.token.providers;
 
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,8 +15,8 @@ import com.nofrontier.book.domain.exceptions.TokenServiceException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 @Service
@@ -39,7 +42,6 @@ public class JjwtService implements TokenService {
     @Override
     public String getSubjetDoAccessToken(String accessToken) {
         var claims = getClaims(accessToken, accessKey);
-
         return claims.getSubject();
     }
 
@@ -51,27 +53,27 @@ public class JjwtService implements TokenService {
     @Override
     public String getSubjectDoRefreshToken(String refreshToken) {
         var claims = getClaims(refreshToken, refreshKey);
-
         return claims.getSubject();
     }
 
-
-	private String generateToken(String signKey, int expiration, String subject) {
+    private String generateToken(String signKey, int expiration, String subject) {
         var claims = new HashMap<String, Object>();
 
         var dataHoraAtual = Instant.now();
         var dataHoraExpiracao = dataHoraAtual.plusSeconds(expiration);
 
-        
+        // Decode the Base64 encoded key
+        byte[] decodedKey = Base64.getDecoder().decode(signKey);
+        SecretKey secretKey = Keys.hmacShaKeyFor(decodedKey);
+
         return Jwts.builder()
             .setClaims(claims)
             .setSubject(subject)
-            .setIssuedAt(new Date(dataHoraAtual.toEpochMilli()))
-            .setExpiration(new Date(dataHoraExpiracao.toEpochMilli()))
-            .signWith(Keys.hmacShaKeyFor(signKey.getBytes()))
+            .setIssuedAt(Date.from(dataHoraAtual))
+            .setExpiration(Date.from(dataHoraExpiracao))
+            .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact();
     }
-
 
     private Claims getClaims(String token, String signKey) {
         try {
@@ -81,13 +83,17 @@ public class JjwtService implements TokenService {
         }
     }
 
+    private Claims tryGetClaims(String token, String signKey) {
+        // Decode the Base64 encoded key
+        byte[] decodedKey = Base64.getDecoder().decode(signKey);
+        SecretKey secretKey = Keys.hmacShaKeyFor(decodedKey);
 
-	private Claims tryGetClaims(String token, String signKey) {
-        return ((JwtParserBuilder) Jwts.builder())
-            .setSigningKey(Keys.hmacShaKeyFor(signKey.getBytes()))
+        return Jwts.parserBuilder()
+            .setSigningKey(secretKey)
             .build()
             .parseClaimsJws(token)
             .getBody();
     }
 
 }
+

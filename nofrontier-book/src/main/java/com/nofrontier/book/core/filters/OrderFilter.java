@@ -13,7 +13,7 @@ public class OrderFilter {
 
 	private Long customerId;
 	
-	private Long orderId;
+	private Long bookId;
 	
 	@DateTimeFormat(iso = ISO.DATE_TIME)
 	private OffsetDateTime initialCreationDate;

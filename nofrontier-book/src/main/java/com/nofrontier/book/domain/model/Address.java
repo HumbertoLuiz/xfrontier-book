@@ -2,6 +2,7 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.nofrontier.book.core.enums.AddressType;
 
 import jakarta.persistence.Column;
@@ -46,9 +47,15 @@ public class Address extends IdBaseEntity implements Serializable {
 	@Enumerated(EnumType.STRING)
 	protected AddressType addressType;
 
+	@JsonBackReference
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "city_id")
 	private City city;
+	
+	@JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_id")
+    private Person person;	
 
 	public Boolean isResidential() {
 		return addressType.equals(AddressType.RESIDENTIAL);

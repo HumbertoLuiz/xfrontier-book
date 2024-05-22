@@ -1,6 +1,5 @@
 package com.nofrontier.book.infrastructure.repository.spec;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -12,45 +11,35 @@ import jakarta.persistence.criteria.Predicate;
 
 public class OrderSpecs {
 
-	public static Specification<Order> withFreeShipping() {
-		return (root, query, builder) -> builder.equal(root.get("shippingRate"),
-				BigDecimal.ZERO);
-	}
-
-	public static Specification<Order> withSimilarName(String name) {
-		return (root, query, builder) -> builder.like(root.get("code"),
-				"%" + name + "%");
-	}
-
-	public static Specification<Order> usingFilter(OrderFilter filter) {
+	public static Specification<Order> usandoFiltro(OrderFilter filtro) {
 		return (root, query, builder) -> {
 			if (Order.class.equals(query.getResultType())) {
-				root.fetch("order").fetch("book");
+				root.fetch("book").fetch("order");
 				root.fetch("customer");
 			}
 
 			var predicates = new ArrayList<Predicate>();
 
-			if (filter.getCustomerId() != null) {
+			if (filtro.getCustomerId() != null) {
 				predicates.add(builder.equal(root.get("customer").get("id"),
-						filter.getCustomerId()));
+						filtro.getCustomerId()));
 			}
 
-			if (filter.getOrderId() != null) {
-				predicates.add(builder.equal(root.get("order").get("id"),
-						filter.getOrderId()));
+			if (filtro.getBookId() != null) {
+				predicates.add(builder.equal(root.get("book").get("id"),
+						filtro.getBookId()));
 			}
 
-			if (filter.getInitialCreationDate() != null) {
+			if (filtro.getInitialCreationDate() != null) {
 				predicates.add(
 						builder.greaterThanOrEqualTo(root.get("creationDate"),
-								filter.getInitialCreationDate()));
+								filtro.getInitialCreationDate()));
 			}
 
-			if (filter.getExitCreationDate() != null) {
+			if (filtro.getExitCreationDate() != null) {
 				predicates
 						.add(builder.lessThanOrEqualTo(root.get("creationDate"),
-								filter.getExitCreationDate()));
+								filtro.getExitCreationDate()));
 			}
 
 			return builder.and(predicates.toArray(new Predicate[0]));

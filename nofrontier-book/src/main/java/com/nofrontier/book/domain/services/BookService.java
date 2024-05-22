@@ -55,7 +55,7 @@ public class BookService {
 	public PagedModel<EntityModel<BookDto>> findBookByAuthor(String author,
 			Pageable pageable) {
 		logger.info("Finding all books!");
-		var bookPage = bookRepository.findBookByAuthor(author, pageable);
+		var bookPage = bookRepository.findAll(pageable);
 		var bookVosPage = bookPage
 				.map(p -> ModelMapperConfig.parseObject(p, BookDto.class));
 		bookVosPage.map(p -> p.add(
@@ -106,10 +106,9 @@ public class BookService {
 		entity.setTitle(book.getTitle());
 		entity.setAuthor(book.getAuthor());
 		entity.setIsbn(book.getIsbn());
-		entity.setPrice(book.getPrice());
 		entity.setLaunchDate(book.getLaunchDate());
-		entity.setCreateDate(book.getCreateDate());
-		entity.setLastModified(book.getLastModified());
+		entity.setRegistrationDate(book.getRegistrationDate());
+		entity.setUpdateDate(book.getUpdateDate());
 		entity.setCreatedBy(book.getCreatedBy());
 		entity.setLastModifiedBy(book.getLastModifiedBy());
 		entity.setActive(book.getActive());
