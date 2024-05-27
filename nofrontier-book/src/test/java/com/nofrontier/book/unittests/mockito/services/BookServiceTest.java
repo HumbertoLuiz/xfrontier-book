@@ -4,10 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +20,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.repository.BookRepository;
 import com.nofrontier.book.domain.services.BookService;
-import com.nofrontier.book.dto.v1.BookDto;
+import com.nofrontier.book.dto.v1.requests.BookRequest;
+import com.nofrontier.book.dto.v1.responses.BookResponse;
 import com.nofrontier.book.unittests.mapper.mocks.MockBook;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -60,9 +67,6 @@ class BookServiceTest {
 		assertEquals("Some Title1", result.getTitle());
 		assertEquals("Some Author1", result.getAuthor());
 		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getRegistrationDate());
-		assertEquals(Integer.valueOf(0), result.getCreatedBy());
-		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
 		assertEquals(Boolean.valueOf(true), result.getActive());
 	}
 
@@ -70,23 +74,27 @@ class BookServiceTest {
 
 	@Test
 	void testCreate() {
-		Book persisted = input.mockEntity(1);
-		persisted.setId(1L);		
-		BookDto vo = input.mockVO(1);
-		vo.setKey(1L);		
-		when(bookRepository.save(any(Book.class))).thenReturn(persisted);		
-		var result = bookService.create(vo);		
-		assertNotNull(result);
-		assertNotNull(result.getKey());
-		assertNotNull(result.getLinks());
-		assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
-		assertEquals("Some Title1", result.getTitle());
-		assertEquals("Some Author1", result.getAuthor());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getRegistrationDate());
-		assertEquals(Integer.valueOf(0), result.getCreatedBy());
-		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
-		assertEquals(Boolean.valueOf(true), result.getActive());
+        Book entity = input.mockEntity(1); 
+        entity.setId(1L);
+
+        Book persisted = entity;
+        persisted.setId(1L);
+
+        BookRequest vo = input.mockRequest(1);
+
+        when(bookRepository.save(entity)).thenReturn(persisted);
+
+        var result = bookService.create(vo);
+
+        assertNotNull(result);
+        assertNotNull(result.getKey());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
+        assertEquals("Some Author1", result.getAuthor());
+        assertEquals("Some Title1", result.getTitle());
+        assertNotNull(result.getLaunchDate());
+        assertEquals(Boolean.valueOf(true), result.getActive());
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -103,35 +111,37 @@ class BookServiceTest {
 
 	// -------------------------------------------------------------------------------------------------------------
 
-	@Test
-	void testUpdate() {
-		Book entity = input.mockEntity(1);
-		Book persisted = entity;
-		persisted.setId(1L);
-		BookDto vo = input.mockVO(1);
-		vo.setKey(1L);
-		when(bookRepository.findById(1L)).thenReturn(Optional.of(entity));
-		when(bookRepository.save(entity)).thenReturn(persisted);
-		var result = bookService.update(vo);
-		assertNotNull(result);
-		assertNotNull(result.getKey());
-		assertNotNull(result.getLinks());
-		assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
-		assertEquals("Some Title1", result.getTitle());
-		assertEquals("Some Author1", result.getAuthor());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 30), result.getLaunchDate());
-		assertEquals(LocalDateTime.of(2024, 5, 6, 10, 40), result.getRegistrationDate());
-		assertEquals(Integer.valueOf(0), result.getCreatedBy());
-		assertEquals(Integer.valueOf(0), result.getLastModifiedBy());
-		assertEquals(Boolean.valueOf(true), result.getActive()); 
-	}
+    @Test
+    void testUpdate() {
+        Book entity = input.mockEntity(1); 
+
+        Book persisted = entity;
+        persisted.setId(1L);
+
+        BookRequest vo = input.mockRequest(1);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(bookRepository.save(entity)).thenReturn(persisted);
+
+        var result = bookService.update(null, vo);
+
+        assertNotNull(result);
+        assertNotNull(result.getKey());
+        assertNotNull(result.getLinks());
+
+        assertTrue(result.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
+        assertEquals("Some Author1", result.getAuthor());
+        assertEquals("Some Title1", result.getTitle());
+        assertNotNull(result.getLaunchDate());
+        assertEquals(Boolean.valueOf(true), result.getActive());
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Test
 	void testUpdateWithNullBook() {
 		Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> {
-			bookService.update(null);
+			bookService.update(null, null);
 		});
 		String expectedMessage = "It is not allowed to persist a null object!";
 		String actualMessage = exception.getMessage();
@@ -150,42 +160,50 @@ class BookServiceTest {
 	
 	// -------------------------------------------------------------------------------------------------------------
 
-//	@Test
-//	void testFindAll(Pageable pageable) {
-//		List<Book> bookList = input.mockEntityList();
-//        var books = bookService.findAll(pageable);
-//        when(bookRepository.findAll()).thenReturn(bookList);
-//		assertNotNull(books);
-//		assertEquals(14, (((List<?>) books).size()));		
-//		var bookOne = ((List<?>) books).get(1);				
-//
-//		assertNotNull(bookOne);
-//		assertNotNull(((BookDto) bookOne).getKey());
-//		assertNotNull(((RepresentationModel<?>) bookOne).getLinks());
-//		assertTrue(bookOne.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
-//		assertEquals("Some Author1", ((Book) bookOne).getAuthor());
-//		assertEquals("Some Title1", ((Book) bookOne).getTitle());
-//		assertEquals(25D, ((Book) bookOne).getPrice());
-//		assertNotNull(((Book) bookOne).getLaunchDate());
-//		
-//		var bookFour = ((List<?>) books).get(4);
-//		assertNotNull(bookFour);
-//		assertNotNull(((PersonDto) bookFour).getKey());
-//		assertNotNull(((RepresentationModel<?>) bookFour).getLinks());
-//		assertTrue(bookFour.toString().contains("links: [</api/book/v1/4>;rel=\"self\"]"));
-//		assertEquals("Some Author4", ((Book) bookFour).getAuthor());
-//		assertEquals("Some Title4", ((Book) bookFour).getTitle());
-//		assertEquals(25D, ((Book) bookFour).getPrice());
-//		assertNotNull(((Book) bookFour).getLaunchDate());
-//		
-//		var bookSeven = ((List<?>) books).get(7);
-//		assertNotNull(bookSeven);
-//		assertNotNull(((PersonDto) bookSeven).getKey());
-//		assertNotNull(((RepresentationModel<?>) bookSeven).getLinks());
-//		assertTrue(bookSeven.toString().contains("links: [</api/book/v1/7>;rel=\"self\"]"));
-//		assertEquals("Some Author7", ((Book) bookSeven).getAuthor());
-//		assertEquals("Some Title7", ((Book) bookSeven).getTitle());
-//		assertEquals(25D, ((Book) bookSeven).getPrice());
-//		assertNotNull(((Book) bookSeven).getLaunchDate());
-//	}
+
+	@Test
+    void testFindAll(Pageable pageable) {
+        List<Book> bookList = input.mockEntityList();
+        Page<Book> bookPage = new PageImpl<>(bookList);
+
+        when(bookRepository.findAll(pageable)).thenReturn(bookPage);
+
+        PagedModel<EntityModel<BookResponse>> books = bookService.findAll(pageable);
+
+        assertNotNull(books);
+        assertEquals(14, books.getContent().size());
+
+        // Convert PagedModel content to list for easier access by index
+        List<EntityModel<BookResponse>> bookResponses = new ArrayList<>(books.getContent());
+
+        var bookOne = bookResponses.get(1).getContent();
+        assertNotNull(bookOne);
+        assertNotNull(bookOne.getKey());
+        assertNotNull(bookOne.getLinks());
+        assertTrue(bookOne.toString().contains("links: [</api/book/v1/1>;rel=\"self\"]"));
+        assertEquals("Some Author1", bookOne.getAuthor());
+        assertEquals("Some Title1", bookOne.getTitle());
+        assertNotNull(bookOne.getLaunchDate());
+        assertEquals(Boolean.valueOf(true), bookOne.getActive());
+
+        var bookFour = bookResponses.get(4).getContent();
+        assertNotNull(bookFour);
+        assertNotNull(bookFour.getKey());
+        assertNotNull(bookFour.getLinks());
+        assertTrue(bookFour.toString().contains("links: [</api/book/v1/4>;rel=\"self\"]"));
+        assertEquals("Some Author4", bookFour.getAuthor());
+        assertEquals("Some Title4", bookFour.getTitle());
+        assertNotNull(bookFour.getLaunchDate());
+        assertEquals(Boolean.valueOf(true), bookFour.getActive());
+
+        var bookSeven = bookResponses.get(7).getContent();
+        assertNotNull(bookSeven);
+        assertNotNull(bookSeven.getKey());
+        assertNotNull(bookSeven.getLinks());
+        assertTrue(bookSeven.toString().contains("links: [</api/book/v1/7>;rel=\"self\"]"));
+        assertEquals("Some Author7", bookSeven.getAuthor());
+        assertEquals("Some Title7", bookSeven.getTitle());
+        assertNotNull(bookSeven.getLaunchDate());
+        assertEquals(Boolean.valueOf(true), bookSeven.getActive());
+    }
 }

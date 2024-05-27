@@ -1,5 +1,6 @@
 package com.nofrontier.book.domain.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,14 +11,18 @@ import org.springframework.stereotype.Repository;
 import com.nofrontier.book.domain.model.Order;
 
 @Repository
-public interface OrderRepository extends CustomJpaRepository<Order, Long>,
-		JpaSpecificationExecutor<Order> {
+public interface OrderRepository
+		extends
+			CustomJpaRepository<Order, Long>,
+			JpaSpecificationExecutor<Order> {
 
 	Optional<Order> findByCode(String code);
 
-	@Query("from Order o join fetch o.customer join fetch o.book b join fetch b.order")
+	@Query("SELECT o FROM Order o JOIN FETCH o.customer JOIN FETCH o.books")
 	List<Order> findAll();
-	
-	boolean isOrderManagedBy(String orderCode, Long userId);
-	
+
+	List<Order> findByShippingRateBetween(BigDecimal taxaInicial,
+			BigDecimal taxaFinal);
+
+	boolean existsOrderByCode(String code);
 }

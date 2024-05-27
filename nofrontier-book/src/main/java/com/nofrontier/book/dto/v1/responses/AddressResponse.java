@@ -9,8 +9,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.core.enums.AddressType;
-import com.nofrontier.book.domain.model.City;
-import com.nofrontier.book.domain.model.Person;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +21,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonNaming(SnakeCaseStrategy.class)
 @JsonPropertyOrder({"id", "street", "number", "neighborhood", "complement", "zipCode",
-		"addressType", "cityId"})
+		"addressType", "city", "person"})
 public class AddressResponse extends RepresentationModel<AddressResponse>
 		implements
 			Serializable {
@@ -45,9 +43,9 @@ public class AddressResponse extends RepresentationModel<AddressResponse>
 
 	private AddressType addressType;
 
-	private City city;
+	private CityResponse city;
 	
-	private Person person;	
+	private PersonResponse person;	
 
 	public Boolean isResidential() {
 		return addressType.equals(AddressType.RESIDENTIAL);

@@ -20,7 +20,7 @@ public class NotificationCustomerOrderConfirmedListener {
 		Order order = event.getOrder();
 		
 		var message = Message.builder()
-				.subject(order.getBooks().getFirst().getTitle() + " - Order confirmed")
+				.subject(order.getBooks().getClass() + " - Order confirmed")
 				.body("emails/order-confirmed.html")
 				.variable("order", order)
 				.addressee(order.getCustomer().getEmail())

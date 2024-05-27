@@ -103,9 +103,11 @@ public class Order extends AbstractAggregateRoot<Order>
 	@JoinTable(name = "order_payment_method", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
 	private Set<PaymentMethod> paymentMethods = new HashSet<>();
 
-	@JsonManagedReference
-	@OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Book> books = new ArrayList<>();
+	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
+    @JoinTable(name = "order_book",
+               joinColumns = @JoinColumn(name = "order_id"),
+               inverseJoinColumns = @JoinColumn(name = "book_id"))
+    private Set<Book> books = new HashSet<>();
 
 	@JsonBackReference
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

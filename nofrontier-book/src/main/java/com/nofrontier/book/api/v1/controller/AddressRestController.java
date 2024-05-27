@@ -38,6 +38,21 @@ public class AddressRestController {
     private ApiAddressService apiAddressService;
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
+    
+    @CrossOrigin(origins = "http://localhost:8080")
+    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
+    @Operation(summary = "Finds a Address", description = "Finds a Address", tags = { "Address" }, responses = {
+            @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressResponse.class))),
+            @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+            @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+            @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+            @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+            @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
+    public ResponseEntity<EntityModel<AddressResponse>> findById(@PathVariable(value = "id") Long id) {
+        return ResponseEntity.ok(apiAddressService.findById(id));
+    }
+
+	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
     @GetMapping(produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
     @Operation(summary = "Finds all Addresses", description = "Finds all Addresses", tags = { "Addresses" }, responses = {
@@ -56,21 +71,6 @@ public class AddressRestController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "completeName"));
         return ResponseEntity.ok(apiAddressService.findAll(pageable));
-    }
-
-	// -------------------------------------------------------------------------------------------------------------------------------------------------
-
-    @CrossOrigin(origins = "http://localhost:8080")
-    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
-    @Operation(summary = "Finds a Address", description = "Finds a Address", tags = { "Address" }, responses = {
-            @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressResponse.class))),
-            @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
-            @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
-            @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
-            @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-            @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-    public ResponseEntity<EntityModel<AddressResponse>> findById(@PathVariable(value = "id") Long id) {
-        return ResponseEntity.ok(apiAddressService.findById(id));
     }
 	
 	// -------------------------------------------------------------------------------------------------------------------------------------------------

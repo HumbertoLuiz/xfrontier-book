@@ -41,7 +41,7 @@ public class User extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(nullable = false)
+	@Column(name = "complete_name", nullable = false)
 	private String completeName;
 
 	@Column(nullable = false, unique = true)
@@ -70,7 +70,7 @@ public class User extends IdBaseEntity implements Serializable {
 	private Boolean enabled;
 
 	@JsonBackReference
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "person_id")
 	private Person person;
 

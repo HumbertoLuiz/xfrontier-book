@@ -9,10 +9,10 @@ import com.nofrontier.book.domain.model.PaymentMethod;
 
 public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Long> {
 
-	@Query("select max(updateDate) from PaymentMethod")
-	OffsetDateTime getLastUpdatedDate();
+	@Query("select max(updatedAt) from PaymentMethod")
+	OffsetDateTime getLastUpdatedAt();
 	
-	@Query("select updateDate from PaymentMethod where id = :paymentMethodId")
-	OffsetDateTime getDateUpdatedById(Long paymentMethodId);
+	@Query("select updatedAt from PaymentMethod where id = :paymentMethodId")
+	OffsetDateTime getUpdatedAtById(Long paymentMethodId);
 	
 }

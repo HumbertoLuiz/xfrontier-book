@@ -21,7 +21,7 @@ public class NotificationCustomerOrderCanceledListener {
 		Order order = event.getOrder();
 		
 		var message = Message.builder()
-				.subject(order.getBooks().getFirst().getTitle() + " - Order cancelled")
+				.subject(order.getBooks().getClass() + " - Order cancelled")
 				.body("emails/order-cancelled.html")
 				.variable("order", order)
 				.addressee(order.getCustomer().getEmail())

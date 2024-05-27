@@ -41,6 +41,21 @@ public class UserRestController {
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
+    @CrossOrigin(origins = "http://localhost:8080")
+    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
+    @Operation(summary = "Finds a User", description = "Finds a User", tags = { "User" }, responses = {
+            @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
+            @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+            @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+            @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+            @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
+    public ResponseEntity<EntityModel<UserResponse>> findById(@PathVariable(value = "id") Long id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
+    // -------------------------------------------------------------------------------------------------------------------------------------------------
+
     @GetMapping(produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
     @Operation(summary = "Finds all Users", description = "Finds all Users", tags = { "Users" }, responses = {
             @ApiResponse(description = "Success", responseCode = "200", content = {
@@ -58,21 +73,6 @@ public class UserRestController {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "completeName"));
         return ResponseEntity.ok(service.findAll(pageable));
-    }
-
-	// -------------------------------------------------------------------------------------------------------------------------------------------------
-
-    @CrossOrigin(origins = "http://localhost:8080")
-    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
-    @Operation(summary = "Finds a User", description = "Finds a User", tags = { "User" }, responses = {
-            @ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = UserResponse.class))),
-            @ApiResponse(description = "No Content", responseCode = "204", content = @Content),
-            @ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
-            @ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
-            @ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-            @ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-    public ResponseEntity<EntityModel<UserResponse>> findById(@PathVariable(value = "id") Long id) {
-        return ResponseEntity.ok(service.findById(id));
     }
 	
 	// -------------------------------------------------------------------------------------------------------------------------------------------------

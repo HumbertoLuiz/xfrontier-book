@@ -5,12 +5,11 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.nofrontier.book.domain.model.Book;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,22 +24,23 @@ public class ProductRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotBlank
+	@NotBlank(message = "{not.blank.message}")
 	private String description;
 	
-	@NotBlank
+	@NotBlank(message = "{not.blank.message}")
 	private String format;
 
-	@NotBlank
+	@NotBlank(message = "{not.blank.message}")
 	private String edition;
 
-	@NotNull
-	@Positive
+	@NotNull(message = "{not.null.message}")
+	@DecimalMin(value = "0.0", inclusive = false, message = "{positive.message}")
 	private BigDecimal price;
 
-	@NotEmpty
+	@NotEmpty(message = "{not.empty.message}")
 	private Boolean active;
 
-	private Book book;
+	@NotEmpty(message = "{not.empty.message}")
+	private Long bookId;
 
 }

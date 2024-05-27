@@ -24,16 +24,16 @@ public class ProductImage extends IdBaseEntity implements Serializable {
 
 	@OneToOne(fetch = FetchType.LAZY)
 	@MapsId
-	private Book book;
+	private Product product;
 
 	private String fileName;
 	private String description;
 	private String contentType;
 	private Long size;
 
-	public Long getOrderId() {
-		if (getBook() != null) {
-			return getBook().getOrder().getId();
+	public Long getBookId() {
+		if (getProduct() != null) {
+			return getProduct().getBook().getId();
 		}
 		return null;
 	}

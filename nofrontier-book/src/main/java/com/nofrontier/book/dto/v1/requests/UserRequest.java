@@ -9,13 +9,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.nofrontier.book.domain.model.City;
-import com.nofrontier.book.domain.model.Group;
-import com.nofrontier.book.domain.model.Permission;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,41 +30,46 @@ public class UserRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotBlank(message = "Name is mandatory")
-	@Size(min = 3, max = 255)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(min = 3, max = 255, message = "{size.message}")
 	private String completeName;
 
-	@NotBlank(message = "Email is mandatory")
-	@Size(max = 255)
-	@Email(message = "Email should be valid")
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 255, message = "{size.message}")
+	@Email(message = "{email.invalid}")
 	private String email;
 
-	@NotBlank(message = "Password is mandatory")
-	@Size(min = 6, message = "Password must be at least 6 characters long")
+	@NotBlank(message = "{not.blank.message}")
+	@Size(min = 6, message = "{size.message}")
 	private String password;
 
-	@NotBlank
+	@NotBlank(message = "{not.blank.message}")
 	private String passwordConfirmation;
 
-	@Future
+	@NotNull(message = "{not.null.message}")
+	@Future(message = "{future.message}")
 	private OffsetDateTime registerDate;
 
-	@NotNull
+	@NotNull(message = "{not.null.message}")
 	private Integer userType;
 
 	private MultipartFile documentPicture;
 
 	private MultipartFile userPicture;
 
-	@NotNull
+	@NotNull(message = "{not.null.message}")
 	private Boolean enabled;
-
+	
+	@NotNull(message = "{not.null.message}")
 	private Long personId;
 
-	private Set<Permission> permissions = new HashSet<>();
+	@NotEmpty(message = "{not.empty.message}")
+	private Set<PermissionRequest> permissions = new HashSet<>();
 
-	private Set<Group> groups = new HashSet<>();
+	@NotEmpty(message = "{not.empty.message}")
+	private Set<GroupRequest> groups = new HashSet<>();
 
-	private Set<City> cities = new HashSet<>();
+	@NotEmpty(message = "{not.empty.message}")
+	private Set<CityRequest> cities = new HashSet<>();
 
 }

@@ -1,8 +1,7 @@
 package com.nofrontier.book.dto.v1.requests;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,14 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TokenRequest {
 
-    @NotNull
-    @NotEmpty
-    @Email
-    @Size(max= 255)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 255, message = "{size.message}")
+	@Email(message = "{email.invalid}")
     private String email;
 
-    @NotNull
-    @NotEmpty
-    @Size(max= 255)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 255, message = "{size.message}")
     private String password;
 }

@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nofrontier.book.domain.model.Person;
-import com.nofrontier.book.dto.v1.PersonDto;
+import com.nofrontier.book.dto.v1.requests.PersonRequest;
+import com.nofrontier.book.dto.v1.responses.PersonResponse;
 
 public class MockPerson {
 
@@ -13,9 +14,13 @@ public class MockPerson {
 		return mockEntity(0);
 	}
 
-	public PersonDto mockDto() {
-		return mockDto(0);
-	}
+    public PersonRequest mockRequest() {
+        return mockRequest(0);
+    }
+    
+    public PersonResponse mockResponse(int i) {
+        return mockResponse(0);
+    }
 
 	public List<Person> mockEntityList() {
 		List<Person> persons = new ArrayList<Person>();
@@ -24,14 +29,22 @@ public class MockPerson {
 		}
 		return persons;
 	}
+	
+    public List<PersonRequest> mockRequestList() {
+        List<PersonRequest> persons = new ArrayList<>();
+        for (int i = 0; i < 14; i++) {
+            persons.add(mockRequest(i));
+        }
+        return persons;
+    }
 
-	public List<PersonDto> mockDtoList() {
-		List<PersonDto> persons = new ArrayList<>();
-		for (int i = 0; i < 14; i++) {
-			persons.add(mockDto(i));
-		}
-		return persons;
-	}
+    public List<PersonResponse> mockResponseList() {
+        List<PersonResponse> persons = new ArrayList<>();
+        for (int i = 0; i < 14; i++) {
+            persons.add(mockResponse(i));
+        }
+        return persons;
+    }
 
 	public Person mockEntity(Integer number) {
 		Person person = new Person();
@@ -44,12 +57,20 @@ public class MockPerson {
 		person.setPhoneNumber("Phone Number Test" + number);
 		person.setMobileNumber("Mobile Number Test" + number);
 		person.setKeyPix("Key Pix Test" + number);
-		person.setEnabled(true);;
+		person.setEnabled(true);
 		return person;
 	}
 
-	public PersonDto mockDto(Integer number) {
-		PersonDto person = new PersonDto();
+    public PersonRequest mockRequest(Integer number) {
+        PersonRequest person = new PersonRequest();
+        person.setFirstName("First Name Test" + number);
+        person.setLastName("Last Name Test" + number);
+        person.setGender(((number % 2) == 0) ? "Male" : "Female");
+        return person;
+    }
+	
+	public PersonResponse mockDto(Integer number) {
+		PersonResponse person = new PersonResponse();
 		person.setKey(number.longValue());
 		person.setFirstName("First Name Test" + number);
 		person.setLastName("Last Name Test" + number);
@@ -62,5 +83,5 @@ public class MockPerson {
 		person.setEnabled(true);
 		return person;
 	}
-
+ 
 }

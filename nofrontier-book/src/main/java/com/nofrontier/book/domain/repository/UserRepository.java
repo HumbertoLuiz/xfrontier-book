@@ -17,13 +17,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByEmail(String email);
 
-//	Optional<User> findByCpf(String cpf);
-//
-//	Optional<User> findByKeyPix(String keyPix);
-
 	Page<User> findByCitiesIbgeCode(String ibgeCode, Pageable pageable);
 
-	Boolean existsByCitiesIbgeCode(String ibgeCode);
+	Boolean existsByCitiesIbgeCode(String ibgeCode);	
+
+    @Query("SELECT u FROM User u JOIN FETCH u.person WHERE u.id = :id")
+    Optional<User> findByIdWithPerson(@Param("id") Long id);
 
 	default Boolean isEmailAlreadyRegistered(User user) {
 		if (user.getEmail() == null) {

@@ -52,6 +52,7 @@ public class Address extends IdBaseEntity implements Serializable {
 	@JoinColumn(name = "city_id")
 	private City city;
 	
+	
 	@JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "person_id")

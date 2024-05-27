@@ -1,9 +1,10 @@
 package com.nofrontier.book.domain.repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,23 +19,21 @@ public interface BookRepository
 			BookRepositoryQueries,
 			JpaSpecificationExecutor<Book> {
 
-	@Query("from Book r join fetch r.order")
+	@Query("SELECT b FROM Book b JOIN FETCH b.orders")
 	List<Book> findAll();
+	
+	Page<Book> findByAuthor(String author, Pageable pageable);
 
-	List<Book> queryByShippingRateBetween(BigDecimal taxaInicial,
-			BigDecimal taxaFinal);
+    @Query("select b from Book b join b.orders o where b.title like %:title% and o.id = :id")
+    List<Book> findByTitleAndOrderId(@Param("title") String title, @Param("id") Long orderId);
 
-	@Query("from Book where title like %:title% and order.id = :id")
-	List<Book> findByTitle(String title, @Param("id") Long order);
-
-	List<Book> findByTitleContainingAndOrderId(String title, Long order);
+	List<Book> findByTitleContainingAndOrders_Id(String title, Long orderId);
 
 	Optional<Book> findFirstBookByTitleContaining(String title);
 
 	List<Book> findTop2ByTitleContaining(String title);
 
-	int countByOrderId(Long order);
+	int countByOrders_Id(Long orderId);
 
-	boolean existsResponsible(Long bookId, Long userId);
-
+	boolean existsResponsibleById(Long userId);
 }

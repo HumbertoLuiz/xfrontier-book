@@ -13,6 +13,7 @@ import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.AddressRestController;
 import com.nofrontier.book.domain.exceptions.AddressNotFoundException;
@@ -27,42 +28,27 @@ import com.nofrontier.book.dto.v1.responses.AddressResponse;
 import com.nofrontier.book.utils.SecurityUtils;
 
 public class ApiAddressService {
-	
+
 	private Logger logger = Logger.getLogger(ApiUserService.class.getName());
 
 	@Autowired
 	PagedResourcesAssembler<AddressResponse> assembler;
 
-    @Autowired
-    private ModelMapper modelMapper;
+	@Autowired
+	private ModelMapper modelMapper;
 
-    @Autowired
-    private AddressRepository addressRepository;
-    
-    @Autowired
-    private CityRepository cityRepository;
-    
-    @Autowired
-    private SecurityUtils securityUtils;
+	@Autowired
+	private AddressRepository addressRepository;
 
-	// -------------------------------------------------------------------------------------------------------------
+	@Autowired
+	private CityRepository cityRepository;
 
-	public PagedModel<EntityModel<AddressResponse>> findAll(Pageable pageable) {
-		logger.info("Finding all addresses!");
-		var addressPage = addressRepository.findAll(pageable);
-		var addressDtoPage = addressPage
-				.map(address -> modelMapper.map(address, AddressResponse.class));
-		addressDtoPage.forEach(addressResponse -> addressResponse.add(
-				linkTo(methodOn(AddressRestController.class).findById(addressResponse.getKey()))
-						.withSelfRel()));
-		Link link = linkTo(methodOn(AddressRestController.class).findAll(
-				pageable.getPageNumber(), pageable.getPageSize(), "asc"))
-				.withSelfRel();
-		return assembler.toModel(addressDtoPage, link);
-	}
+	@Autowired
+	private SecurityUtils securityUtils;
 
 	// -------------------------------------------------------------------------------------------------------------
-   
+
+	@Transactional(readOnly = true)
 	public EntityModel<AddressResponse> findById(Long id) {
 		logger.info("Finding one address!");
 		var entity = addressRepository.findById(id)
@@ -76,57 +62,77 @@ public class ApiAddressService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
-    public EntityModel<AddressResponse> create(AddressRequest addressRequest) {
-        Address address = modelMapper.map(addressRequest, Address.class);
-        
-        // Get city by ID from the request
-        Long cityId = addressRequest.getCityId();
-        Optional<City> optionalCity = cityRepository.findById(cityId);
-        if (optionalCity.isEmpty()) {
-            // Handle case when city with provided ID does not exist
-            throw new CityNotFoundException("City not found with ID: " + cityId);
-        }
-        City city = optionalCity.get();
-        address.setCity(city);
-        
-        address = addressRepository.save(address);
-        AddressResponse addressResponse = modelMapper.map(address, AddressResponse.class);
+	@Transactional(readOnly = true)
+	public PagedModel<EntityModel<AddressResponse>> findAll(Pageable pageable) {
+		logger.info("Finding all addresses!");
+		var addressPage = addressRepository.findAll(pageable);
+		var addressDtoPage = addressPage.map(
+				address -> modelMapper.map(address, AddressResponse.class));
+		addressDtoPage.map(addressResponse -> addressResponse
+				.add(linkTo(methodOn(AddressRestController.class)
+						.findById(addressResponse.getKey())).withSelfRel()));
+		Link link = linkTo(methodOn(AddressRestController.class).findAll(
+				pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+				.withSelfRel();
+		return assembler.toModel(addressDtoPage, link);
+	}
 
-     // Adiciona o link self ao AddressResponse
-        EntityModel<AddressResponse> addressModel = EntityModel.of(addressResponse);
-        Link selfLink = linkTo(methodOn(AddressRestController.class).findById(address.getId())
-        ).withSelfRel();
-        addressModel.add(selfLink);
-        
-        return addressModel;
-
-    }
-	
 	// -------------------------------------------------------------------------------------------------------------
 
-    public AddressResponse update(AddressRequest request) {
-        var loggedUser = securityUtils.getLoggedUser();
+	public EntityModel<AddressResponse> create(AddressRequest addressRequest) {
+		Address address = modelMapper.map(addressRequest, Address.class);
 
-        var address = modelMapper.map(request, Address.class);
-        loggedUser.getPerson().setAddresses(address);
+		// Get city by ID from the request
+		Long cityId = addressRequest.getCityId();
+		Optional<City> optionalCity = cityRepository.findById(cityId);
+		if (optionalCity.isEmpty()) {
+			// Handle case when city with provided ID does not exist
+			throw new CityNotFoundException(
+					"City not found with ID: " + cityId);
+		}
+		City city = optionalCity.get();
+		address.setCity(city);
 
-        addressRepository.save(loggedUser);
+		address = addressRepository.save(address);
+		AddressResponse addressResponse = modelMapper.map(address,
+				AddressResponse.class);
 
-        return modelMapper.map(loggedUser.getPerson().getAddresses(), null);
-    }
+		// Adiciona o link self ao AddressResponse
+		EntityModel<AddressResponse> addressModel = EntityModel
+				.of(addressResponse);
+		Link selfLink = linkTo(
+				methodOn(AddressRestController.class).findById(address.getId()))
+				.withSelfRel();
+		addressModel.add(selfLink);
 
-    public AddressResponse displayAddress() {
-        var loggedUser = securityUtils.getLoggedUser();
-        var address = loggedUser.getPerson().getAddresses();
+		return addressModel;
 
-        if (address == null) {
-            var message = String.format("User address %s not found", (loggedUser).getEmail());
-            throw new AddressNotFoundException(message);
-        }
-        return modelMapper.map(address, AddressResponse.class);
-    }
+	}
 
-	
-    
+	// -------------------------------------------------------------------------------------------------------------
+
+	public AddressResponse update(AddressRequest request) {
+		var loggedUser = securityUtils.getLoggedUser();
+
+		var address = modelMapper.map(request, Address.class);
+		loggedUser.getPerson().setAddresses(address);
+
+		addressRepository.save(loggedUser);
+
+		return modelMapper.map(loggedUser.getPerson().getAddresses(),
+				AddressResponse.class);
+	}
+
+	public AddressResponse displayAddress() {
+		var loggedUser = securityUtils.getLoggedUser();
+		var address = loggedUser.getPerson().getAddresses();
+
+		if (address == null) {
+			var message = String.format("User address %s not found",
+					(loggedUser).getEmail());
+			throw new AddressNotFoundException(message);
+		}
+		return modelMapper.map(address, AddressResponse.class);
+	}
+
 }
-

@@ -1,8 +1,8 @@
 package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -36,6 +36,6 @@ public class Country extends IdBaseEntity implements Serializable {
 
 	@JsonManagedReference
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "country")
-	private List<State> states = new ArrayList<>();
+	private Set<State> states = new HashSet<>();
 
 }

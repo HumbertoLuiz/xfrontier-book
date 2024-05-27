@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.BookService;
-import com.nofrontier.book.dto.v1.BookDto;
+import com.nofrontier.book.dto.v1.requests.BookRequest;
+import com.nofrontier.book.dto.v1.responses.BookResponse;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,109 +38,125 @@ import lombok.RequiredArgsConstructor;
 public class BookRestController {
 
 	private final BookService bookService;
-	
+
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@GetMapping(produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
-	@Operation(summary = "Finds all Books", description = "Finds all Books", tags = { "Books" }, responses = {
-			@ApiResponse(description = "Success", responseCode = "200", content = {
-					@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookDto.class))) }),
-			@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
-			@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
-			@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-			@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-	public ResponseEntity<PagedModel<EntityModel<BookDto>>> findAll(
-			@RequestParam(value = "page", defaultValue = "0") Integer page,
-			@RequestParam(value = "size", defaultValue = "12") Integer size,
-			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
-
-		var sortDirection = "desc".equalsIgnoreCase(direction) ? Direction.DESC : Direction.ASC;
-
-		Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "firstName"));
-		return ResponseEntity.ok(bookService.findAll(pageable));
-	}
-
-	// -------------------------------------------------------------------------------------------------------------------------------------------------
-
-	@GetMapping(value = "/findBookByName/{firstName}", produces = { MediaType.APPLICATION_JSON,
-			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML })
-	@Operation(summary = "Finds Books by Author", description = "Finds Books by Name", tags = {
-			"Books" }, responses = { @ApiResponse(description = "Success", responseCode = "200", content = {
-					@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookDto.class))) }),
+	@CrossOrigin(origins = "http://localhost:8080")
+	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
+			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
+	@Operation(summary = "Finds a Book", description = "Finds a Book", tags = {
+			"Books"}, responses = {
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookResponse.class))),
+					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-	public ResponseEntity<PagedModel<EntityModel<BookDto>>> findBookByAuthor(
-			@PathVariable(value = "author") String author,
-			@RequestParam(value = "page", defaultValue = "0") Integer page,
-			@RequestParam(value = "size", defaultValue = "12") Integer size,
-			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
-
-		var sortDirection = "desc".equalsIgnoreCase(direction) ? Direction.DESC : Direction.ASC;
-
-		Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, "firstName"));
-		return ResponseEntity.ok(bookService.findBookByAuthor(author, pageable));
+					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
+	public BookResponse findById(@PathVariable(value = "id") Long id) {
+		return bookService.findById(id);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
 	@CrossOrigin(origins = "http://localhost:8080")
-	@GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-			MediaType.APPLICATION_YML })
-	@Operation(summary = "Finds a Book", description = "Finds a Book", tags = { "Books" }, responses = {
-			@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookDto.class))),
-			@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
-			@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
-			@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
-			@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-			@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-	public BookDto findById(@PathVariable(value = "id") Long id) {
-		return bookService.findById(id);
-	}
-
-	// --------------------------------------------------------------------------------------------------------------------------------------------------
-
-	@CrossOrigin(origins = { "http://localhost:8080", "https://nofrontier.com.br" })
-	@PostMapping(consumes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-			MediaType.APPLICATION_YML }, produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-					MediaType.APPLICATION_YML })
-	@Operation(summary = "Adds a new Book", description = "Adds a new Book by passing in a JSON, XML or YML representation of the book!", tags = {
-			"Books" }, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookDto.class))),
+	@GetMapping(value = "/findBookByAuthor/{author}", produces = {
+			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+			MediaType.APPLICATION_YML})
+	@Operation(summary = "Finds Books by Author", description = "Finds Books by Author Name", tags = {
+			"Books"}, responses = {
+					@ApiResponse(description = "Success", responseCode = "200", content = {
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookResponse.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
-					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-	public BookDto create(@RequestBody BookDto book) {
-		return bookService.create(book);
+					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
+	public ResponseEntity<PagedModel<EntityModel<BookResponse>>> findBookByAuthor(
+			@PathVariable(value = "author") String author,
+			@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "size", defaultValue = "12") Integer size,
+			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
+
+		var sortDirection = "desc".equalsIgnoreCase(direction)
+				? Direction.DESC
+				: Direction.ASC;
+
+		Pageable pageable = PageRequest.of(page, size,
+				Sort.by(sortDirection, "author"));
+		return ResponseEntity
+				.ok(bookService.findBookByAuthor(author, pageable));
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-			MediaType.APPLICATION_YML }, produces = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-					MediaType.APPLICATION_YML })
-	@Operation(summary = "Updates a Book", description = "Updates a Book by passing in a JSON, XML or YML representation of the book!", tags = {
-			"Books" }, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = BookDto.class))),
+	@GetMapping(produces = {MediaType.APPLICATION_JSON,
+			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
+	@Operation(summary = "Finds all Books", description = "Finds all Books", tags = {
+			"Books"}, responses = {
+					@ApiResponse(description = "Success", responseCode = "200", content = {
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookResponse.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
-	public BookDto update(@RequestBody BookDto book) {
-		return bookService.update(book);
+					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
+	public ResponseEntity<PagedModel<EntityModel<BookResponse>>> findAll(
+			@RequestParam(value = "page", defaultValue = "0") Integer page,
+			@RequestParam(value = "size", defaultValue = "12") Integer size,
+			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
+
+		var sortDirection = "desc".equalsIgnoreCase(direction)
+				? Direction.DESC
+				: Direction.ASC;
+
+		Pageable pageable = PageRequest.of(page, size,
+				Sort.by(sortDirection, "title"));
+		return ResponseEntity.ok(bookService.findAll(pageable));
+	}
+
+	// --------------------------------------------------------------------------------------------------------------------------------------------------
+
+	@CrossOrigin(origins = {"http://localhost:8080",
+			"https://nofrontier.com.br"})
+	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
+			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+					MediaType.APPLICATION_YML})
+	@Operation(summary = "Adds a new Book", description = "Adds a new Book by passing in a JSON, XML or YML representation of the book!", tags = {
+			"Books"}, responses = {
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookResponse.class))),
+					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
+	public BookResponse create(@RequestBody BookRequest bookRequest) {
+		return bookService.create(bookRequest);
+	}
+
+	// -------------------------------------------------------------------------------------------------------------------------------------------------
+
+	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
+					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
+					MediaType.APPLICATION_YML})
+	@Operation(summary = "Updates a Book", description = "Updates a Book by passing in a JSON, XML or YML representation of the book!", tags = {
+			"Books"}, responses = {
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = BookResponse.class))),
+					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
+					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
+					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
+					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
+	public BookResponse update(@RequestBody Long id, BookRequest bookRequest) {
+		return bookService.update(id, bookRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 	@DeleteMapping(value = "/{id}")
 	@Operation(summary = "Deletes a Book", description = "Deletes a Book by passing in a JSON, XML or YML representation of the book!", tags = {
-			"Books" }, responses = {
+			"Books"}, responses = {
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
-					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content), })
+					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
 	public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) {
 		bookService.delete(id);
 		return ResponseEntity.noContent().build();

@@ -15,6 +15,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -70,22 +71,7 @@ public class ApiUserService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
-	public PagedModel<EntityModel<UserResponse>> findAll(Pageable pageable) {
-		logger.info("Finding all users!");
-		var userPage = userRepository.findAll(pageable);
-		var userDtoPage = userPage
-				.map(user -> modelMapper.map(user, UserResponse.class));
-		userDtoPage.forEach(userResponse -> userResponse.add(
-				linkTo(methodOn(UserRestController.class).findById(userResponse.getKey()))
-						.withSelfRel()));
-		Link link = linkTo(methodOn(UserRestController.class).findAll(
-				pageable.getPageNumber(), pageable.getPageSize(), "asc"))
-				.withSelfRel();
-		return assembler.toModel(userDtoPage, link);
-	}
-
-	// -------------------------------------------------------------------------------------------------------------
-
+	@Transactional(readOnly = true)
 	public EntityModel<UserResponse> findById(Long id) {
 		logger.info("Finding one user!");
 		var entity = userRepository.findById(id)
@@ -97,6 +83,23 @@ public class ApiUserService {
 		return EntityModel.of(dto);
 	}
 
+	// -------------------------------------------------------------------------------------------------------------
+
+	@Transactional(readOnly = true)
+	public PagedModel<EntityModel<UserResponse>> findAll(Pageable pageable) {
+		logger.info("Finding all users!");
+		var userPage = userRepository.findAll(pageable);
+		var userDtoPage = userPage
+				.map(user -> modelMapper.map(user, UserResponse.class));
+		userDtoPage.map(userResponse -> userResponse.add(
+				linkTo(methodOn(UserRestController.class).findById(userResponse.getKey()))
+						.withSelfRel()));
+		Link link = linkTo(methodOn(UserRestController.class).findAll(
+				pageable.getPageNumber(), pageable.getPageSize(), "asc"))
+				.withSelfRel();
+		return assembler.toModel(userDtoPage, link);
+	}
+	
 	// -------------------------------------------------------------------------------------------------------------
 
 	public EntityModel<UserResponse> save(UserRequest request) {

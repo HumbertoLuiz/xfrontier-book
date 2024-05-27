@@ -1,26 +1,31 @@
+
 SET foreign_key_checks = 0;
 
 
-lock tables picture write, payment_method write, users write, countries write, states write, 
-			cities write, address write, person write, order_entity write, books write, 
-			order_item write, order_payment_method write, product_image write, permission write,
-			group_entity write, group_permission write, user_group write, user_permission write, 
+lock tables picture write, payment_method write, person write, countries write, states write, cities write, 
+			address write, users write, order_entity write, category write, books write, order_book write,
+			product write, book_user_responsible write, order_item write, book_payment_method write, product_image write, 
+			permission write, group_entity write, group_permission write, user_group write, user_permission write, 
 			city_user write, token_black_list write, rating write, password_reset write;  
 
 SET SQL_SAFE_UPDATES=0;
 
 DELETE FROM picture;
 DELETE FROM payment_method;
-DELETE FROM users;
+DELETE FROM person;
 DELETE FROM countries;
 DELETE FROM states;
 DELETE FROM cities;
 DELETE FROM address;
-DELETE FROM person;
+DELETE FROM users;
 DELETE FROM order_entity;
+DELETE FROM category;
 DELETE FROM books;
+DELETE FROM order_book;
+DELETE FROM product;
+DELETE FROM book_user_responsible;
 DELETE FROM order_item;
-DELETE FROM order_payment_method;
+DELETE FROM book_payment_method;
 DELETE FROM product_image;
 DELETE FROM permission;
 DELETE FROM group_entity;
@@ -39,15 +44,21 @@ SET foreign_key_checks = 1;
 
 ALTER TABLE picture auto_increment = 1;
 ALTER TABLE payment_method auto_increment = 1;
-ALTER TABLE users auto_increment = 1;
+ALTER TABLE person auto_increment = 1;
 ALTER TABLE countries auto_increment = 1;
 ALTER TABLE states auto_increment = 1;
 ALTER TABLE cities auto_increment = 1;
 ALTER TABLE address auto_increment = 1;
-ALTER TABLE person auto_increment = 1;
+ALTER TABLE users auto_increment = 1;
 ALTER TABLE order_entity auto_increment = 1;
+ALTER TABLE category auto_increment = 1;
 ALTER TABLE books auto_increment = 1;
+ALTER TABLE order_book auto_increment = 1;
+ALTER TABLE product auto_increment = 1;
+ALTER TABLE book_user_responsible auto_increment = 1;
 ALTER TABLE order_item auto_increment = 1;
+ALTER TABLE book_payment_method auto_increment = 1;
+ALTER TABLE product_image auto_increment = 1;
 ALTER TABLE permission auto_increment = 1;
 ALTER TABLE group_entity auto_increment = 1;
 ALTER TABLE token_black_list auto_increment = 1;
@@ -55,10 +66,11 @@ ALTER TABLE rating auto_increment = 1;
 ALTER TABLE password_reset auto_increment = 1;
 
 
-INSERT INTO payment_method (id, description, update_date) VALUES
-    (1, 'Credit Card', UTC_TIMESTAMP()),
-    (2, 'Debit Card', UTC_TIMESTAMP()),
-    (3, 'Cash', UTC_TIMESTAMP());
+INSERT INTO payment_method (id, description, created_at, updated_at, status, transaction_id) VALUES
+    (1, 'Credit Card', UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
+    (2, 'Debit Card', UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
+    (3, 'Cash', UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'f9981ca4-5a5e-4da3-af04-933861df3e55');
+
 
 INSERT INTO `person` (`id`, `first_name`, `last_name`, `gender`, `cpf`, `birth`, `phone_number`, `mobile_number`, `key_pix`, `enabled`) VALUES
 	(1, 'João', 'da Silva', 'Male', '04888053685', '1991-02-24', '3436834703', '34988681043', '04888053685', true),
@@ -5918,12 +5930,13 @@ INSERT INTO cities (name, ibge_code, state_id) VALUES
 
 
 INSERT INTO address (id, street, number, neighborhood, complement, zip_code, address_type, city_id, person_id) VALUES 
-(1, 'Rua Floriano Peixoto', '500', 'Brasil', 'Apto 801', '38400000', 'RESIDENTIAL', 1, 1),
-(2, 'Rua Acre', '300', 'Centro', 'Casa 2', '38400111', 'RESIDENTIAL', 1, 2),
-(3, 'Rua Natal', '200', 'Brasil', null, '38400222', 'RESIDENTIAL', 1, 3),
-(4, 'Rua Fortaleza', '900', 'Centro', 'Apto 504', '38400800', 'RESIDENTIAL', 1, 4),
-(5, 'Rua 10', '930', 'Martins', 'Casa 20', '38400200', 'RESIDENTIAL', 1, 5);
-
+(1, 'Rua Floriano Peixoto', '500', 'Brasil', 'Apto 801', '38400000', 'RESIDENTIAL', 3069, 1),
+(2, 'Rua Acre', '300', 'Centro', 'Casa 2', '38400111', 'RESIDENTIAL', 3069, 2),
+(3, 'Rua Natal', '200', 'Brasil', null, '38400222', 'RESIDENTIAL', 3069, 3),
+(4, 'Rua Fortaleza', '900', 'Centro', 'Apto 504', '38400800', 'RESIDENTIAL', 3069, 4),
+(5, 'Rua 10', '930', 'Martins', 'Casa 20', '38400200', 'RESIDENTIAL', 3069, 5),
+(6, 'Rua Amâncio Jorge Monteiro', '458', 'Segismundo Pereira', 'Casa', '38408350', 'RESIDENTIAL', 3069, 6),
+(7, 'Avenida Nossa Senhora do Carmo', '112', 'Santa Rosa', 'Casa', '38401710', 'RESIDENTIAL', 3069, 7 );
 
 INSERT INTO users (id, complete_name, email, password, register_date, user_type, enabled, person_id, document_picture, user_picture) VALUES
 (1, 'João da Silva', 'admin@mail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'ADMIN', true, 1, null, null),
@@ -5935,38 +5948,16 @@ INSERT INTO users (id, complete_name, email, password, register_date, user_type,
 (7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'CUSTOMER', true, 7, null, null);
 
 
-insert into book_user_responsible (book_id, user_id) values (1, 5), (3, 5);
-
-
 INSERT INTO order_entity (id, code, subtotal, shipping_rate, total_value,  
 status, creation_date, confirmation_date, cancellation_date, delivery_date, 
 payment_method_id, user_customer_id, shipping_address_id) VALUES 
-(1, 'f9981ca4-5a5e-4da3-af04-933861df3e55', 139.00, 16, 150.00, 'CREATED', utc_timestamp, null, null, null, 1, 6, 1),
-(2, 'd178b637-a785-4768-a3cb-aa1ce5a8cdab', 85, 0, 85, 'CREATED', utc_timestamp, null, null, null, 2, 6, 1),
-(3, 'b5741512-8fbc-47fa-9ac1-b530354fc0ff', 45, 10, 55, 'DELIVERED', utc_timestamp, '2019-10-30 21:10:00', '2019-10-30 21:10:45', '2019-10-30 21:55:44', 1, 7, 1),
-(4, '5c621c9a-ba61-4454-8631-8aabefe58dc2', 77, 5, 149.00, 'DELIVERED', utc_timestamp, '2019-11-02 20:34:04', '2019-11-02 20:35:10', '2019-11-02 21:10:32', 1, 7, 1),
-(5, '8d774bcf-b238-42f3-aef1-5fb388754d63', 77.00, 10, 87.00, 'DELIVERED', utc_timestamp, '2019-11-03 02:00:30', '2019-11-03 02:01:21', '2019-11-03 02:20:10', 2, 3, 1);
+(1, 'f9981ca4-5a5e-4da3-af04-933861df3e55', 1204.70, 16, 1220.70, 'CREATED', utc_timestamp, null, null, null, 1, 6, 1),
+(2, 'd178b637-a785-4768-a3cb-aa1ce5a8cdab', 182.33, 0, 182.33, 'CREATED', utc_timestamp, null, null, null, 2, 6, 1),
+(3, 'b5741512-8fbc-47fa-9ac1-b530354fc0ff', 331.81, 16, 347.81, 'DELIVERED', utc_timestamp, '2019-10-30 21:10:00', '2019-10-30 21:10:45', '2019-10-30 21:55:44', 1, 7, 1),
+(4, '5c621c9a-ba61-4454-8631-8aabefe58dc2', 379.14, 16, 395.14, 'DELIVERED', utc_timestamp, '2019-11-02 20:34:04', '2019-11-02 20:35:10', '2019-11-02 21:10:32', 1, 7, 1),
+(5, '8d774bcf-b238-42f3-aef1-5fb388754d63', 189.57, 16, 205.57, 'DELIVERED', utc_timestamp, '2019-11-03 02:00:30', '2019-11-03 02:01:21', '2019-11-03 02:20:10', 2, 3, 1);
 
-insert into book_payment_method (book_id, payment_method_id) values (1, 1), (1, 2), (1, 3), (2, 3), (3, 2), (3, 3), (4, 1), (4, 2), (5, 1), (5, 2), (6, 3);
 
-insert into product (description, format, edition, price, active, book_id) values 
-('Is your code easy to change? Can you get nearly instantaneous feedback when you do change it? Do you understand it? If the answer to any of these questions is no, you have legacy code, and it is draining time and money away from your development efforts. `In` this book, Michael Feathers offers start-to-finish strategies for working more effectively with large, untested legacy code bases. This book draws `on` material Michael created for his renowned Object Mentor seminars: techniques Michael has used `in` mentoring to help hundreds of developers, technical managers, `and` testers bring their legacy systems under control.', 'Capa comun', '1ª Edition, english', 541.08, 0, 1);
-
-('Patterns allow designers to create more flexible, elegant, and ultimately reusable designs without having to rediscover the design solutions themselves. Highly influential, Design Patterns is a modern classic that introduces what patterns are and how they can help you design object-oriented software and provides a catalog of simple solutions for those already programming in at last one object-oriented programming language.', 'Capa comun', '1ª Edition, english', 331.81, 1, 2);
-
-('Noted software expert Robert C. Martin presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship. Martin has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of a software craftsman and make you a better programmer—but only if you work at it. What kind of work will you be doing? You’ll be reading code—lots of code. And you will be challenged to think about what’s right about that code, and what’s wrong with it. More importantly, you will be challenged to reassess your professional values and your commitment to your craft. Clean Code is divided into three parts. The first describes the principles, patterns, and practices of writing clean code. The second part consists of several case studies of increasing complexity. Each case study is an exercise in cleaning up code—of transforming a code base that has some problems into one that is sound and efficient. The third part is the payoff: a single chapter containing a list of heuristics and “smells” gathered while creating the case studies. The result is a knowledge base that describes the way we think when we write, read, and clean code.',  'Capa comun', '1ª Edition, english', 189.57, 1, 3);
-
-('Most programming languages contain good and bad parts, but JavaScript has more than its share of the bad, having been developed and released in a hurry before it could be refined. This authoritative book scrapes away these bad features to reveal a subset of JavaScript thats more reliable, readable, and maintainable than the language as a whole—a subset you can use to create truly extensible and efficient code. Considered the JavaScript expert by many people in the development community, author Douglas Crockford identifies the abundance of good ideas that make JavaScript an outstanding object-oriented programming language-ideas such as functions, loose typing, dynamic objects, and an expressive object literal notation. Unfortunately, these good ideas are mixed in with bad and downright awful ideas, like a programming model based on global variables.', 'Capa comun', '1ª edition, english', 259.87, 1, 4);
-
-('Widely considered one of the best practical guides to programming, Steve McConnell’s original CODE COMPLETE has been helping developers write better software for more than a decade. Now this classic book has been fully updated and revised with leading-edge practices—and hundreds of new code samples—illustrating the art and science of software construction. Capturing the body of knowledge available from research, academia, and everyday commercial practice, McConnell synthesizes the most effective techniques and must-know principles into clear, pragmatic guidance. No matter what your experience level, development environment, or project size, this book will inform and stimulate your thinking—and help you build the highest quality code.', 'Capa comun', '1ª Edition, english', 127.09, 1, 5);
-
-('Refactoring improves the design of existing code and enhances software maintainability, as well as making existing code easier to understand. Original Agile Manifesto signer and software development thought leader, Martin Fowler, provides a catalog of refactorings that explains why you should refactor; how to recognize code that needs refactoring; and how to actually do it successfully, no matter what language you use.', 'Capa comun', '1ª Edition, english', 182.33, 1, 6);
-
-('At any given moment, someone struggles with the same software design problems you have. And, chances are, someone else has already solved your problem. This edition of Head First Design Patterns―now updated for Java 8―shows you the tried-and-true, road-tested patterns used by developers to create functional, elegant, reusable, and flexible software. By the time you finish this book, you’ll be able to take advantage of the best design practices and experiences of those who have fought the beast of software design and triumphed.', 'Capa comun', '1ª edition, english', 352.66, 1, 7);
-
-('Domain-Driven Design fills that need. This is not a book about specific technologies. It offers readers a systematic approach to domain-driven design, presenting an extensive set of design best practices, experience-based techniques, and fundamental principles that facilitate the development of software projects facing complex domains. Intertwining design and development practice, this book incorporates numerous examples based on actual projects to illustrate the application of domain-driven design to real-world software development.', 'Capa comun', '1ª edition, english', 405.23, 1, 8);
-
-('"I was fortunate indeed to have worked with a fantastic team on the design and implementation of the concurrency features added to the Java platform in Java 5.0 and Java 6. Now this same team provides the best explanation yet of these new features, and of concurrency in general. Concurrency is no longer a subject for advanced users only. Every Java developer should read this book."', 'Capa comun', '1ª Edition, english', 264.92, 1, 9);
 
 
 INSERT INTO category (id, title, name, description) VALUES
@@ -5979,48 +5970,73 @@ INSERT INTO category (id, title, name, description) VALUES
 (7, 'Computação, Informática e Mídias Digitais', 'Análise de Sistemas e Design', null),
 (8, 'Crônicas, Humor e Entretenimento', 'Cultura Pop', null),
 (9, 'Direito', 'Direito Administrativo', null),
-(10, 'Educação, Referência e Didáticos', 'Curiosidades e Fatos Divertidos', null);
+(10, 'Educação, Referência e Didáticos', 'Curiosidades e Fatos Divertidos', null),
+(11, 'Engenharia e Transporte', 'Automotivo', null),
+(12, 'Esportes e Lazer', 'Ar Livre e Natureza', null),
+(13, 'Fantasia, Horror e Ficção Científica', 'Ficção Científica', null),
+(14, 'Gastronomia e Culinária', 'Alimentos Naturais', null),
+(15, 'História', 'Américas', null);
 
 
-INSERT INTO books (id, title, author, isbn, launch_date, registrationDate, updateDate, created_by, last_modified_by, active, order_id, category_id) VALUES 
-(1, 'Working effectively with legacy code', 'Michael C. Feathers', '9780136657125', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(2, 'Design Patterns', 'Ralph Johnson, Erich Gamma, John Vlissides e Richard Helm', '9788131700075', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(3, 'Clean Code', 'Robert C. Martin', '9780132350884', '2009-01-10', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(4, 'JavaScript', 'Crockford', '9780596517748', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(5, 'Code complete', 'Steve McConnell', '9780735619678', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(6, 'Refactoring', 'Martin Fowler e Kent Beck', '9780201485677', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(7, 'Head First Design Patterns', 'Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates', '9780596007126', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(8, 'Domain Driven Design', 'Eric Evans', '9780321125217', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(9, 'Java Concurrency in Practice', 'Brian Goetz e Tim Peierls', '9780321349606', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(10, 'O poder dos quietos', 'Susan Cain', '9788522013265', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(11, 'Engenharia de Software: uma abordagem profissional', 'Roger S. Pressman', '9788580555332', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(12, 'Big Data: como extrair volume, variedade, velocidade e valor da avalanche de informação cotidiana', 'Viktor Mayer-Schonberger e Kenneth Kukier', '9781848547902', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(13, 'O verdadeiro valor de TI', 'Richard Hunter e George Westerman', '9788576801047', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(14, 'Os 11 segredos de líderes de TI altamente influentes', 'Marc J. Schiller', '9780615436289', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true),
-(15, 'Implantando a governança de TI', 'Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu', '9788574526584', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true);
 
+INSERT INTO books (id, title, author, isbn, launch_date, registration_date, update_date, created_by, last_modified_by, active, category_id) VALUES 
+(1, 'Working effectively with legacy code', 'Michael C. Feathers', '9780136657125', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(2, 'Design Patterns', 'Ralph Johnson, Erich Gamma, John Vlissides e Richard Helm', '9788131700075', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(3, 'Clean Code', 'Robert C. Martin', '9780132350884', '2009-01-10', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(4, 'JavaScript', 'Crockford', '9780596517748', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(5, 'Code complete', 'Steve McConnell', '9780735619678', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(6, 'Refactoring', 'Martin Fowler e Kent Beck', '9780201485677', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(7, 'Head First Design Patterns', 'Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates', '9780596007126', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(8, 'Domain Driven Design', 'Eric Evans', '9780321125217', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(9, 'Java Concurrency in Practice', 'Brian Goetz e Tim Peierls', '9780321349606', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(10, 'O poder dos quietos', 'Susan Cain', '9788522013265', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(11, 'Engenharia de Software: uma abordagem profissional', 'Roger S. Pressman', '9788580555332', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(12, 'Big Data: como extrair volume, variedade, velocidade e valor da avalanche de informação cotidiana', 'Viktor Mayer-Schonberger e Kenneth Kukier', '9781848547902', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(13, 'O verdadeiro valor de TI', 'Richard Hunter e George Westerman', '9788576801047', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(14, 'Os 11 segredos de líderes de TI altamente influentes', 'Marc J. Schiller', '9780615436289', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
+(15, 'Implantando a governança de TI', 'Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu', '9788574526584', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7);
+
+
+INSERT INTO order_book (order_id, book_id) VALUES 
+(1, 1),
+(1, 2),
+(2, 6),
+(3, 2),
+(4, 3),
+(5, 3);
+
+insert into product (id, description, format, edition, price, active, book_id) values 
+(1, 'Is your code easy to change? Can you get nearly instantaneous feedback when you do change it? Do you understand it? If the answer to any of these questions is no, you have legacy code, and it is draining time and money away from your development efforts. `In` this book, Michael Feathers offers start-to-finish strategies for working more effectively with large, untested legacy code bases. This book draws `on` material Michael created for his renowned Object Mentor seminars: techniques Michael has used `in` mentoring to help hundreds of developers, technical managers, `and` testers bring their legacy systems under control.', 'Capa comun', '1ª Edition, english', 541.08, 0, 1),
+(2, 'Patterns allow designers to create more flexible, elegant, and ultimately reusable designs without having to rediscover the design solutions themselves. Highly influential, Design Patterns is a modern classic that introduces what patterns are and how they can help you design object-oriented software and provides a catalog of simple solutions for those already programming in at last one object-oriented programming language.', 'Capa comun', '1ª Edition, english', 331.81, 1, 2),
+(3, 'Noted software expert Robert C. Martin presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship. Martin has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of a software craftsman and make you a better programmer—but only if you work at it. What kind of work will you be doing? You’ll be reading code—lots of code. And you will be challenged to think about what’s right about that code, and what’s wrong with it. More importantly, you will be challenged to reassess your professional values and your commitment to your craft. Clean Code is divided into three parts. The first describes the principles, patterns, and practices of writing clean code. The second part consists of several case studies of increasing complexity. Each case study is an exercise in cleaning up code—of transforming a code base that has some problems into one that is sound and efficient. The third part is the payoff: a single chapter containing a list of heuristics and “smells” gathered while creating the case studies. The result is a knowledge base that describes the way we think when we write, read, and clean code.',  'Capa comun', '1ª Edition, english', 189.57, 1, 3),
+(4, 'Most programming languages contain good and bad parts, but JavaScript has more than its share of the bad, having been developed and released in a hurry before it could be refined. This authoritative book scrapes away these bad features to reveal a subset of JavaScript thats more reliable, readable, and maintainable than the language as a whole—a subset you can use to create truly extensible and efficient code. Considered the JavaScript expert by many people in the development community, author Douglas Crockford identifies the abundance of good ideas that make JavaScript an outstanding object-oriented programming language-ideas such as functions, loose typing, dynamic objects, and an expressive object literal notation. Unfortunately, these good ideas are mixed in with bad and downright awful ideas, like a programming model based on global variables.', 'Capa comun', '1ª edition, english', 259.87, 1, 4),
+(5, 'Widely considered one of the best practical guides to programming, Steve McConnell’s original CODE COMPLETE has been helping developers write better software for more than a decade. Now this classic book has been fully updated and revised with leading-edge practices—and hundreds of new code samples—illustrating the art and science of software construction. Capturing the body of knowledge available from research, academia, and everyday commercial practice, McConnell synthesizes the most effective techniques and must-know principles into clear, pragmatic guidance. No matter what your experience level, development environment, or project size, this book will inform and stimulate your thinking—and help you build the highest quality code.', 'Capa comun', '1ª Edition, english', 127.09, 1, 5),
+(6, 'Refactoring improves the design of existing code and enhances software maintainability, as well as making existing code easier to understand. Original Agile Manifesto signer and software development thought leader, Martin Fowler, provides a catalog of refactorings that explains why you should refactor; how to recognize code that needs refactoring; and how to actually do it successfully, no matter what language you use.', 'Capa comun', '1ª Edition, english', 182.33, 1, 6),
+(7, 'At any given moment, someone struggles with the same software design problems you have. And, chances are, someone else has already solved your problem. This edition of Head First Design Patterns―now updated for Java 8―shows you the tried-and-true, road-tested patterns used by developers to create functional, elegant, reusable, and flexible software. By the time you finish this book, you’ll be able to take advantage of the best design practices and experiences of those who have fought the beast of software design and triumphed.', 'Capa comun', '1ª edition, english', 352.66, 1, 7),
+(8, 'Domain-Driven Design fills that need. This is not a book about specific technologies. It offers readers a systematic approach to domain-driven design, presenting an extensive set of design best practices, experience-based techniques, and fundamental principles that facilitate the development of software projects facing complex domains. Intertwining design and development practice, this book incorporates numerous examples based on actual projects to illustrate the application of domain-driven design to real-world software development.', 'Capa comun', '1ª edition, english', 405.23, 1, 8),
+(9, 'I was fortunate indeed to have worked with a fantastic team on the design and implementation of the concurrency features added to the Java platform in Java 5.0 and Java 6. Now this same team provides the best explanation yet of these new features, and of concurrency in general. Concurrency is no longer a subject for advanced users only. Every Java developer should read this book."', 'Capa comun', '1ª Edition, english', 264.92, 1, 9),
+(10, 'Um dos mais premiados livros dos últimos anos, O poder dos quietos mudou a forma como os introvertidos são vistos e, sobretudo, como veem a si mesmos. Pelo menos um terço das pessoas que conhecemos é de introvertidos. Eles preferem ouvir a falar. Trabalham melhor por conta própria do que em grupo, são inventivos e criativos, mas não gostam de se autopromover. Foram responsáveis por inúmeras contribuições fundamentais à sociedade, mas muitos de nós não sabemos disso por conta de um traço marcante de sua personalidade: eles são quietos.', 'Capa comun', '1ª Edition, portugues', 44.92, 1, 10),
+(11, 'Com mais de três décadas de liderança de mercado, Engenharia de Software chega à sua 8ª edição como o mais abrangente guia sobre essa importante área.Totalmente revisada e reestruturada, esta nova edição foi amplamente atualizada para incluir os novos tópicos da “engenharia do século 21”. Capítulos inéditos abordam a segurança de software e os desafios específicos ao desenvolvimento para aplicativos móveis. Conteúdos novos também foram incluídos em capítulos existentes, e caixas de texto informativas e conteúdos auxiliares foram expandidos, deixando este guia ainda mais prático para uso em sala de aula e em estudos autodidatas.', 'Capa comun', '1ª Edition, portugues', 174.90, 1, 11),
+(12, 'Este livro apresenta uma análise reveladora da maior tendência na tecnologia e do drástico impacto que ela terá sobre a economia, a ciência e a sociedade como um todo. Big data se refere à nossa recém-descoberta capacidade de reunir grandes quantidades de informações, analisá-las num instante e chegar a incríveis conclusões. Essa abordagem pode traduzir vários fenômenos – do preço das passagens aéreas ao texto de milhões de livros – numa forma pesquisável, e usa nosso crescente poder computacional para descobrir epifanias que nunca teríamos observado. Uma revolução semelhante à Internet e talvez até mesmo à imprensa, o big data mudará a maneira como pensamos sobre os negócios, a saúde, a política, a educação e a inovação nos anos vindouros. Ele também gera novas ameaças, do fim da privacidade como a conhecemos à ideia de sermos penalizados pelo que ainda não fizemos, com base na capacidade que o big data tem de prever nosso comportamento futuro.', 'Capa comun', '1ª Edition, portugues', 59.99, 1, 12),
+(13, 'Como Transformar TI de um Centro de Custos em um Centro de Valor e Competitividade Se esta parece ser a situação na sua empresa, considere este livro como um chamado para despertar para a vida. De acordo com os pesquisadores em TI e autores Richard Hunter e George Westerman, a questão não é o custo - é a comunicação. Resumindo, as empresas que conseguem comunicar eficazmente o valor de TI, conseguem criar mais valor para TI. Quando os executivos tornam o desempenho e as decisões de TI transparentes, todos - dos peritos tecnológicos sazonais aos funcionários não técnicos - conseguem entender melhor suas funções no uso e administração de TI. Baseado em uma irrefutável pesquisa realizada pelo MIT e pela Gartner sobre as práticas de executivos de classe mundial, O Verdadeiro Valor de TI descreve como os executivos conseguem superar as "armadilhas do valor", as quais, no passado, bloquearam sua efetividade. O livro resume um comprovado processo pelo qual os executivos líderes têm transformado a percepção da equipe executiva sobre TI, de gerador de custo a criador de valor. Ferramentas práticas e exemplos sobre várias empresas revelam como você consegue: •Mostrar valor pelo dinheiro: Oferecer dados claros que demonstrem a todos como TI proporciona os serviços corretos, com a qualidade correta, a um preço competitivo. •Conectar TI aos resultados do negócio: Identificar e priorizar novas oportunidades de TI, prover soluções eficazes e medir os benefícios através de um "ciclo virtuoso do valor de TI". •Tornar-se o "executivo-plus": Alavancar sua experiência e influência para assumir desafios mais amplos, dentro e fora da organização. Este contundente livro é um guia obrigatório para os gerentes de TI, em todos os setores, que desejam aumentar seu impacto nos negócios, elevar sua influência na organização e reforçar suas carreiras.', 'Capa comun', '1ª Edition, portugues', 70.00, 1, 13),
+(14, 'Phenomenally insightful; this is EQ for IT leaders. Whether for strategic decision making or guiding day to day operations, Im already putting it to work Jim Korcykoski Enterprise CTO, Nationwide Insurance Avoid stumbling blocks. Follow the proven road map to success in IT. Whether you are a CIO, IT manager, or aspiring professional, Marc’s book will give you the shortcut you need to reach your career goals. Through Marc’s proven framework and real-life examples of individual and group transformation, the 11 Secrets packages Marc’s 25+ years of experience into a clear, compelling, and practical manual. The unique value of this book, and the system Marc presents, is the tangible road map it provides for aspiring professionals and managers to follow in order to succeed in this demanding field.', 'Capa dura', '1ª Edition, english', 359.28, 1, 14),
+(15, 'Este livro apresenta uma visão integrada e inovadora da Governança de TI que pode ser adaptada a vários ambientes organizacionais. A partir de um modelo genérico os autores detalham as etapas de implementação da Governança de TI abrangendo o alinhamento estratégico da TI ao negócio a elaboração do Portfolio de TI as operações e serviços de TI os modelos de relacionamento com usuários clientes e fornecedores e por fim a gestão de desempenho da TI. São analisadas as características e benefícios de mais de 20 modelos de melhores práticas que podem ser aplicados aos processos de TI dentre eles assim como as implicações de regulamentações externas como a Sarbanes-Oxley e o Acordo da Basiléia II sobre as atividades de TI. Outro ponto relevante do livro é um Capítulo inteiramente dedicado ao outsourcing que aborda os principais elementos da Governança de TI que influenciam a gestão de serviços terceirizados e mostra como os modelos de melhores práticas podem ser usados nesse contexto.', 'Capa comun', '1ª Edition, portugues', 33.00, 1, 15);
+
+
+insert into book_user_responsible (book_id, user_id) values (1, 5), (3, 5);
 
 INSERT INTO order_item (id, order_id, book_id, quantity, unit_price, total_price, observation) VALUES 
-	(1, 1, 1, 1, 49.00, 49.00, null),
-	(2, 1, 2, 2, 45.00, 90.00, null),
-	(3, 2, 6, 1, 85, 85, null),
-	(4, 3, 2, 1, 45, 45, null),
-	(5, 4, 3, 2, 77.00, 144.00, null),
-	(6, 5, 3, 1, 77.00, 77.00, null);
+	(1, 1, 1, 1, 541.08, 541.08, null),
+	(2, 1, 2, 2, 331.81, 663.62, null),
+	(3, 2, 6, 1, 182.33, 182.33, null),
+	(4, 3, 2, 1, 331.81, 331.81, null),
+	(5, 4, 3, 2, 189.57, 379.14, null),
+	(6, 5, 3, 1, 189.57, 189.57, null);
 
 
-INSERT INTO order_payment_method (order_id, payment_method_id) VALUES 
-	(1, 1), 
-	(1, 2), 
-	(1, 3), 
-	(2, 3), 
-	(3, 2), 
-	(3, 3), 
-	(4, 1), 
-	(4, 2), 
-	(5, 1), 
-	(5, 2);
-	
+insert into book_payment_method (book_id, payment_method_id) values 
+(1, 1), (1, 2), (1, 3), (2, 3), (3, 2), (3, 3), (4, 1), (4, 2), (5, 1), (5, 2), (6, 3);
+
 
 INSERT INTO permission (id, name, description) VALUES 
 (1, 'EDIT_BOOKS', 'Allows edit books'),

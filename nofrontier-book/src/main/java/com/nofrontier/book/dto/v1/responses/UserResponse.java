@@ -14,10 +14,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.core.enums.UserType;
-import com.nofrontier.book.domain.model.City;
-import com.nofrontier.book.domain.model.Group;
-import com.nofrontier.book.domain.model.Permission;
-import com.nofrontier.book.domain.model.Person;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,10 +25,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @JsonNaming(SnakeCaseStrategy.class)
-@JsonPropertyOrder({"id", "completeName", "email", "password",
-		"passwordConfirmation", "registerDate", "userType", "documentPicture",
-		"userPicture", "enabled", "persons", "permissions", "groups", "cities",
-		"address"})
+@JsonPropertyOrder({"id", "completeName", "email", "registerDate", "userType",
+		"documentPicture", "userPicture", "enabled", "person", "permissions",
+		"groups", "cities"})
 public class UserResponse extends RepresentationModel<UserResponse>
 		implements
 			Serializable {
@@ -56,16 +51,16 @@ public class UserResponse extends RepresentationModel<UserResponse>
 
 	private Boolean enabled;
 
-	private Person person;
+	private PersonResponse person;
 
-	private Set<Permission> permissions = new HashSet<>();
+	private Set<PermissionResponse> permissions = new HashSet<>();
 
-	private Set<Group> groups = new HashSet<>();
+	private Set<GroupResponse> groups = new HashSet<>();
 
-	private Set<City> cities = new HashSet<>();
+	private Set<CityResponse> cities = new HashSet<>();
 
-    @JsonIgnore
-    public Boolean isCustomer() {
-        return userType.equals(UserType.CUSTOMER.getId());
-    }
+	@JsonIgnore
+	public Boolean isCustomer() {
+		return userType.equals(UserType.CUSTOMER.getId());
+	}
 }

@@ -27,16 +27,16 @@ import lombok.ToString;
 public class Person extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
-	@Column(nullable = false, length = 80)
+
+	@Column(name = "first_name", nullable = false, length = 80)
 	private String firstName;
-	
-	@Column(nullable = false, length = 80)
+
+	@Column(name = "last_name", nullable = false, length = 80)
 	private String lastName;
-	
+
 	@Column(nullable = false, length = 6)
 	private String gender;
-	
+
 	@Column(nullable = true, unique = true, length = 11)
 	private String cpf;
 
@@ -45,23 +45,23 @@ public class Person extends IdBaseEntity implements Serializable {
 
 	@Column(name = "phone_number", nullable = false, length = 11)
 	protected String phoneNumber;
-	
+
 	@Column(name = "mobile_number", nullable = false, length = 11)
 	protected String mobileNumber;
 
 	@Column(name = "key_pix", nullable = true, unique = true)
 	private String keyPix;
-	
+
 	@Column(nullable = false)
 	private Boolean enabled;
-	
+
 	@JsonManagedReference
-    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<User> users = new HashSet<>();	
-	
+	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private Set<User> users = new HashSet<>();
+
 	@JsonManagedReference
-    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Address> addresses = new HashSet<>();
+	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private Set<Address> addresses = new HashSet<>();
 
 	public void setAddresses(Address address) {}
 

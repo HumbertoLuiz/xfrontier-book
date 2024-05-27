@@ -11,13 +11,10 @@ CREATE TABLE IF NOT EXISTS `order_entity` (
   `delivery_date` datetime,
   `payment_method_id` bigint NOT NULL,
   `user_customer_id` bigint NOT NULL,
-  `shipping_address_id` bigint,
+  `shipping_address_id` bigint NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_order_payment_method` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_method` (`id`),
   CONSTRAINT `fk_order_user_customer` FOREIGN KEY (`user_customer_id`) REFERENCES `users` (`id`),
   CONSTRAINT `fk_order_shipping_address` FOREIGN KEY (`shipping_address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `uk_order_code` UNIQUE (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-UPDATE `order_entity`
-SET `code` = UUID();

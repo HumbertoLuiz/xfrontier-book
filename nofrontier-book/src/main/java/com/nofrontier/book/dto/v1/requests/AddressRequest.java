@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.core.enums.AddressType;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,28 +23,30 @@ public class AddressRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@NotBlank
-	@Size(max = 64)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 64, message = "{size.message}")
 	private String street;
 
-	@NotBlank
-	@Size(max = 10)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 10, message = "{size.message}")
 	private String number;
 
-	@NotBlank
-	@Size(max = 30)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 30, message = "{size.message}")
 	private String neighborhood;
 
 	private String complement;
 
-	@NotBlank
-	@Size(max = 9)
+	@NotBlank(message = "{not.blank.message}")
+	@Size(max = 9, message = "{size.message}")
 	private String zipCode;
 
-	@NotBlank
+	@NotNull(message = "{not.null.message}")
 	private AddressType addressType;
 
+	@NotNull(message = "{not.null.message}")
 	private Long cityId;
 	
+	@NotNull(message = "{not.null.message}")
 	private Long personId;	
 }

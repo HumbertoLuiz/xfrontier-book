@@ -12,6 +12,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -75,14 +76,14 @@ public class Book extends IdBaseEntity implements Serializable {
 	@Column(nullable = false)
 	private Boolean active;
 
+	@JsonIgnore
+	@ManyToMany(mappedBy = "books")
+	private Set<Order> orders = new HashSet<>();
+
 	@JsonBackReference
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@JoinColumn(name = "order_id", nullable = false)
-	private Order order;
-	
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+	@JoinColumn(name = "category_id", nullable = false)
+	private Category category;
 
 	@ManyToMany
 	@JoinTable(name = "book_payment_method", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
