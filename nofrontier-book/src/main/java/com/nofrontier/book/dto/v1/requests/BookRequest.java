@@ -1,11 +1,14 @@
 package com.nofrontier.book.dto.v1.requests;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.core.enums.BookStatus;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,4 +45,17 @@ public class BookRequest implements Serializable {
 
 	@NotNull(message = "{not.null.message}")
 	private Boolean active;
+	
+	@NotNull(message = "{not.null.message}")
+	private BookStatus bookStatus;
+	
+	@NotNull(message = "{not.null.message}")
+	@DecimalMin(value = "0.0", inclusive = false, message = "{positive.message}")
+    private BigDecimal price;
+	
+	@NotBlank(message = "{not.blank.message}")
+    private String observation;
+
+	@NotBlank(message = "{not.blank.message}")
+    private String reasonCancellation;
 }

@@ -2,6 +2,7 @@ package com.nofrontier.book.dto.v1.requests;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.domain.model.Person;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -36,5 +37,8 @@ public class UpdateUserRequest {
 	@NotBlank(message = "{not.blank.message}")
     @Size(max = 255, message = "{size.message}")
     private String passwordConfirmation;
+	
+	@NotBlank(message = "{not.blank.message}")
+	private Person person;
 
 }

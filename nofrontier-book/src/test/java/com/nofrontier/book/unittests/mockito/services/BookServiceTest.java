@@ -29,7 +29,7 @@ import org.springframework.hateoas.PagedModel;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.repository.BookRepository;
-import com.nofrontier.book.domain.services.BookService;
+import com.nofrontier.book.domain.services.ApiBookService;
 import com.nofrontier.book.dto.v1.requests.BookRequest;
 import com.nofrontier.book.dto.v1.responses.BookResponse;
 import com.nofrontier.book.unittests.mapper.mocks.MockBook;
@@ -41,7 +41,7 @@ class BookServiceTest {
 	MockBook input;
 
 	@InjectMocks
-	private BookService bookService;
+	private ApiBookService bookService;
 
 	@Mock
 	BookRepository bookRepository;

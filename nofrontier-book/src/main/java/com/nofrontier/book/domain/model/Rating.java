@@ -38,13 +38,13 @@ public class Rating extends Auditable {
 
     @Column(nullable = false)
     private Boolean visibility;
+    
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(nullable = false)
+    private Book book;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(nullable = true)
     private User rater;
-
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(nullable = false)
-    private User rated;
 
 }

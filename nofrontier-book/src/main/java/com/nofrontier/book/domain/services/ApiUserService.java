@@ -26,6 +26,7 @@ import com.nofrontier.book.core.services.token.providers.JjwtService;
 import com.nofrontier.book.core.validation.UserValidator;
 import com.nofrontier.book.domain.exceptions.IncorrectPasswordException;
 import com.nofrontier.book.domain.exceptions.PasswordDoesntMatchException;
+import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.User;
 import com.nofrontier.book.domain.repository.UserRepository;
@@ -91,54 +92,56 @@ public class ApiUserService {
 		var userPage = userRepository.findAll(pageable);
 		var userDtoPage = userPage
 				.map(user -> modelMapper.map(user, UserResponse.class));
-		userDtoPage.map(userResponse -> userResponse.add(
-				linkTo(methodOn(UserRestController.class).findById(userResponse.getKey()))
-						.withSelfRel()));
+		userDtoPage.map(userResponse -> userResponse
+				.add(linkTo(methodOn(UserRestController.class)
+						.findById(userResponse.getKey())).withSelfRel()));
 		Link link = linkTo(methodOn(UserRestController.class).findAll(
 				pageable.getPageNumber(), pageable.getPageSize(), "asc"))
 				.withSelfRel();
 		return assembler.toModel(userDtoPage, link);
 	}
-	
+
 	// -------------------------------------------------------------------------------------------------------------
 
-	public EntityModel<UserResponse> save(UserRequest request) {
+	public UserResponse create(UserRequest request) {
 		validatePasswordConfirmation(request);
 
 		var userToSave = modelMapper.map(request, User.class);
 
-		// Realiza a validação do usuário
+		// Performs user validation
 		validator.validate(userToSave);
 
-		 // Criptografa a senha do usuário
-		var passwordEncrypted = passwordEncoder.encode(userToSave.getPassword());
+		// Encrypts the user's password
+		var passwordEncrypted = passwordEncoder
+				.encode(userToSave.getPassword());
 		userToSave.setPassword(passwordEncrypted);
 
-		// Salva a imagem do documento do usuário
+		// Saves the user's document image
 		var documentPicture = storageService.save(request.getDocumentPicture());
 		userToSave.setDocumentPicture(documentPicture);
 
-		// Salva o usuário no repositório
+		// Saves the user in the repository
 		var userSaved = userRepository.save(userToSave);
-		// Publica o evento de novo usuário
+		// Publish the new user event
 		newUserPublisher.publish(userSaved);
-		
-		// Mapeia o usuário salvo para o UserResponse
+
+		// Maps the saved user to UserResponse
 		var response = modelMapper.map(userSaved, UserRegisterResponse.class);
-		// Gera o token de resposta e o define no UserResponse
+		// Generates the response token and sets it in UserResponse
 		var tokenResponse = generateTokenResponse(response);
 		response.setToken(tokenResponse);
-		
-        // Adiciona o link self ao UserResponse
-        EntityModel<UserResponse> entityModel = EntityModel.of(response);
-        Link selfLink = linkTo(methodOn(UserRestController.class).findById(userSaved.getId())).withSelfRel();
-        entityModel.add(selfLink);
 
-        return entityModel;
+		// Adds the self link to UserResponse
+		response.add(linkTo(
+				methodOn(UserRestController.class).findById(userSaved.getId()))
+				.withSelfRel());
+
+		return response;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public MessageResponse updateUserPicture(MultipartFile userPicture) {
 		var loggedUser = securityUtils.getLoggedUser();
 		var picture = storageService.save(userPicture);
@@ -147,26 +150,48 @@ public class ApiUserService {
 		return new MessageResponse("Photo saved successfully!");
 	}
 
-	public MessageResponse update(UpdateUserRequest request) {
-		var loggedUser = securityUtils.getLoggedUser();
-		updateInformationloggedUser(request, loggedUser);
+	@Transactional
+	public MessageResponse update(Long id, UpdateUserRequest updateUserRequest) {
+		if (updateUserRequest == null) {
+			throw new RequiredObjectIsNullException();
+		}
+		logger.info("Updating one User!");
+
+		var loggedUser = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"No records found for this ID!"));
+		
+		loggedUser = securityUtils.getLoggedUser();
+		updateInformationloggedUser(updateUserRequest, loggedUser);
 		validator.validate(loggedUser);
-		changePassword(request, loggedUser);
+		changePassword(updateUserRequest, loggedUser);
 		userRepository.save(loggedUser);
 		return new MessageResponse("User successfully updated");
 	}
 
+	// -------------------------------------------------------------------------------------------------------------
+
+	public void delete(Long id) {
+		logger.info("Deleting one User!");
+		var entity = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"No records found for this ID!"));
+		userRepository.delete(entity);
+	}
+	
+	// -------------------------------------------------------------------------------------------------------------
+
 	private void changePassword(UpdateUserRequest request, User loggedUser) {
-		var hasSenhas = request.getPassword() != null
+		var hasPasswords = request.getPassword() != null
 				&& request.getNewPassword() != null
 				&& request.getPasswordConfirmation() != null;
 
-		if (hasSenhas) {
+		if (hasPasswords) {
 			checkPassword(request, loggedUser);
 			validatePasswordConfirmation(request);
-			var novaSenha = request.getNewPassword();
-			var novaSenhaHash = passwordEncoder.encode(novaSenha);
-			loggedUser.setPassword(novaSenhaHash);
+			var newPassword = request.getNewPassword();
+			var newPasswordHash = passwordEncoder.encode(newPassword);
+			loggedUser.setPassword(newPasswordHash);
 		}
 	}
 
@@ -184,10 +209,39 @@ public class ApiUserService {
 
 	private void updateInformationloggedUser(UpdateUserRequest request,
 			User loggedUser) {
+		// Updates direct user information
 		loggedUser.setCompleteName(firstNonNull(request.getCompleteName(),
 				loggedUser.getCompleteName()));
 		loggedUser.setEmail(
 				firstNonNull(request.getEmail(), loggedUser.getEmail()));
+
+		// Access the Person object associated with the User
+		loggedUser.getPerson()
+				.setGender(firstNonNull(request.getPerson().getGender(),
+						loggedUser.getPerson().getGender()));
+
+		loggedUser.getPerson().setCpf(firstNonNull(request.getPerson().getCpf(),
+				loggedUser.getPerson().getCpf()));
+
+		loggedUser.getPerson()
+				.setBirth(firstNonNull(request.getPerson().getBirth(),
+						loggedUser.getPerson().getBirth()));
+
+		loggedUser.getPerson().setPhoneNumber(
+				firstNonNull(request.getPerson().getPhoneNumber(),
+						loggedUser.getPerson().getPhoneNumber()));
+
+		loggedUser.getPerson().setMobileNumber(
+				firstNonNull(request.getPerson().getMobileNumber(),
+						loggedUser.getPerson().getMobileNumber()));
+
+		loggedUser.getPerson()
+				.setKeyPix(firstNonNull(request.getPerson().getKeyPix(),
+						loggedUser.getPerson().getKeyPix()));
+
+		loggedUser.getPerson()
+				.setEnabled(firstNonNull(request.getPerson().getEnabled(),
+						loggedUser.getPerson().getEnabled()));
 	}
 
 	private TokenResponse generateTokenResponse(UserRegisterResponse response) {

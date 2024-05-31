@@ -8,8 +8,8 @@ public class PaymentMethodNotFoundException extends EntityNotFoundException {
 		super(message);
 	}
 	
-	public PaymentMethodNotFoundException(Long stateId) {
-		this(String.format("There is no payment method registration with a code %d", stateId));
+	public PaymentMethodNotFoundException(Long paymentId) {
+		this(String.format("There is no payment method registration with a code %d", paymentId));
 	}
 	
 }

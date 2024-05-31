@@ -1,7 +1,11 @@
 package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.nofrontier.book.core.enums.BookStatus;
 import com.nofrontier.book.core.enums.PaymentStatus;
 
 import jakarta.persistence.Column;
@@ -11,7 +15,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -23,6 +29,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @ToString(onlyExplicitlyIncluded = true)
+@Builder
 public class PaymentMethod extends Auditable implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -35,16 +42,27 @@ public class PaymentMethod extends Auditable implements Serializable {
 
 	@Column(nullable = false)
 	private String description;
+	
+    @Column(nullable = false)
+    private BigDecimal value;
 
-	@Column(nullable = false)
+	@Column(name = "payment_status", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private PaymentStatus status;
+	private PaymentStatus paymentStatus;
+	
+	@Column(name = "book_status", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private BookStatus bookStatus;
 
 	@Column(name = "transaction_id", nullable = false)
 	private String transactionId;
 
+	@Builder.Default
+    @ManyToMany(mappedBy = "paymentMethods")
+    private Set<Book> books = new HashSet<>();
+	
 	public boolean isAccepted() {
-		return status.equals(PaymentStatus.ACCEPTED);
+		return paymentStatus.equals(PaymentStatus.ACCEPTED);
 	}
 
 }

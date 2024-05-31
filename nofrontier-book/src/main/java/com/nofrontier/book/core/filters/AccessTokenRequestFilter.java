@@ -78,7 +78,7 @@ public class AccessTokenRequestFilter extends OncePerRequestFilter {
 
         if (isTokenPresent(authorizationHeader)) {
             token = authorizationHeader.substring(TOKEN_TYPE.length());
-            email = tokenService.getSubjetDoAccessToken(token);
+            email = tokenService.getSubjectDoAccessToken(token);
         }
 
         if (isEmailNotInContext(email)) {

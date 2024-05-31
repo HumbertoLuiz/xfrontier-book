@@ -1,6 +1,7 @@
 package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashSet;
@@ -14,10 +15,13 @@ import org.springframework.data.annotation.LastModifiedBy;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.nofrontier.book.core.enums.BookStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -53,28 +57,41 @@ public class Book extends IdBaseEntity implements Serializable {
 	@Column(nullable = false, unique = true, length = 13)
 	private String isbn;
 
-	@Column(nullable = false)
+	@Column(name = "launch_date", nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date launchDate;
 
 	@CreationTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "registration_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime registrationDate;
 
 	@UpdateTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "update_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime updateDate;
 
 	@CreatedBy
-	@Column(nullable = false, updatable = false)
+	@Column(name = "created_by", nullable = false, updatable = false)
 	private Integer createdBy;
 
 	@LastModifiedBy
-	@Column(insertable = false)
+	@Column(name = "lastModified_by", insertable = false)
 	private Integer lastModifiedBy;
 
 	@Column(nullable = false)
 	private Boolean active;
+
+	@Column(name = "book_status", nullable = false)
+	@Enumerated(EnumType.STRING)
+	private BookStatus bookStatus;
+	
+    @Column(nullable = false)
+    private BigDecimal price;
+	
+    @Column(nullable = true)
+    private String observation;
+
+    @Column(name = "reason_cancellation" ,nullable = true)
+    private String reasonCancellation;
 
 	@JsonIgnore
 	@ManyToMany(mappedBy = "books")
@@ -97,4 +114,24 @@ public class Book extends IdBaseEntity implements Serializable {
 	@OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private Set<Product> products = new HashSet<>();
 
+	public Boolean isWithoutPayment() {
+		return bookStatus.equals(BookStatus.WITHOUT_PAYMENT);
+	}
+
+	public Boolean isPaid() {
+		return bookStatus.equals(BookStatus.PAID);
+	}
+
+	public Boolean isCancelled() {
+		return bookStatus.equals(BookStatus.CANCELLED);
+	}
+
+	public Boolean isRated() {
+		return bookStatus.equals(BookStatus.RATED);
+	}
+
+	public void setPaymentMethods(BookStatus paid) {
+		// TODO Auto-generated method stub
+		
+	}
 }

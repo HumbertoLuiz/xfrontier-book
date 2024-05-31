@@ -66,10 +66,10 @@ ALTER TABLE rating auto_increment = 1;
 ALTER TABLE password_reset auto_increment = 1;
 
 
-INSERT INTO payment_method (id, description, created_at, updated_at, status, transaction_id) VALUES
-    (1, 'Credit Card', UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
-    (2, 'Debit Card', UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
-    (3, 'Cash', UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'f9981ca4-5a5e-4da3-af04-933861df3e55');
+INSERT INTO payment_method (id, description, value, created_at, updated_at, payment_status, book_status, transaction_id) VALUES
+    (1, 'Credit Card', 0.0, UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
+    (2, 'Debit Card', 0.0, UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
+    (3, 'Cash', 0.0, UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55');
 
 
 INSERT INTO `person` (`id`, `first_name`, `last_name`, `gender`, `cpf`, `birth`, `phone_number`, `mobile_number`, `key_pix`, `enabled`) VALUES
@@ -5979,22 +5979,22 @@ INSERT INTO category (id, title, name, description) VALUES
 
 
 
-INSERT INTO books (id, title, author, isbn, launch_date, registration_date, update_date, created_by, last_modified_by, active, category_id) VALUES 
-(1, 'Working effectively with legacy code', 'Michael C. Feathers', '9780136657125', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(2, 'Design Patterns', 'Ralph Johnson, Erich Gamma, John Vlissides e Richard Helm', '9788131700075', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(3, 'Clean Code', 'Robert C. Martin', '9780132350884', '2009-01-10', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(4, 'JavaScript', 'Crockford', '9780596517748', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(5, 'Code complete', 'Steve McConnell', '9780735619678', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(6, 'Refactoring', 'Martin Fowler e Kent Beck', '9780201485677', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(7, 'Head First Design Patterns', 'Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates', '9780596007126', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(8, 'Domain Driven Design', 'Eric Evans', '9780321125217', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(9, 'Java Concurrency in Practice', 'Brian Goetz e Tim Peierls', '9780321349606', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(10, 'O poder dos quietos', 'Susan Cain', '9788522013265', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(11, 'Engenharia de Software: uma abordagem profissional', 'Roger S. Pressman', '9788580555332', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(12, 'Big Data: como extrair volume, variedade, velocidade e valor da avalanche de informação cotidiana', 'Viktor Mayer-Schonberger e Kenneth Kukier', '9781848547902', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(13, 'O verdadeiro valor de TI', 'Richard Hunter e George Westerman', '9788576801047', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(14, 'Os 11 segredos de líderes de TI altamente influentes', 'Marc J. Schiller', '9780615436289', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7),
-(15, 'Implantando a governança de TI', 'Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu', '9788574526584', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 7);
+INSERT INTO books (id, title, author, isbn, launch_date, registration_date, update_date, created_by, last_modified_by, active, book_status, price, observation, reason_cancellation, category_id) VALUES 
+(1, 'Working effectively with legacy code', 'Michael C. Feathers', '9780136657125', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 'PAID', 0.0, null, null, 7),
+(2, 'Design Patterns', 'Ralph Johnson, Erich Gamma, John Vlissides e Richard Helm', '9788131700075', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 'PAID', 0.0, null, null, 7),
+(3, 'Clean Code', 'Robert C. Martin', '9780132350884', '2009-01-10', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(4, 'JavaScript', 'Crockford', '9780596517748', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(5, 'Code complete', 'Steve McConnell', '9780735619678', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(6, 'Refactoring', 'Martin Fowler e Kent Beck', '9780201485677', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(7, 'Head First Design Patterns', 'Eric Freeman, Elisabeth Freeman, Kathy Sierra, Bert Bates', '9780596007126', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(8, 'Domain Driven Design', 'Eric Evans', '9780321125217', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(9, 'Java Concurrency in Practice', 'Brian Goetz e Tim Peierls', '9780321349606', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(10, 'O poder dos quietos', 'Susan Cain', '9788522013265', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(11, 'Engenharia de Software: uma abordagem profissional', 'Roger S. Pressman', '9788580555332', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(12, 'Big Data: como extrair volume, variedade, velocidade e valor da avalanche de informação cotidiana', 'Viktor Mayer-Schonberger e Kenneth Kukier', '9781848547902', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(13, 'O verdadeiro valor de TI', 'Richard Hunter e George Westerman', '9788576801047', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(14, 'Os 11 segredos de líderes de TI altamente influentes', 'Marc J. Schiller', '9780615436289', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7),
+(15, 'Implantando a governança de TI', 'Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu', '9788574526584', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true,  'PAID', 0.0, null, null, 7);
 
 
 INSERT INTO order_book (order_id, book_id) VALUES 

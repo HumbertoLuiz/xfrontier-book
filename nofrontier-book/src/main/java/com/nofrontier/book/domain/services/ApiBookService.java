@@ -27,9 +27,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class BookService {
+public class ApiBookService {
 
-	private Logger logger = Logger.getLogger(BookService.class.getName());
+	private Logger logger = Logger.getLogger(ApiBookService.class.getName());
 
 	private final BookRepository bookRepository;
 
@@ -48,7 +48,7 @@ public class BookService {
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
-		// Mapeia a entidade salva para o BookResponse
+		// Maps the saved entity to BookResponse
 		BookResponse bookResponse = modelMapper.map(entity, BookResponse.class);
 		bookResponse.add(linkTo(methodOn(BookRestController.class)
 				.findById(bookResponse.getKey())).withSelfRel());
@@ -100,13 +100,13 @@ public class BookService {
 		}
 		logger.info("Creating a new book!");
 
-		// Mapeia o BookRequest para a entidade Book
+		// Maps the BookRequest to the Book entity
 		var entity = modelMapper.map(bookRequest, Book.class);
 
-		// Salva a nova entidade no banco de dados
+		// Saves the new entity in the database
 		var savedEntity = bookRepository.save(entity);
 
-		// Mapeia a entidade salva para o BookResponse
+		// Maps the saved entity to BookResponse
 		BookResponse bookResponse = modelMapper.map(savedEntity,
 				BookResponse.class);
 		bookResponse.add(linkTo(methodOn(BookRestController.class)
@@ -128,7 +128,7 @@ public class BookService {
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
-		// Atualizando os campos da entidade com os valores do request
+		// Updating entity fields with request values
 		entity.setTitle(bookRequest.getTitle());
 		entity.setAuthor(bookRequest.getAuthor());
 		entity.setIsbn(bookRequest.getIsbn());
@@ -137,7 +137,7 @@ public class BookService {
 
 		var updatedEntity = bookRepository.save(entity);
 
-		// Convertendo a entidade atualizada para o response
+		// Converting the updated entity to the response
 		BookResponse bookResponse = modelMapper.map(updatedEntity,
 				BookResponse.class);
 		bookResponse.add(linkTo(methodOn(BookRestController.class)

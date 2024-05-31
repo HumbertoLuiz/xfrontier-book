@@ -29,7 +29,7 @@ import org.springframework.hateoas.PagedModel;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.model.Person;
 import com.nofrontier.book.domain.repository.PersonRepository;
-import com.nofrontier.book.domain.services.PersonService;
+import com.nofrontier.book.domain.services.ApiPersonService;
 import com.nofrontier.book.dto.v1.requests.PersonRequest;
 import com.nofrontier.book.dto.v1.responses.PersonResponse;
 import com.nofrontier.book.unittests.mapper.mocks.MockPerson;
@@ -41,7 +41,7 @@ class PersonServiceTest {
 	MockPerson input;
 
 	@InjectMocks
-	private PersonService personService;
+	private ApiPersonService personService;
 
 	@Mock
 	private PersonRepository personRepository;

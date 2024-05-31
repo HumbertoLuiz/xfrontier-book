@@ -1,6 +1,7 @@
 package com.nofrontier.book.dto.v1.responses;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.core.enums.BookStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,7 +27,7 @@ import lombok.Setter;
 @JsonNaming(SnakeCaseStrategy.class)
 @JsonPropertyOrder({"id", "title", "author", "isbn", "launchDate",
 		"registrationDate", "updateDate", "createdBy", "lastModifiedBy",
-		"active", "order", "paymentMethods", "responsible", "products"})
+		"active", "bookStatus", "price", "observation", "reasonCancellation", "order", "paymentMethods", "responsible", "products"})
 public class BookResponse extends RepresentationModel<BookResponse>
 		implements
 			Serializable {
@@ -44,6 +46,10 @@ public class BookResponse extends RepresentationModel<BookResponse>
     private Integer createdBy;
     private Integer lastModifiedBy;
     private Boolean active;
+	private BookStatus bookStatus;
+    private BigDecimal price;
+    private String observation;
+    private String reasonCancellation;
     private OrderResponse order;
     private Set<PaymentMethodResponse> paymentMethods = new HashSet<>();
     private Set<UserResponse> responsible = new HashSet<>();

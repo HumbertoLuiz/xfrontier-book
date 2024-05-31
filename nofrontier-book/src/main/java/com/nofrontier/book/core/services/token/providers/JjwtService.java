@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 
@@ -40,7 +41,7 @@ public class JjwtService implements TokenService {
     }
 
     @Override
-    public String getSubjetDoAccessToken(String accessToken) {
+    public String getSubjectDoAccessToken(String accessToken) {
         var claims = getClaims(accessToken, accessKey);
         return claims.getSubject();
     }
@@ -57,10 +58,11 @@ public class JjwtService implements TokenService {
     }
 
     private String generateToken(String signKey, int expiration, String subject) {
-        var claims = new HashMap<String, Object>();
+        //var claims = new HashMap<String, Object>();
+    	Map<String, Object> claims = new HashMap<>();
 
-        var dataHoraAtual = Instant.now();
-        var dataHoraExpiracao = dataHoraAtual.plusSeconds(expiration);
+        var dateCurrentTime = Instant.now();
+        var dateExpirationTime = dateCurrentTime.plusSeconds(expiration);
 
         // Decode the Base64 encoded key
         byte[] decodedKey = Base64.getDecoder().decode(signKey);
@@ -69,8 +71,8 @@ public class JjwtService implements TokenService {
         return Jwts.builder()
             .setClaims(claims)
             .setSubject(subject)
-            .setIssuedAt(Date.from(dataHoraAtual))
-            .setExpiration(Date.from(dataHoraExpiracao))
+            .setIssuedAt(Date.from(dateCurrentTime))
+            .setExpiration(Date.from(dateExpirationTime))
             .signWith(secretKey, SignatureAlgorithm.HS256)
             .compact();
     }

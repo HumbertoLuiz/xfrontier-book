@@ -28,9 +28,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class PersonService {
+public class ApiPersonService {
 
-	private Logger logger = Logger.getLogger(PersonService.class.getName());
+	private Logger logger = Logger.getLogger(ApiPersonService.class.getName());
 
 	private final PersonRepository personRepository;
 
@@ -49,7 +49,7 @@ public class PersonService {
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
-		// Mapeia a entidade salva para o PersonResponse
+		// Maps the saved entity to PersonResponse
 		PersonResponse personResponse = modelMapper.map(entity,
 				PersonResponse.class);
 		personResponse.add(linkTo(methodOn(PersonRestController.class)
@@ -63,7 +63,7 @@ public class PersonService {
 	@Transactional(readOnly = true)
 	public PagedModel<EntityModel<PersonResponse>> findPersonsByName(
 			String firstName, Pageable pageable) {
-		logger.info("Finding books by author: {}");
+		logger.info("Finding person by name: {}");
 		var personPage = personRepository.findPersonsByName(firstName,
 				pageable);
 		var personResponsesPage = personPage
@@ -102,15 +102,15 @@ public class PersonService {
 		if (personRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
-		logger.info("Creating a new book!");
+		logger.info("Creating a new person!");
 
-		// Mapeia o PersonRequest para a entidade Person
+		// Maps the PersonRequest to the Person entity
 		var entity = modelMapper.map(personRequest, Person.class);
 
-		// Salva a nova entidade no banco de dados
+		// Saves the new entity in the database
 		var savedEntity = personRepository.save(entity);
 
-		// Mapeia a entidade salva para o PersonResponse
+		// Maps the saved entity to PersonResponse
 		PersonResponse personResponse = modelMapper.map(savedEntity,
 				PersonResponse.class);
 		personResponse.add(linkTo(methodOn(PersonRestController.class)
@@ -126,7 +126,7 @@ public class PersonService {
 		if (personRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
-		logger.info("Updating one book!");
+		logger.info("Updating one person!");
 
 		var entity = personRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
@@ -144,7 +144,7 @@ public class PersonService {
 
 		var updatedEntity = personRepository.save(entity);
 
-		// Convertendo a entidade atualizada para o response
+		// Converting the updated entity to the response
 		PersonResponse personResponse = modelMapper.map(updatedEntity,
 				PersonResponse.class);
 		personResponse.add(linkTo(methodOn(BookRestController.class)

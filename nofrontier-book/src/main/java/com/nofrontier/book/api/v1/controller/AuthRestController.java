@@ -23,12 +23,12 @@ public class AuthRestController {
     private ApiAuthService service;
 
     @PostMapping("/token")
-    public TokenResponse autenticar(@RequestBody @Valid TokenRequest tokenRequest) {
+    public TokenResponse authenticate(@RequestBody @Valid TokenRequest tokenRequest) {
         return service.authenticate(tokenRequest);
     }
 
     @PostMapping("/refresh")
-    public TokenResponse reautenticar(@RequestBody @Valid RefreshRequest refrehRequest) {
+    public TokenResponse reauthenticate(@RequestBody @Valid RefreshRequest refrehRequest) {
         return service.reauthenticate(refrehRequest);
     }
 
