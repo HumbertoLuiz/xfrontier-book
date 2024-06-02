@@ -77,8 +77,9 @@ public class Order extends AbstractAggregateRoot<Order>
 	@JoinColumn(name = "shipping_address_id", nullable = false)
 	private Address shippingAddress;
 
+	@Column(name = "order_status", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private OrderStatus status = OrderStatus.CREATED;
+	private OrderStatus orderStatus;
 
 	@CreationTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
@@ -147,26 +148,26 @@ public class Order extends AbstractAggregateRoot<Order>
 	}
 
 	public boolean canBeConfirmed() {
-		return getStatus().canChangeTo(OrderStatus.CONFIRMED);
+		return getOrderStatus().canChangeTo(OrderStatus.CONFIRMED);
 	}
 
 	public boolean podeSerEntregue() {
-		return getStatus().canChangeTo(OrderStatus.DELIVERED);
+		return getOrderStatus().canChangeTo(OrderStatus.DELIVERED);
 	}
 
 	public boolean canBeCanceled() {
-		return getStatus().canChangeTo(OrderStatus.CANCELLED);
+		return getOrderStatus().canChangeTo(OrderStatus.CANCELLED);
 	}
 
 	private void setStatus(OrderStatus newStatus) {
-		if (getStatus().cannotChangeTo(newStatus)) {
+		if (getOrderStatus().cannotChangeTo(newStatus)) {
 			throw new BusinessException(String.format(
 					"Order status %s cannot be changed from %s to %s",
-					getCode(), getStatus().getDescription(),
+					getCode(), getOrderStatus().getDescription(),
 					newStatus.getDescription()));
 		}
 
-		this.status = newStatus;
+		this.orderStatus = newStatus;
 	}
 
 	@PrePersist

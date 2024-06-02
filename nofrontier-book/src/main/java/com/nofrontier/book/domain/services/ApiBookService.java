@@ -3,6 +3,7 @@ package com.nofrontier.book.domain.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -155,4 +156,11 @@ public class ApiBookService {
 						"No records found for this ID!"));
 		bookRepository.delete(entity);
 	}
+
+	public BookResponse findById(Set<Book> books) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
 }

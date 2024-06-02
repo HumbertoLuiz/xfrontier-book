@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.domain.model.IdBaseEntity;
+import com.nofrontier.book.domain.model.Product;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,4 +39,14 @@ public class OrderItemResponse extends RepresentationModel<OrderItemResponse>
 	private String observation;
 	private OrderResponse order;
 	private BookResponse book;
+	
+	public IdBaseEntity getProduct() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setProduct(Product product) {
+		// TODO Auto-generated method stub
+		
+	}
 }

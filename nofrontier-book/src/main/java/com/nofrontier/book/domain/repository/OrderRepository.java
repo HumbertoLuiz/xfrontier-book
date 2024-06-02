@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.nofrontier.book.domain.model.Order;
+import com.nofrontier.book.dto.v1.responses.OrderResponse;
 
 @Repository
 public interface OrderRepository
@@ -25,4 +26,6 @@ public interface OrderRepository
 			BigDecimal taxaFinal);
 
 	boolean existsOrderByCode(String code);
+
+	Order save(OrderResponse order);
 }

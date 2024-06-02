@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `order_entity` (
   `subtotal` decimal(10,2) NOT NULL,
   `shipping_rate` decimal(10,2) NOT NULL,
   `total_value` decimal(10,2) NOT NULL,
-  `status` varchar(10) NOT NULL,
+  `order_status` varchar(10) NOT NULL,
   `creation_date` datetime NOT NULL,
   `confirmation_date` datetime,
   `cancellation_date` datetime,

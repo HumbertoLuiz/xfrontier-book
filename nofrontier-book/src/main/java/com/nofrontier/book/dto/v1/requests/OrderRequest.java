@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.core.enums.OrderStatus;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
@@ -46,6 +47,9 @@ public class OrderRequest implements Serializable {
 
 	@NotNull(message = "{not.null.message}")
     private Long shippingAddressId;
+	
+	@NotNull(message = "{not.null.message}")
+	private OrderStatus orderStatus = OrderStatus.CREATED;
 
 	@NotNull(message = "{not.null.message}")
     private Long paymentMethodId;

@@ -131,7 +131,30 @@ public class Book extends IdBaseEntity implements Serializable {
 	}
 
 	public void setPaymentMethods(BookStatus paid) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub		
+	}
+	
+	public boolean removePaymentForm(PaymentMethod paymentMethod) {
+		return getPaymentMethods().remove(paymentMethod);
+	}
+	
+	public boolean addPaymentForm(PaymentMethod paymentMethod) {
+		return getPaymentMethods().add(paymentMethod);
+	}
+	
+	public boolean acceptPaymentForm(PaymentMethod paymentMethod) {
+		return getPaymentMethods().contains(paymentMethod);
+	}
+	
+	public boolean doesntAcceptPaymentForm(PaymentMethod paymentMethod) {
+		return !acceptPaymentForm(paymentMethod);
+	}
+	
+	public boolean removeResponsible(User user) {
+		return getResponsible().remove(user);
+	}
+	
+	public boolean addResponsible(User user) {
+		return getResponsible().add(user);
 	}
 }

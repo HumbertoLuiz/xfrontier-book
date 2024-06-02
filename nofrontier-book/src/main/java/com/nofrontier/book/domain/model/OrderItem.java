@@ -40,6 +40,10 @@ public class OrderItem extends IdBaseEntity implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(nullable = false, name = "book_id")
 	private Book book;
+	
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Product product;
 
 	public void calculateTotalPrice() {
 		BigDecimal unitPrice = this.getTotalPrice();

@@ -54,4 +54,15 @@ public class BookResponse extends RepresentationModel<BookResponse>
     private Set<PaymentMethodResponse> paymentMethods = new HashSet<>();
     private Set<UserResponse> responsible = new HashSet<>();
     private Set<ProductResponse> products = new HashSet<>();
+ 
+	public boolean acceptPaymentForm(PaymentMethodResponse paymentMethod) {
+		return getPaymentMethods().contains(paymentMethod);
+	}
+	
+	public boolean doesntAcceptPaymentForm(PaymentMethodResponse paymentMethod) {
+		return !acceptPaymentForm(paymentMethod);
+	}
+
+
+	
 }

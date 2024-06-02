@@ -24,10 +24,13 @@ import com.nofrontier.book.core.publishers.NewUserPublisher;
 import com.nofrontier.book.core.services.storage.adapters.StorageService;
 import com.nofrontier.book.core.services.token.providers.JjwtService;
 import com.nofrontier.book.core.validation.UserValidator;
+import com.nofrontier.book.domain.exceptions.BusinessException;
 import com.nofrontier.book.domain.exceptions.IncorrectPasswordException;
 import com.nofrontier.book.domain.exceptions.PasswordDoesntMatchException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
+import com.nofrontier.book.domain.exceptions.UserNotFoundException;
+import com.nofrontier.book.domain.model.Group;
 import com.nofrontier.book.domain.model.User;
 import com.nofrontier.book.domain.repository.UserRepository;
 import com.nofrontier.book.dto.v1.requests.UpdateUserRequest;
@@ -48,6 +51,9 @@ public class ApiUserService {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private ApiGroupService apiGroupService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -151,7 +157,8 @@ public class ApiUserService {
 	}
 
 	@Transactional
-	public MessageResponse update(Long id, UpdateUserRequest updateUserRequest) {
+	public MessageResponse update(Long id,
+			UpdateUserRequest updateUserRequest) {
 		if (updateUserRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
@@ -160,7 +167,7 @@ public class ApiUserService {
 		var loggedUser = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		
+
 		loggedUser = securityUtils.getLoggedUser();
 		updateInformationloggedUser(updateUserRequest, loggedUser);
 		validator.validate(loggedUser);
@@ -178,7 +185,7 @@ public class ApiUserService {
 						"No records found for this ID!"));
 		userRepository.delete(entity);
 	}
-	
+
 	// -------------------------------------------------------------------------------------------------------------
 
 	private void changePassword(UpdateUserRequest request, User loggedUser) {
@@ -277,6 +284,48 @@ public class ApiUserService {
 
 			throw new PasswordDoesntMatchException(message, fieldError);
 		}
+	}
+
+	// -------------------------------------------------------------------------------------------------------------
+
+	@Transactional
+	public void changePassword(Long userId, String currentPassword,
+			String newPassword) {
+		User user = findOrFail(userId);
+
+		if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+			throw new BusinessException(
+					"Current password entered does not match the user's password.");
+		}
+
+		user.setPassword(passwordEncoder.encode(newPassword));
+	}
+
+	// -------------------------------------------------------------------------------------------------------------
+
+	@Transactional
+	public void disassociateGroup(Long userId, Long groupId) {
+		User user = findOrFail(userId);
+		Group group = apiGroupService.findOrFail(groupId);
+
+		user.removeGroup(group);
+	}
+
+	// -------------------------------------------------------------------------------------------------------------
+
+	@Transactional
+	public void associateGroup(Long userId, Long groupId) {
+		User user = findOrFail(userId);
+		Group group = apiGroupService.findOrFail(groupId);
+
+		user.addGrupo(group);
+	}
+
+	// -------------------------------------------------------------------------------------------------------------
+
+	public User findOrFail(Long userId) {
+		return userRepository.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException(userId));
 	}
 
 }

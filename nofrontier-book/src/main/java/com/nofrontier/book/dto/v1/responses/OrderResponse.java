@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.RepresentationModel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +26,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @JsonNaming(SnakeCaseStrategy.class)
 @JsonPropertyOrder({"id", "code", "subtotal", "shippingRate", "totalValue",
-		"shippingAddress", "status", "creationDate", "confirmationDate",
+		"shippingAddress", "orderStatus", "creationDate", "confirmationDate",
 		"cancellationDate", "deliveryDate", "paymentMethod", "customer",
 		"items"})
 public class OrderResponse extends RepresentationModel<OrderResponse>
@@ -41,7 +42,7 @@ public class OrderResponse extends RepresentationModel<OrderResponse>
 	private BigDecimal shippingRate;
 	private BigDecimal totalValue;
 	private AddressResponse shippingAddress;
-	private OrderStatus status;
+	private OrderStatus orderStatus;
 	private OffsetDateTime creationDate;
 	private OffsetDateTime confirmationDate;
 	private OffsetDateTime cancellationDate;
@@ -49,4 +50,29 @@ public class OrderResponse extends RepresentationModel<OrderResponse>
 	private PaymentMethodResponse paymentMethod;
 	private UserResponse customer;
 	private List<OrderItemResponse> items = new ArrayList<>();
+	
+	public Long getBooks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setBooks(BookResponse book) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setCustomer(EntityModel<UserResponse> customer2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setShippingRate(Long books) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void calculateTotalValue() {
+		// TODO Auto-generated method stub
+		
+	}
 }

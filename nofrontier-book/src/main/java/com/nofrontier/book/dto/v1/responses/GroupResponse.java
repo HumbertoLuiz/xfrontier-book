@@ -42,4 +42,14 @@ public class GroupResponse extends RepresentationModel<AddressResponse>
 		this.permissions = group.getPermissions().stream()
 				.map(PermissionResponse::new).collect(Collectors.toSet());
 	}
+
+	public void removePermission(Long key) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void removePermission(PermissionResponse permission) {
+		// TODO Auto-generated method stub
+		
+	}
 }

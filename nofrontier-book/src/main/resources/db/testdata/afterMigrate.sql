@@ -5949,7 +5949,7 @@ INSERT INTO users (id, complete_name, email, password, register_date, user_type,
 
 
 INSERT INTO order_entity (id, code, subtotal, shipping_rate, total_value,  
-status, creation_date, confirmation_date, cancellation_date, delivery_date, 
+order_status, creation_date, confirmation_date, cancellation_date, delivery_date, 
 payment_method_id, user_customer_id, shipping_address_id) VALUES 
 (1, 'f9981ca4-5a5e-4da3-af04-933861df3e55', 1204.70, 16, 1220.70, 'CREATED', utc_timestamp, null, null, null, 1, 6, 1),
 (2, 'd178b637-a785-4768-a3cb-aa1ce5a8cdab', 182.33, 0, 182.33, 'CREATED', utc_timestamp, null, null, null, 2, 6, 1),
