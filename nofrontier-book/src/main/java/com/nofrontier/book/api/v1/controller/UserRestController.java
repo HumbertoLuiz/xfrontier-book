@@ -50,7 +50,7 @@ public class UserRestController {
 	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a User", description = "Finds a User", tags = {
-			"User"}, responses = {
+			"Users"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = UserResponse.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
@@ -96,8 +96,8 @@ public class UserRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
-	@Operation(summary = "Adds a new User", description = "Adds a new User by passing in a JSON, XML or YML representation of the book!", tags = {
-			"Books"}, responses = {
+	@Operation(summary = "Adds a new User", description = "Adds a new User by passing in a JSON, XML or YML representation of the User!", tags = {
+			"Users"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = UserResponse.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),

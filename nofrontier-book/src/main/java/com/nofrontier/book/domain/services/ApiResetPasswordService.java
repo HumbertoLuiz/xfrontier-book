@@ -1,12 +1,18 @@
 package com.nofrontier.book.domain.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.HashMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 
+import com.nofrontier.book.api.v1.controller.ResetPasswordRestController;
 import com.nofrontier.book.core.services.PasswordResetService;
 import com.nofrontier.book.core.services.email.adapters.EmailService;
 import com.nofrontier.book.core.services.email.dtos.EmailParams;
@@ -18,52 +24,96 @@ import com.nofrontier.book.dto.v1.responses.MessageResponse;
 @Service
 public class ApiResetPasswordService {
 
-	@Autowired
-	private PasswordResetService passwordResetService;
+	private final PasswordResetService passwordResetService;
+	private final EmailService emailService;
+	private final String hostFrontend;
 
-	@Autowired
-	private EmailService emailService;
+	public ApiResetPasswordService(
+			PasswordResetService passwordResetService,
+			EmailService emailService,
+			@Value("${com.nofrontier.frontend.host}") 
+			String hostFrontend) {
+		this.passwordResetService = passwordResetService;
+		this.emailService = emailService;
+		this.hostFrontend = hostFrontend;
+	}
 
-	@Value("${com.nofrontier.book.frontend.host}")
-	private String hostFrontend;
+	// -------------------------------------------------------------------------------------------------------------
 
-	public MessageResponse requestPasswordReset(
-			ResetPasswordRequest resetPasswordRequest) {
+	@Transactional
+	public EntityModel<MessageResponse> resetPasswordRequest(
+			ResetPasswordRequest resetpasswordRequest) {
 		var passwordReset = passwordResetService
-				.createPasswordReset(resetPasswordRequest.getEmail());
+				.createPasswordReset(resetpasswordRequest.getEmail());
 
 		if (passwordReset != null) {
 			var props = new HashMap<String, Object>();
 			props.put("link", hostFrontend + "/recover-password?token="
-					+ passwordReset.getToken());
+					+ passwordReset.getContent().getToken());
 			var emailParams = EmailParams.builder()
-					.addressee(resetPasswordRequest.getEmail())
+					.addressee(resetpasswordRequest.getEmail())
 					.subject("Password reset request")
 					.template("emails/reset-password").props(props).build();
-			emailService.sendMailTemplateHtml((EmailParams) emailParams);
+			emailService.sendMailTemplateHtml(emailParams);
+
+			MessageResponse response = new MessageResponse(
+					"Check your e-mail for the password reset link");
+
+			// Add links HAL
+			EntityModel<MessageResponse> resource = EntityModel.of(response);
+			Link selfLink = linkTo(methodOn(ResetPasswordRestController.class)
+					.requestPasswordReset(resetpasswordRequest)).withSelfRel();
+			resource.add(selfLink);
+
+			return resource;
 		}
 
-		return new MessageResponse(
-				"Check your e-mail for the password reset link");
+		MessageResponse response = new MessageResponse("Email not found");
+		EntityModel<MessageResponse> resource = EntityModel.of(response);
+		Link selfLink = linkTo(methodOn(ResetPasswordRestController.class)
+				.requestPasswordReset(resetpasswordRequest)).withSelfRel();
+		resource.add(selfLink);
+
+		return resource;
 	}
 
-	public MessageResponse confirmPasswordReset(
-			ResetPasswordConfirmationRequest request) {
-		validateConfirmationPassword(request);
-		passwordResetService.resetPassword(request.getToken(),
-				request.getPassword());
-		return new MessageResponse("Password changed successfully!");
+	// -------------------------------------------------------------------------------------------------------------
+
+	@Transactional
+	public EntityModel<MessageResponse> resetPasswordConfirm(
+			ResetPasswordConfirmationRequest resetPasswordConfirmationRequest) {
+		validatePasswordConfirmation(resetPasswordConfirmationRequest);
+		passwordResetService.resetPassword(
+				resetPasswordConfirmationRequest.getToken(),
+				resetPasswordConfirmationRequest.getPassword());
+
+		MessageResponse response = new MessageResponse(
+				"Password changed successfully!");
+
+		// Add links HAL
+		EntityModel<MessageResponse> resource = EntityModel.of(response);
+		Link selfLink = linkTo(methodOn(ResetPasswordRestController.class)
+				.confirmPasswordReset(resetPasswordConfirmationRequest))
+				.withSelfRel();
+		resource.add(selfLink);
+
+		return resource;
 	}
 
-	private void validateConfirmationPassword(
-			ResetPasswordConfirmationRequest request) {
-		var password = request.getPassword();
-		var confirmationPassword = request.getPasswordConfirmation();
+	// -------------------------------------------------------------------------------------------------------------
+
+	private void validatePasswordConfirmation(
+			ResetPasswordConfirmationRequest resetPasswordConfirmationRequest) {
+		var password = resetPasswordConfirmationRequest.getPassword();
+		var confirmationPassword = resetPasswordConfirmationRequest
+				.getPasswordConfirmation();
 
 		if (!password.equals(confirmationPassword)) {
 			var message = "The two password fields don't match";
-			var fieldError = new FieldError(request.getClass().getName(),
-					"confirmationPassword", request.getPasswordConfirmation(),
+			var fieldError = new FieldError(
+					resetPasswordConfirmationRequest.getClass().getName(),
+					"confirmationPassword",
+					resetPasswordConfirmationRequest.getPasswordConfirmation(),
 					false, null, null, message);
 			throw new PasswordDoesntMatchException(message, fieldError);
 		}

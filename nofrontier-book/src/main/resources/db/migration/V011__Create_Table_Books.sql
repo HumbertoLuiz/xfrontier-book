@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `books` (
   `last_modified_by` int,
   `active` tinyint NOT NULL DEFAULT 1,
   `book_status` varchar(20) NOT NULL,
+  `shipping_rate` decimal(10,2) NOT NULL, 
   `price` decimal(10,2) NOT NULL,
   `observation` varchar(250) NULL,
   `reason_cancellation` varchar(250) NULL,  

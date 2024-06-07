@@ -51,6 +51,10 @@ public class BookRequest implements Serializable {
 	
 	@NotNull(message = "{not.null.message}")
 	@DecimalMin(value = "0.0", inclusive = false, message = "{positive.message}")
+	private BigDecimal shippingRate;
+	
+	@NotNull(message = "{not.null.message}")
+	@DecimalMin(value = "0.0", inclusive = false, message = "{positive.message}")
     private BigDecimal price;
 	
 	@NotBlank(message = "{not.blank.message}")

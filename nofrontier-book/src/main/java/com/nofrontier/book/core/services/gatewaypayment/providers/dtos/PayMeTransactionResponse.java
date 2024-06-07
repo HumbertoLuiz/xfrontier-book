@@ -1,4 +1,4 @@
-package com.nofrontier.book.core.services.gatewaypagamento.providers.dtos;
+package com.nofrontier.book.core.services.gatewaypayment.providers.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

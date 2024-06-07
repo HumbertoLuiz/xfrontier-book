@@ -1,35 +1,39 @@
 server:
-  port: 8888
+  port: 8080
   
 #não colocar espaço depois da virgula entre os domínios
 cors:
   originPatterns: http://localhost:3000,http://localhost:8080,https://nofrontier.com.br
 
-security:
-  jwt:
-    token:
-      secret-key: 53cr37
-      expire-length: 3600000
-      
 spring:
-  datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver  
-    url: jdbc:mysql://${DB_HOST:localhost:3306}/book-db?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
-    username: root
-    password: cabula132
-    
+  application:
+    name: nofrontier-book  
+  
+  thymeleaf:
+    cache: false
+    check-template-location: false
+  
   main:
     allow-bean-definition-overriding: true
     lazy-initialization: true
-    
+  
+  messages:
+    basename: ValidationMessages
+
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver   
+    url: jdbc:mysql://${DB_HOST:localhost:3306}/book-db?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: root
+    password: cabula132
+
   jpa:
     hibernate:
       ddl-auto: none
     properties:
       databasePlataform: org.hibernate.dialect.MySQLDialect
     show-sql: false
-    open-in-view: false    
-
+    open-in-view: false
+    
 # Flyway Configs
   flyway:
     enabled: true
@@ -38,21 +42,83 @@ spring:
     schemas: book-db
     user: root
     password: cabula132
-    locations: classpath:db/migration
-    
+    locations: classpath:db/migration,classpath:db/testdata
+
 # Jackson Configs
   jackson:
     default-property-inclusion: NON_NULL
+
+#Email
+  mail:
+    host: smtp.mailgun.org
+    port: 587
+    username: postmaster@sandbox671166aa8eb44f39b0b179a67f691aee.mailgun.org
+    password: e8781c162c8b39ed38aeef12e123713f-135a8d32-2b84c50d
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            
+# Remember Me
+com:
+  nofrontier:
+    rememberMe:
+      key: wv_JCH0)0=KLEpzSs9{Mg#o}'T9"$Y]09#..SA?e6+)"y#aX"3LK|8CBD%D/9c)
+      validitySeconds: 172800 # 2 dias
+      
+# Remember Me
+    access:
+      key: ZE8WD7pw0KrPGs1UYYUUN8O2UDZNGSCFT5RAHvvX3L8=
+      expiration: 7200  # 2 hours in seconds / 1800  # 30 minutos  /  3600000 # 1 hora in milliseconds
+
+    refresh:
+      key: 7PpVGbPrl5ipO4jJ19WZE3sGY+hazs9zrU4yNuEdriU=
+      expiration: 604800  # 7 dias
+        
+# Google Matrix API
+    googleMatrix:
+      apiKey: ${GOOGLE_MATRIX_KEY}
+        
+# Payme
+    payme:
+      apiKey: ${PAYME_KEY}
+
+# AWS S3
+    s3:
+      accessKey: ${S3_ACCESS}
+      secretKey: ${S3_SECRET}
+      bucket: ${S3_BUCKET}
+      region: ${S3_REGION}
+      
+# HOST
+    backend:
+      host: http://localhost:8080
+    frontend:
+      host: http://localhost:3000
+
+        
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+
+file:
+  upload-dir: /Code/NoFrontierSpringBoot/UploadDir
 
 springdoc:
   pathsToMatch: 
     - /auth/**
     - /api/**/v1/**
-  swagger-ui:
-    use-root-path: true
-    
+
 logging:
   level:
     org:
-      springframework:
+      springframework: INFO
+    com:
+      nofrontier:
+        book: DEBUG
         security: DEBUG

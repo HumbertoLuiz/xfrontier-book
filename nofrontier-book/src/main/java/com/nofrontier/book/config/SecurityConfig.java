@@ -56,28 +56,38 @@ public class SecurityConfig {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 
+	private static final String[] SWAGGER_WHITELIST = {"/v3/api-docs/**",
+			"/swagger-resources/**", "/configuration/ui/**",
+			"/configuration/security/**", "/swagger-ui.html/**",
+			"/swagger-ui/**", "/webjars/**"};
+
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+		http.httpBasic(AbstractHttpConfigurer::disable);
+		http.securityMatchers(
+				requestMatcherCustomizer -> requestMatcherCustomizer
+						.requestMatchers("/api/**", "/auth/**"));
 		http.authorizeHttpRequests(
 				authorizeHttpRequestsCustomizer -> authorizeHttpRequestsCustomizer
-						.anyRequest().permitAll());
+						// .anyRequest().permitAll());
 
-		// http.authorizeHttpRequests(
-		// requestMatcherCustomizer -> requestMatcherCustomizer
-		// .requestMatchers("/**").permitAll())
-		// .authorizeHttpRequests(
-		// authorizeRequestsCustomizer -> authorizeRequestsCustomizer
-		// .requestMatchers("/**").permitAll()
-		// .requestMatchers(HttpMethod.POST,
-		// "/auth/token")
-		// .permitAll()
-		// .requestMatchers("/css/**", "/js/**", "/img/**",
-		// "/lib/**", "/favicon.ico")
-		// .permitAll()
-		// .requestMatchers("/auth/refresh/**",
-		// "/swagger-ui/**", "/v3/api-docs/**")
-		// .permitAll().anyRequest().authenticated());
+						.requestMatchers(SWAGGER_WHITELIST).permitAll()
+
+						.requestMatchers("/auth/token", "/auth/refresh/**")
+						.permitAll()
+
+						.requestMatchers("/css/**", "/js/**", "/img/**",
+								"/lib/**", "/favicon.ico")
+						.permitAll()
+
+						.requestMatchers("/api/**").authenticated()
+						.requestMatchers("/users").denyAll().anyRequest()
+						.authenticated());
+
+		http.csrf(AbstractHttpConfigurer::disable);
+		
+		// http.oauth2ResourceServer(
+		// oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
 
 		http.sessionManagement(
 				sessionManagementCustomizer -> sessionManagementCustomizer
@@ -90,10 +100,15 @@ public class SecurityConfig {
 								.authenticationEntryPoint(
 										authenticationEntryPoint)
 								.accessDeniedHandler(accessDeniedHandler));
-		http.httpBasic(AbstractHttpConfigurer::disable);
-		http.csrf(AbstractHttpConfigurer::disable);
 		http.cors(AbstractHttpConfigurer::disable);
 		return http.build();
 	}
 
+	// @Bean
+	// JwtDecoder jwtDecoder() {
+	// // Configure the JwtDecoder with the necessary parameters.
+	// // For example, using a public key or a JWK Set URL
+	// String jwkSetUri = "https://example.com/.well-known/jwks.json";
+	// return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+	// }
 }

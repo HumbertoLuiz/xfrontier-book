@@ -1,4 +1,4 @@
-package com.nofrontier.book.core.services.gatewaypagamento.providers.dtos;
+package com.nofrontier.book.core.services.gatewaypayment.providers.dtos;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

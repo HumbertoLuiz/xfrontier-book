@@ -47,6 +47,7 @@ public class BookResponse extends RepresentationModel<BookResponse>
     private Integer lastModifiedBy;
     private Boolean active;
 	private BookStatus bookStatus;
+	private BigDecimal shippingRate;
     private BigDecimal price;
     private String observation;
     private String reasonCancellation;

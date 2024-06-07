@@ -3,9 +3,8 @@ package com.nofrontier.book.domain.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.logging.Logger;
-
 import org.modelmapper.ModelMapper;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -30,7 +29,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ApiPersonService {
 
-	private Logger logger = Logger.getLogger(ApiPersonService.class.getName());
+	// private Logger logger =
+	// Logger.getLogger(ApiPersonService.class.getName());
+
+	private static final org.slf4j.Logger logger = LoggerFactory
+			.getLogger(ApiPersonService.class);
 
 	private final PersonRepository personRepository;
 
@@ -61,21 +64,26 @@ public class ApiPersonService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<PersonResponse>> findPersonsByName(
+	public PagedModel<EntityModel<PersonResponse>> findPersonByName(
 			String firstName, Pageable pageable) {
-		logger.info("Finding person by name: {}");
-		var personPage = personRepository.findPersonsByName(firstName,
+
+		logger.info("Finding all people with first name like: {}", firstName);
+
+		var personPage = personRepository.findPersonByName(firstName,
 				pageable);
-		var personResponsesPage = personPage
+
+		var personDtoPage = personPage
 				.map(person -> modelMapper.map(person, PersonResponse.class));
-		personResponsesPage.map(person -> person.add(linkTo(
-				methodOn(BookRestController.class).findById(person.getKey()))
+		personDtoPage.forEach(person -> person.add(linkTo(
+				methodOn(PersonRestController.class).findById(person.getKey()))
 				.withSelfRel()));
+
 		Link link = linkTo(methodOn(PersonRestController.class)
-				.findPersonsByName(firstName, pageable.getPageNumber(),
+				.findPersonByName(firstName, pageable.getPageNumber(),
 						pageable.getPageSize(), "asc"))
 				.withSelfRel();
-		return assembler.toModel(personResponsesPage, link);
+
+		return assembler.toModel(personDtoPage, link);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------

@@ -55,15 +55,17 @@ public class ModelMapperConfig {
 		mapper.createTypeMap(PersonResponse.class, Person.class)
 				.addMapping(PersonResponse::getKey, Person::setId);
 
-//		mapper.createTypeMap(OrderRequest.class, OrderItem.class)
-//				.addMappings(mapper -> mapper.skip(OrderItem::setId));
-//
-//		var addressToAddressModelTypeMap = mapper.createTypeMap(Address.class,
-//				AddressResponse.class);
-//
-//		addressToAddressModelTypeMap.<StateResponse>addMapping(
-//				addressSrc -> addressSrc.getCity().getState().getName(),
-//				(addressModelDest, value) -> addressModelDest.getCity().setState(value));
+		// mapper.createTypeMap(OrderRequest.class, OrderItem.class)
+		// .addMappings(mapper -> mapper.skip(OrderItem::setId));
+		//
+		// var addressToAddressModelTypeMap =
+		// mapper.createTypeMap(Address.class,
+		// AddressResponse.class);
+		//
+		// addressToAddressModelTypeMap.<StateResponse>addMapping(
+		// addressSrc -> addressSrc.getCity().getState().getName(),
+		// (addressModelDest, value) ->
+		// addressModelDest.getCity().setState(value));
 
 	}
 

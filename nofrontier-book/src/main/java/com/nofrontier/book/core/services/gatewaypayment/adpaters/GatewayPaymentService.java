@@ -1,4 +1,4 @@
-package com.nofrontier.book.core.services.gatewaypagamento.adpaters;
+package com.nofrontier.book.core.services.gatewaypayment.adpaters;
 
 import java.util.Set;
 

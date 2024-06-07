@@ -84,6 +84,9 @@ public class Book extends IdBaseEntity implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private BookStatus bookStatus;
 	
+	@Column(name = "shipping_rate", nullable = false)
+	private BigDecimal shippingRate;
+	
     @Column(nullable = false)
     private BigDecimal price;
 	

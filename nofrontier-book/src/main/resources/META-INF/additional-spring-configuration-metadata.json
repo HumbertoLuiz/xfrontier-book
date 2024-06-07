@@ -1,77 +1,206 @@
-{"properties": [
-  {
-    "name": "cors.origin-patterns",
-    "type": "java.lang.String",
-    "description": "A description for 'cors.origin-patterns'"
-  },
-  {
-    "name": "cors.origin-patterns",
-    "type": "java.lang.String",
-    "description": "A description for 'cors.origin-patterns'"
-  },
-  {
-    "name": "security.jwt.token.secret-key",
-    "type": "java.lang.String",
-    "description": "A description for 'security.jwt.token.secret-key'"
-  },
-  {
-    "name": "security.jwt.token.expire-length",
-    "type": "java.lang.String",
-    "description": "A description for 'security.jwt.token.expire-length'"
-  },
-  {
-    "name": "com.nofrontier.remember-me.key",
-    "type": "java.lang.String",
-    "description": "A description for 'com.nofrontier.remember-me.key'"
-  },
-  {
-    "name": "file.upload-dir",
-    "type": "java.lang.String",
-    "description": "A description for 'file.upload-dir'"
-  },
-  {
-    "name": "com.nofrontier.access.key",
-    "type": "java.lang.String",
-    "description": "A description for 'com.nofrontier.access.key'"
-  },
-  {
-    "name": "com.servlet.multipart.enabled",
-    "type": "java.lang.String",
-    "description": "A description for 'com.servlet.multipart.enabled'"
-  },
-  {
-    "name": "com.nofrontier.remember-me.validitySeconds",
-    "type": "java.lang.String",
-    "description": "A description for 'com.nofrontier.remember-me.validitySeconds'"
-  },
-  {
-    "name": "com.nofrontier.refresh.key",
-    "type": "java.lang.String",
-    "description": "A description for 'com.nofrontier.refresh.key'"
-  },
-  {
-    "name": "com.nofrontier.access.expiration",
-    "type": "java.lang.String",
-    "description": "A description for 'com.nofrontier.access.expiration'"
-  },
-  {
-    "name": "com.nofrontier.refresh.expiration",
-    "type": "java.lang.String",
-    "description": "A description for 'com.nofrontier.refresh.expiration'"
-  },
-  {
-    "name": "com.servlet.multipart.file-size-threshold",
-    "type": "java.lang.String",
-    "description": "A description for 'com.servlet.multipart.file-size-threshold'"
-  },
-  {
-    "name": "com.servlet.multipart.max-file-size",
-    "type": "java.lang.String",
-    "description": "A description for 'com.servlet.multipart.max-file-size'"
-  },
-  {
-    "name": "com.servlet.multipart.max-request-size",
-    "type": "java.lang.String",
-    "description": "A description for 'com.servlet.multipart.max-request-size'"
-  }
-]}
+{
+	"properties": [
+		{
+			"name": "cors.origin-patterns",
+			"type": "java.lang.String",
+			"description": "A description for 'cors.origin-patterns'"
+		},
+		{
+			"name": "cors.origin-patterns",
+			"type": "java.lang.String",
+			"description": "A description for 'cors.origin-patterns'"
+		},
+		{
+			"name": "security.jwt.token.secret-key",
+			"type": "java.lang.String",
+			"description": "A description for 'security.jwt.token.secret-key'"
+		},
+		{
+			"name": "security.jwt.token.expire-length",
+			"type": "java.lang.String",
+			"description": "A description for 'security.jwt.token.expire-length'"
+		},
+		{
+			"name": "com.nofrontier.remember-me.key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.remember-me.key'"
+		},
+		{
+			"name": "file.upload-dir",
+			"type": "java.lang.String",
+			"description": "A description for 'file.upload-dir'"
+		},
+		{
+			"name": "com.nofrontier.access.key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.access.key'"
+		},
+		{
+			"name": "com.servlet.multipart.enabled",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.enabled'"
+		},
+		{
+			"name": "com.nofrontier.remember-me.validitySeconds",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.remember-me.validitySeconds'"
+		},
+		{
+			"name": "com.nofrontier.refresh.key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.refresh.key'"
+		},
+		{
+			"name": "com.nofrontier.access.expiration",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.access.expiration'"
+		},
+		{
+			"name": "com.nofrontier.refresh.expiration",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.refresh.expiration'"
+		},
+		{
+			"name": "com.servlet.multipart.file-size-threshold",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.file-size-threshold'"
+		},
+		{
+			"name": "com.servlet.multipart.max-file-size",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.max-file-size'"
+		},
+		{
+			"name": "com.servlet.multipart.max-request-size",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.max-request-size'"
+		},
+		{
+			"name": "com.nofrontier.googleMatrix.api-key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.googleMatrix.api-key'"
+		},
+		{
+			"name": "com.nofrontier.payme.api-key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.payme.api-key'"
+		},
+		{
+			"name": "com.nofrontier.frontend.host",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.frontend.host'"
+		},
+		{
+			"name": "com.nofrontier.backend.host",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.backend.host'"
+		},
+		{
+			"name": "com.nofrontier.s3.region",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.region'"
+		},
+		{
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.bucket'"
+		},
+		{
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.secret-key'"
+		},
+		{
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.access-key'"
+		},
+		{
+			"name": "com.nofrontier.remember-me.key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.remember-me.key'"
+		},
+		{
+			"name": "com.servlet.multipart.max-request-size",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.max-request-size'"
+		},
+		{
+			"name": "com.servlet.multipart.max-file-size",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.max-file-size'"
+		},
+		{
+			"name": "com.servlet.multipart.file-size-threshold",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.file-size-threshold'"
+		},
+		{
+			"name": "com.servlet.multipart.enabled",
+			"type": "java.lang.String",
+			"description": "A description for 'com.servlet.multipart.enabled'"
+		},
+		{
+			"name": "com.nofrontier.backend.host",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.backend.host'"
+		},
+		{
+			"name": "com.nofrontier.s3.region",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.region'"
+		},
+		{
+			"name": "com.nofrontier.s3.bucket",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.bucket'"
+		},
+		{
+			"name": "com.nofrontier.s3.secret-key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.secret-key'"
+		},
+		{
+			"name": "com.nofrontier.s3.access-key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.s3.access-key'"
+		},
+		{
+			"name": "com.nofrontier.payme.api-key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.payme.api-key'"
+		},
+		{
+			"name": "com.nofrontier.google-matrix.api-key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.google-matrix.api-key'"
+		},
+		{
+			"name": "com.nofrontier.refresh.key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.refresh.key'"
+		},
+		{
+			"name": "com.nofrontier.access.expiration",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.access.expiration'"
+		},
+		{
+			"name": "com.nofrontier.access.key",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.access.key'"
+		},
+		{
+			"name": "com.nofrontier.remember-me.validity-seconds",
+			"type": "java.lang.String",
+			"description": "A description for 'com.nofrontier.remember-me.validity-seconds'"
+		},
+		{
+			"name": "cors.origin-patterns",
+			"type": "java.lang.String",
+			"description": "A description for 'cors.origin-patterns'"
+		},
+		{
+			"name": "file.upload-dir",
+			"type": "java.lang.String",
+			"description": "A description for 'file.upload-dir'"
+		}
+	]
+}

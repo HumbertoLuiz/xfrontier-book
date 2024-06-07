@@ -17,6 +17,9 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 
 	Optional<Person> findByKeyPix(String keyPix);
 	
+    @Query("SELECT DISTINCT p FROM Person p LEFT JOIN FETCH p.addresses")
+    Page<Person> findAllWithAddresses(Pageable pageable);
+	
 	@Modifying
 	@Query("UPDATE Person p SET p.enabled = false WHERE p.id =:id")
 	void disablePerson(@Param("id") Long id);
@@ -24,6 +27,13 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 	//%AND%
 	// Fernanda
 	// Alessandra
-	@Query("SELECT p FROM Person p WHERE p.firstName LIKE LOWER(CONCAT ('%',:firstName,'%'))")
-	Page<Person> findPersonsByName(@Param("firstName") String firstName, Pageable pageable);
+//	@Query("SELECT p FROM Person p WHERE p.firstName LIKE LOWER(CONCAT ('%',:firstName,'%'))")
+//	Page<Person> findPersonsByName(@Param("firstName") String firstName, Pageable pageable);
+	
+	
+	
+    @Query("SELECT p FROM Person p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")
+    Page<Person> findPersonByName(@Param("firstName") String firstName, Pageable pageable);
+	
+	
 }

@@ -2,7 +2,6 @@ package com.nofrontier.book.api.v1.controller;
 
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,13 +14,14 @@ import com.nofrontier.book.dto.v1.requests.PaymentMethodRequest;
 import com.nofrontier.book.dto.v1.responses.MessageResponse;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/books/{id}/v1")
+@RequestMapping("/api/books/{id}/payment/v1")
 public class BookPaymentMethodRestController {
 
-	@Autowired
-	private ApiBookPaymentMethodService service;
+	private final ApiBookPaymentMethodService service;
 
 	@PostMapping("/pay")
 	public MessageResponse pay(@RequestBody @Valid Set<Book> books,

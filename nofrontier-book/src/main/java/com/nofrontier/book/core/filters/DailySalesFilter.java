@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 public class DailySalesFilter {
 
-	private Long orderId;
+	private Long bookId;
 	
 	@DateTimeFormat(iso = ISO.DATE_TIME)
 	private OffsetDateTime initialCreationDate;
