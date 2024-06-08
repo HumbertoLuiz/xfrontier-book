@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.core.validation.Age;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
@@ -41,7 +40,7 @@ public class PersonRequest implements Serializable {
 	private String lastName;
 
 	@NotBlank(message = "{not.blank.message}")
-	@Size(min = 9, max = 9, message = "{size.message}")
+	@Size(min = 4, max = 6, message = "{size.message}")
 	private String gender;
 
 	@NotNull(message = "{not.null.message}")
@@ -56,7 +55,7 @@ public class PersonRequest implements Serializable {
 	private LocalDate birth;
 
 	@NotBlank(message = "{not.blank.message}")
-	@Size(min = 11, max = 11, message = "{size.message}")
+	@Size(min = 10, max = 11, message = "{size.message}")
 	private String phoneNumber;
 
 	@NotBlank(message = "{not.blank.message}")
@@ -70,9 +69,9 @@ public class PersonRequest implements Serializable {
 	@NotNull(message = "{not.null.message}")
 	private Boolean enabled;
 
-	@NotEmpty(message = "{not.empty.message}")
+	//@NotEmpty(message = "{not.empty.message}") // Removendo a anotação @NotEmpty para tornar campo opcional
 	private Set<UserRequest> users = new HashSet<>();
 
-	@NotEmpty(message = "{not.empty.message}")
+	//@NotEmpty(message = "{not.empty.message}") // Removendo a anotação @NotEmpty para tornar campo opcional
 	private Set<AddressRequest> addresses = new HashSet<>();
 }

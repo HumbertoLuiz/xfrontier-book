@@ -23,6 +23,9 @@ public class GroupRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "{not.blank.message}")
+    private Long id;
+	
+    @NotBlank(message = "{not.blank.message}")
     private String name;
 
     @NotEmpty(message = "{not.empty.message}")

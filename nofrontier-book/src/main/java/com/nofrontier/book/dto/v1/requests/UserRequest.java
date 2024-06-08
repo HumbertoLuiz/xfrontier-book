@@ -9,11 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.nofrontier.book.core.enums.UserType;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -46,12 +45,10 @@ public class UserRequest implements Serializable {
 	@NotBlank(message = "{not.blank.message}")
 	private String passwordConfirmation;
 
-	@NotNull(message = "{not.null.message}")
-	@Future(message = "{future.message}")
 	private OffsetDateTime registerDate;
 
 	@NotNull(message = "{not.null.message}")
-	private Integer userType;
+	private UserType userType;
 
 	private MultipartFile documentPicture;
 
@@ -63,13 +60,10 @@ public class UserRequest implements Serializable {
 	@NotNull(message = "{not.null.message}")
 	private Long personId;
 
-	@NotEmpty(message = "{not.empty.message}")
 	private Set<PermissionRequest> permissions = new HashSet<>();
 
-	@NotEmpty(message = "{not.empty.message}")
 	private Set<GroupRequest> groups = new HashSet<>();
 
-	@NotEmpty(message = "{not.empty.message}")
 	private Set<CityRequest> cities = new HashSet<>();
 
 }

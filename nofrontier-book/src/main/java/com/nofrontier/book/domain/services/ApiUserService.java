@@ -4,6 +4,8 @@ import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.io.IOException;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.nofrontier.book.api.v1.controller.BookRestController;
 import com.nofrontier.book.api.v1.controller.UserRestController;
 import com.nofrontier.book.core.publishers.NewUserPublisher;
 import com.nofrontier.book.core.services.storage.adapters.StorageService;
@@ -27,19 +30,27 @@ import com.nofrontier.book.core.validation.UserValidator;
 import com.nofrontier.book.domain.exceptions.BusinessException;
 import com.nofrontier.book.domain.exceptions.IncorrectPasswordException;
 import com.nofrontier.book.domain.exceptions.PasswordDoesntMatchException;
+import com.nofrontier.book.domain.exceptions.PersonNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.exceptions.UserNotFoundException;
 import com.nofrontier.book.domain.model.Group;
+import com.nofrontier.book.domain.model.Person;
+import com.nofrontier.book.domain.model.Picture;
 import com.nofrontier.book.domain.model.User;
+import com.nofrontier.book.domain.repository.PersonRepository;
 import com.nofrontier.book.domain.repository.UserRepository;
 import com.nofrontier.book.dto.v1.requests.UpdateUserRequest;
 import com.nofrontier.book.dto.v1.requests.UserRequest;
+import com.nofrontier.book.dto.v1.responses.BookResponse;
 import com.nofrontier.book.dto.v1.responses.MessageResponse;
 import com.nofrontier.book.dto.v1.responses.TokenResponse;
 import com.nofrontier.book.dto.v1.responses.UserRegisterResponse;
 import com.nofrontier.book.dto.v1.responses.UserResponse;
 import com.nofrontier.book.utils.SecurityUtils;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class ApiUserService {
@@ -51,6 +62,9 @@ public class ApiUserService {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private PersonRepository personRepository;
 
 	@Autowired
 	private ApiGroupService apiGroupService;
@@ -75,6 +89,9 @@ public class ApiUserService {
 
 	@Autowired
 	private ModelMapper modelMapper;
+	
+    @PersistenceContext
+    private EntityManager entityManager;
 
 	// -------------------------------------------------------------------------------------------------------------
 
@@ -109,11 +126,22 @@ public class ApiUserService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
-	public UserResponse create(UserRequest request) {
+	public UserResponse create(UserRequest request) throws IOException {
 		validatePasswordConfirmation(request);
 
 		var userToSave = modelMapper.map(request, User.class);
-
+		
+		// Get person by ID from the request
+		Long personId = request.getPersonId();
+		Optional<Person> optionalPerson = personRepository.findById(personId);
+		if (optionalPerson.isEmpty()) {
+			// Handle case when person with provided ID does not exist
+			throw new PersonNotFoundException(
+					"Person not found with ID: " + personId);
+		}
+		Person person = optionalPerson.get();
+		userToSave.setPerson(person);
+		
 		// Performs user validation
 		validator.validate(userToSave);
 
@@ -122,24 +150,33 @@ public class ApiUserService {
 				.encode(userToSave.getPassword());
 		userToSave.setPassword(passwordEncrypted);
 
-		// Saves the user's document image
-		var documentPicture = storageService.save(request.getDocumentPicture());
-		userToSave.setDocumentPicture(documentPicture);
 
+		// Saves the user's document image if it's not null
+		if (request.getDocumentPicture() != null && !request.getDocumentPicture().isEmpty()) {
+			var documentPicture = saveMultipartFile(request.getDocumentPicture());
+			userToSave.setDocumentPicture(documentPicture);
+		}
+		
+		// Saves the user's user picture if it's not null
+		if (request.getUserPicture() != null && !request.getUserPicture().isEmpty()) {
+			var userPicture = saveMultipartFile(request.getUserPicture());
+			userToSave.setUserPicture(userPicture);
+		}
+		
 		// Saves the user in the repository
 		var userSaved = userRepository.save(userToSave);
 		// Publish the new user event
 		newUserPublisher.publish(userSaved);
 
 		// Maps the saved user to UserResponse
-		var response = modelMapper.map(userSaved, UserRegisterResponse.class);
-		// Generates the response token and sets it in UserResponse
-		var tokenResponse = generateTokenResponse(response);
-		response.setToken(tokenResponse);
+		var response = modelMapper.map(userSaved, UserResponse.class);
+//		// Generates the response token and sets it in UserResponse
+//		var tokenResponse = generateTokenResponse(response);
+//		response.setToken(tokenResponse);
 
 		// Adds the self link to UserResponse
 		response.add(linkTo(
-				methodOn(UserRestController.class).findById(userSaved.getId()))
+				methodOn(UserRestController.class).findById(response.getKey()))
 				.withSelfRel());
 
 		return response;
@@ -328,4 +365,14 @@ public class ApiUserService {
 				.orElseThrow(() -> new UserNotFoundException(userId));
 	}
 
+	// -------------------------------------------------------------------------------------------------------------
+
+	private Picture saveMultipartFile(MultipartFile file) throws IOException {
+		var picture = new Picture();
+		picture.setFilename(file.getOriginalFilename());
+		picture.setContentLength(file.getSize());
+		picture.setContentType(file.getContentType());
+		picture.setUrl(file.getBytes().toString());
+		return storageService.save((MultipartFile) picture);
+	}
 }

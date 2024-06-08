@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `address` (
   `zip_code` varchar(9) NOT NULL,
   `address_type` varchar(11) NOT NULL,
   `city_id` bigint NOT NULL,
-  `person_id` bigint,
+  `person_id` bigint NULL,
   UNIQUE KEY `uk_zip_code` (`zip_code`),
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_address_person` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),

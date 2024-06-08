@@ -7,7 +7,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -56,11 +55,11 @@ public class Person extends IdBaseEntity implements Serializable {
 	private Boolean enabled;
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
 	private Set<User> users = new HashSet<>();
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
 	private Set<Address> addresses = new HashSet<>();
 
 	public void setAddresses(Address address) {}

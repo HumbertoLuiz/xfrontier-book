@@ -1,5 +1,7 @@
 package com.nofrontier.book.api.v1.controller;
 
+import java.io.IOException;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -102,7 +104,11 @@ public class UserRestController {
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public UserResponse create(@RequestBody @Valid UserRequest userRequest) {
+	public UserResponse create(@RequestBody @Valid UserRequest userRequest) throws IOException {
+	       // Check that the password and password confirmation match
+        if (!userRequest.getPassword().equals(userRequest.getPasswordConfirmation())) {
+            throw new IllegalArgumentException("Password and password confirmation do not match");
+        }
 		var response = apiUserService.create(userRequest);
 		return response;
 	}

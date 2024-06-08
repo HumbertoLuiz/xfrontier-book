@@ -70,8 +70,8 @@ public class User extends IdBaseEntity implements Serializable {
 	private Boolean enabled;
 
 	@JsonBackReference
-	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "person_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "person_id", nullable = true)
 	private Person person;
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))

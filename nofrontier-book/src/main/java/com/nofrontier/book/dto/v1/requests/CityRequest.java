@@ -22,6 +22,9 @@ public class CityRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+    @NotBlank(message = "{not.blank.message}")
+    private Long id;
+	
 	@NotBlank(message = "{not.blank.message}")
     private String name;
 

@@ -22,6 +22,9 @@ public class PermissionRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "{not.blank.message}")
+    private Long id;
+	
+    @NotBlank(message = "{not.blank.message}")
     @Size(min = 3, max = 255, message = "{size.message}")
     private String name;
 

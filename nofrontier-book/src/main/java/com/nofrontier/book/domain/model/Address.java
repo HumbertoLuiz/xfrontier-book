@@ -55,7 +55,7 @@ public class Address extends IdBaseEntity implements Serializable {
 	
 	@JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "person_id")
+    @JoinColumn(name = "person_id", nullable = true)
     private Person person;	
 
 	public Boolean isResidential() {

@@ -50,7 +50,8 @@ public class UserResponse extends RepresentationModel<UserResponse>
 	private MultipartFile userPicture;
 
 	private Boolean enabled;
-
+	
+	@JsonIgnore
 	private PersonResponse person;
 
 	private Set<PermissionResponse> permissions = new HashSet<>();
