@@ -24,16 +24,28 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 	@Query("UPDATE Person p SET p.enabled = false WHERE p.id =:id")
 	void disablePerson(@Param("id") Long id);
 	
-	//%AND%
-	// Fernanda
-	// Alessandra
-//	@Query("SELECT p FROM Person p WHERE p.firstName LIKE LOWER(CONCAT ('%',:firstName,'%'))")
-//	Page<Person> findPersonsByName(@Param("firstName") String firstName, Pageable pageable);
-	
-	
 	
     @Query("SELECT p FROM Person p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")
     Page<Person> findPersonByName(@Param("firstName") String firstName, Pageable pageable);
 	
+    default Boolean isCpfAlreadyRegistered(Person person) {
+        if (person.getCpf() == null) {
+            return false;
+        }
+
+        return findByCpf(person.getCpf())
+            .map(personFound -> !personFound.getId().equals(person.getId()))
+            .orElse(false);
+    }
+
+    default Boolean isKeyPixAlreadyRegistered(Person person) {
+        if (person.getKeyPix() == null) {
+            return false;
+        }
+
+        return findByKeyPix(person.getKeyPix())
+            .map(personFound -> !personFound.getId().equals(person.getId()))
+            .orElse(false);
+    }
 	
 }

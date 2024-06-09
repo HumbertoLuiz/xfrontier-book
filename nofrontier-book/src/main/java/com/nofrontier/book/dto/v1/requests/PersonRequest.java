@@ -74,4 +74,21 @@ public class PersonRequest implements Serializable {
 
 	//@NotEmpty(message = "{not.empty.message}") // Removendo a anotação @NotEmpty para tornar campo opcional
 	private Set<AddressRequest> addresses = new HashSet<>();
+	
+    @Override
+    public String toString() {
+        return "PersonRequest{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", gender='" + gender + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", birth=" + birth +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", mobileNumber='" + mobileNumber + '\'' +
+                ", keyPix='" + keyPix + '\'' +
+                ", enabled=" + enabled +
+                ", users=" + users +
+                ", addresses=" + addresses +
+                '}';
+    }
 }

@@ -10,4 +10,7 @@ public class AddressNotFoundException extends EntityNotFoundException {
 	        super(message);
 	    }
 
+	public AddressNotFoundException(Long addressId) {
+		this(String.format("There is no address registered with a code %d", addressId));
+	}
 }

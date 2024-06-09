@@ -40,7 +40,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/users/v1")
+@RequestMapping(value = "/api/users/v1", produces = MediaType.APPLICATION_JSON)
 @Tag(name = "Users", description = "Endpoints for Managing Users")
 public class UserRestController {
 
@@ -115,7 +115,7 @@ public class UserRestController {
 	
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
@@ -126,7 +126,7 @@ public class UserRestController {
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public MessageResponse update(@RequestBody @Valid Long id,	UpdateUserRequest updateUserRequest) {
+	public MessageResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid UpdateUserRequest updateUserRequest) {
 		return apiUserService.update(id, updateUserRequest);
 	}
 	

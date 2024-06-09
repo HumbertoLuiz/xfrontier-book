@@ -5,11 +5,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -21,28 +22,24 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.nofrontier.book.api.v1.controller.BookRestController;
 import com.nofrontier.book.api.v1.controller.UserRestController;
 import com.nofrontier.book.core.publishers.NewUserPublisher;
 import com.nofrontier.book.core.services.storage.adapters.StorageService;
 import com.nofrontier.book.core.services.token.providers.JjwtService;
 import com.nofrontier.book.core.validation.UserValidator;
 import com.nofrontier.book.domain.exceptions.BusinessException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.IncorrectPasswordException;
 import com.nofrontier.book.domain.exceptions.PasswordDoesntMatchException;
-import com.nofrontier.book.domain.exceptions.PersonNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.exceptions.UserNotFoundException;
 import com.nofrontier.book.domain.model.Group;
-import com.nofrontier.book.domain.model.Person;
 import com.nofrontier.book.domain.model.Picture;
 import com.nofrontier.book.domain.model.User;
-import com.nofrontier.book.domain.repository.PersonRepository;
 import com.nofrontier.book.domain.repository.UserRepository;
 import com.nofrontier.book.dto.v1.requests.UpdateUserRequest;
 import com.nofrontier.book.dto.v1.requests.UserRequest;
-import com.nofrontier.book.dto.v1.responses.BookResponse;
 import com.nofrontier.book.dto.v1.responses.MessageResponse;
 import com.nofrontier.book.dto.v1.responses.TokenResponse;
 import com.nofrontier.book.dto.v1.responses.UserRegisterResponse;
@@ -57,14 +54,16 @@ public class ApiUserService {
 
 	private Logger logger = Logger.getLogger(ApiUserService.class.getName());
 
+	private static final String MSG_USER_IN_USE = "Code user %d cannot be removed because there is a constraint in use";
+
 	@Autowired
 	PagedResourcesAssembler<UserResponse> assembler;
 
 	@Autowired
 	private UserRepository userRepository;
 	
-	@Autowired
-	private PersonRepository personRepository;
+//	@Autowired
+//	private PersonRepository personRepository;
 
 	@Autowired
 	private ApiGroupService apiGroupService;
@@ -131,16 +130,16 @@ public class ApiUserService {
 
 		var userToSave = modelMapper.map(request, User.class);
 		
-		// Get person by ID from the request
-		Long personId = request.getPersonId();
-		Optional<Person> optionalPerson = personRepository.findById(personId);
-		if (optionalPerson.isEmpty()) {
-			// Handle case when person with provided ID does not exist
-			throw new PersonNotFoundException(
-					"Person not found with ID: " + personId);
-		}
-		Person person = optionalPerson.get();
-		userToSave.setPerson(person);
+//		// Get person by ID from the request
+//		Long personId = request.getPersonId();
+//		Optional<Person> optionalPerson = personRepository.findById(personId);
+//		if (optionalPerson.isEmpty()) {
+//			// Handle case when person with provided ID does not exist
+//			throw new PersonNotFoundException(
+//					"Person not found with ID: " + personId);
+//		}
+//		Person person = optionalPerson.get();
+//		userToSave.setPerson(person);
 		
 		// Performs user validation
 		validator.validate(userToSave);
@@ -169,10 +168,10 @@ public class ApiUserService {
 		newUserPublisher.publish(userSaved);
 
 		// Maps the saved user to UserResponse
-		var response = modelMapper.map(userSaved, UserResponse.class);
-//		// Generates the response token and sets it in UserResponse
-//		var tokenResponse = generateTokenResponse(response);
-//		response.setToken(tokenResponse);
+		var response = modelMapper.map(userSaved, UserRegisterResponse.class);
+		// Generates the response token and sets it in UserResponse
+		var tokenResponse = generateTokenResponse(response);
+		response.setToken(tokenResponse);
 
 		// Adds the self link to UserResponse
 		response.add(linkTo(
@@ -215,12 +214,22 @@ public class ApiUserService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
-		logger.info("Deleting one User!");
+		logger.info("Deleting one user!");
 		var entity = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		userRepository.delete(entity);
+		try {
+			userRepository.delete(entity);
+			userRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new UserNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_USER_IN_USE, id));
+		}
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -251,6 +260,7 @@ public class ApiUserService {
 		}
 	}
 
+	
 	private void updateInformationloggedUser(UpdateUserRequest request,
 			User loggedUser) {
 		// Updates direct user information
@@ -260,32 +270,32 @@ public class ApiUserService {
 				firstNonNull(request.getEmail(), loggedUser.getEmail()));
 
 		// Access the Person object associated with the User
-		loggedUser.getPerson()
-				.setGender(firstNonNull(request.getPerson().getGender(),
-						loggedUser.getPerson().getGender()));
-
-		loggedUser.getPerson().setCpf(firstNonNull(request.getPerson().getCpf(),
-				loggedUser.getPerson().getCpf()));
-
-		loggedUser.getPerson()
-				.setBirth(firstNonNull(request.getPerson().getBirth(),
-						loggedUser.getPerson().getBirth()));
-
-		loggedUser.getPerson().setPhoneNumber(
-				firstNonNull(request.getPerson().getPhoneNumber(),
-						loggedUser.getPerson().getPhoneNumber()));
-
-		loggedUser.getPerson().setMobileNumber(
-				firstNonNull(request.getPerson().getMobileNumber(),
-						loggedUser.getPerson().getMobileNumber()));
-
-		loggedUser.getPerson()
-				.setKeyPix(firstNonNull(request.getPerson().getKeyPix(),
-						loggedUser.getPerson().getKeyPix()));
-
-		loggedUser.getPerson()
-				.setEnabled(firstNonNull(request.getPerson().getEnabled(),
-						loggedUser.getPerson().getEnabled()));
+//		loggedUser.getPerson()
+//				.setGender(firstNonNull(request.getPerson().getGender(),
+//						loggedUser.getPerson().getGender()));
+//
+//		loggedUser.getPerson().setCpf(firstNonNull(request.getPerson().getCpf(),
+//				loggedUser.getPerson().getCpf()));
+//
+//		loggedUser.getPerson()
+//				.setBirth(firstNonNull(request.getPerson().getBirth(),
+//						loggedUser.getPerson().getBirth()));
+//
+//		loggedUser.getPerson().setPhoneNumber(
+//				firstNonNull(request.getPerson().getPhoneNumber(),
+//						loggedUser.getPerson().getPhoneNumber()));
+//
+//		loggedUser.getPerson().setMobileNumber(
+//				firstNonNull(request.getPerson().getMobileNumber(),
+//						loggedUser.getPerson().getMobileNumber()));
+//
+//		loggedUser.getPerson()
+//				.setKeyPix(firstNonNull(request.getPerson().getKeyPix(),
+//						loggedUser.getPerson().getKeyPix()));
+//
+//		loggedUser.getPerson()
+//				.setEnabled(firstNonNull(request.getPerson().getEnabled(),
+//						loggedUser.getPerson().getEnabled()));
 	}
 
 	private TokenResponse generateTokenResponse(UserRegisterResponse response) {

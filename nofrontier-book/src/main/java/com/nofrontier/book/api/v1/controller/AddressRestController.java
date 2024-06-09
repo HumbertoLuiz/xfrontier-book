@@ -104,7 +104,7 @@ public class AddressRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
@@ -115,8 +115,7 @@ public class AddressRestController {
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public AddressResponse update(@RequestBody @Valid Long id,
-			AddressRequest addressRequest) {
+	public AddressResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid AddressRequest addressRequest) {
 		return apiAddressService.update(id, addressRequest);
 	}
 

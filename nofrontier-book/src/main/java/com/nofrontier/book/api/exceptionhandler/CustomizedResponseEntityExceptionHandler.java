@@ -1,14 +1,15 @@
 package com.nofrontier.book.api.exceptionhandler;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,12 +18,21 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import com.nofrontier.book.domain.exceptions.ExceptionResponse;
+import com.nofrontier.book.domain.exceptions.AddressServiceException;
+import com.nofrontier.book.domain.exceptions.BusinessException;
+import com.nofrontier.book.domain.exceptions.ConsultCityServiceException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
+import com.nofrontier.book.domain.exceptions.GatewayPaymentException;
 import com.nofrontier.book.domain.exceptions.InvalidJwtAuthenticationException;
+import com.nofrontier.book.domain.exceptions.OrderNotFoundException;
+import com.nofrontier.book.domain.exceptions.ProductNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
+import com.nofrontier.book.domain.exceptions.TokenBlackListException;
 import com.nofrontier.book.domain.exceptions.TokenServiceException;
+import com.nofrontier.book.domain.exceptions.UserNotFoundException;
 import com.nofrontier.book.domain.exceptions.ValidatingException;
+import com.nofrontier.book.dto.v1.responses.ErrorResponse;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,48 +45,57 @@ public class CustomizedResponseEntityExceptionHandler
 	private SnakeCaseStrategy camelCaseToSnakeCase = new SnakeCaseStrategy();
 
 	@ExceptionHandler(Exception.class)
-	public final ResponseEntity<ExceptionResponse> handleAllExceptions(
-			Exception ex, WebRequest request) {
-		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
-				ex.getMessage(), request.getDescription(false));
-		return new ResponseEntity<>(exceptionResponse,
-				HttpStatus.INTERNAL_SERVER_ERROR);
+	public ResponseEntity<Object> handleAllExceptions(Exception exception,
+			HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public ResponseEntity<Object> handleBusinessException(
+			BusinessException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.BAD_REQUEST,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<Object> handleDataIntegrityViolationException(
+			DataIntegrityViolationException exception,
+			HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.CONFLICT,
+				"Data integrity violation: " + exception.getLocalizedMessage(),
+				request.getRequestURI());
+	}
+
+	@ExceptionHandler(EntityInUseException.class)
+	public ResponseEntity<Object> handleEntityInUseException(
+			EntityInUseException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.CONFLICT,
+				"Entity in use: " + exception.getLocalizedMessage(),
+				request.getRequestURI());
 	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)
-	public final ResponseEntity<ExceptionResponse> handleNotFoundExceptions(
-			Exception ex, WebRequest request) {
-		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
-				ex.getMessage(), request.getDescription(false));
-		return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
+	public ResponseEntity<Object> handleResourceNotFoundException(
+			ResourceNotFoundException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.NOT_FOUND,
+				exception.getLocalizedMessage(), request.getRequestURI());
 	}
 
 	@ExceptionHandler(RequiredObjectIsNullException.class)
-	public final ResponseEntity<ExceptionResponse> handleBadRequestExceptions(
-			Exception ex, WebRequest request) {
-		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
-				ex.getMessage(), request.getDescription(false));
-		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
-	}
-
-	@ExceptionHandler(ValidatingException.class)
-	public ResponseEntity<Object> handleValidacaoException(
-			ValidatingException exception) {
-		var body = new HashMap<String, List<String>>();
-		var fieldError = exception.getFieldError();
-		var fieldErrors = new ArrayList<String>();
-		fieldErrors.add(fieldError.getDefaultMessage());
-		var field = camelCaseToSnakeCase.translate(fieldError.getField());
-		body.put(field, fieldErrors);
-		return ResponseEntity.badRequest().body(body);
+	public ResponseEntity<Object> handleBadRequestExceptions(
+			RequiredObjectIsNullException exception,
+			HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.BAD_REQUEST,
+				exception.getLocalizedMessage(), request.getRequestURI());
 	}
 
 	@ExceptionHandler(InvalidJwtAuthenticationException.class)
-	public final ResponseEntity<ExceptionResponse> handleInvalidJwtAuthenticationExceptions(
-			Exception ex, WebRequest request) {
-		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
-				ex.getMessage(), request.getDescription(false));
-		return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+	public ResponseEntity<Object> handleInvalidJwtAuthenticationExceptions(
+			InvalidJwtAuthenticationException exception,
+			HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.FORBIDDEN,
+				exception.getLocalizedMessage(), request.getRequestURI());
 	}
 
 	@ExceptionHandler(TokenServiceException.class)
@@ -93,35 +112,90 @@ public class CustomizedResponseEntityExceptionHandler
 				exception.getLocalizedMessage(), request.getRequestURI());
 	}
 
-	public ResponseEntity<Object> handleMethodArgumentNotValid(
-			MethodArgumentNotValidException exception,
-			HttpServletRequest request) {
-		return handleBindException(exception, request);
+	@ExceptionHandler(UserNotFoundException.class)
+	public ResponseEntity<Object> handleUserNotFoundException(
+			UserNotFoundException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.NOT_FOUND,
+				exception.getLocalizedMessage(), request.getRequestURI());
 	}
 
-	public ResponseEntity<Object> handleBindException(BindException exception,
-			HttpServletRequest request) {
+	@ExceptionHandler(AddressServiceException.class)
+	public ResponseEntity<Object> handleAddressServiceException(
+			AddressServiceException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.BAD_REQUEST,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(TokenBlackListException.class)
+	public ResponseEntity<Object> handleTokenBlackListException(
+			TokenBlackListException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.UNAUTHORIZED,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(ConsultCityServiceException.class)
+	public ResponseEntity<Object> handleConsultCityServiceException(
+			ConsultCityServiceException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.NOT_FOUND,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(GatewayPaymentException.class)
+	public ResponseEntity<Object> handleGatewayPaymentException(
+			GatewayPaymentException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.BAD_REQUEST,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(OrderNotFoundException.class)
+	public ResponseEntity<Object> handleOrderNotFoundException(
+			OrderNotFoundException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.NOT_FOUND,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(ProductNotFoundException.class)
+	public ResponseEntity<Object> handleProductNotFoundException(
+			ProductNotFoundException exception, HttpServletRequest request) {
+		return createErrorResponse(HttpStatus.NOT_FOUND,
+				exception.getLocalizedMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler(ValidatingException.class)
+	public ResponseEntity<Object> handleValidatingException(
+			ValidatingException exception) {
+		var body = new HashMap<String, List<String>>();
+		var fieldError = exception.getFieldError();
+		var fieldErrors = new ArrayList<String>();
+		fieldErrors.add(fieldError.getDefaultMessage());
+		var field = camelCaseToSnakeCase.translate(fieldError.getField());
+		body.put(field, fieldErrors);
+		return ResponseEntity.badRequest().body(body);
+	}
+
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException exception, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
 		var body = new HashMap<String, List<String>>();
 		exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
 			var field = camelCaseToSnakeCase.translate(fieldError.getField());
-			if (!body.containsKey(field)) {
-				var fieldErrors = new ArrayList<String>();
-				fieldErrors.add(fieldError.getDefaultMessage());
-				body.put(field, fieldErrors);
-			} else {
-				body.get(field).add(fieldError.getDefaultMessage());
-			}
+			body.computeIfAbsent(field, k -> new ArrayList<>())
+					.add(fieldError.getDefaultMessage());
 		});
 		return ResponseEntity.badRequest().body(body);
 	}
 
 	private ResponseEntity<Object> createErrorResponse(HttpStatus status,
 			String message, String path) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("status", status.value());
-		body.put("error", status.getReasonPhrase());
-		body.put("message", message);
-		body.put("path", path);
-		return new ResponseEntity<>(body, status);
+		var errorResponse = ErrorResponse.builder().status(status.value())
+				.timestamp(LocalDateTime.now()).message(message).path(path)
+				.build();
+
+		// para garantir que a resposta seja sempre em JSON
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		return new ResponseEntity<>(errorResponse, headers, status);
 	}
+
 }

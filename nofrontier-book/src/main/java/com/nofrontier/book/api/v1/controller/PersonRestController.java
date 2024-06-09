@@ -138,7 +138,7 @@ public class PersonRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
@@ -149,7 +149,7 @@ public class PersonRestController {
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public PersonResponse update(@RequestBody @Valid Long id,
+	public PersonResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid
 			PersonRequest personRequest) {
 		return personService.update(id, personRequest);
 	}

@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -19,12 +21,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nofrontier.book.api.v1.controller.AddressRestController;
 import com.nofrontier.book.domain.exceptions.AddressNotFoundException;
 import com.nofrontier.book.domain.exceptions.CityNotFoundException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
+import com.nofrontier.book.domain.exceptions.PersonNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Address;
 import com.nofrontier.book.domain.model.City;
+import com.nofrontier.book.domain.model.Person;
 import com.nofrontier.book.domain.repository.AddressRepository;
 import com.nofrontier.book.domain.repository.CityRepository;
+import com.nofrontier.book.domain.repository.PersonRepository;
 import com.nofrontier.book.dto.v1.requests.AddressRequest;
 import com.nofrontier.book.dto.v1.responses.AddressResponse;
 import com.nofrontier.book.utils.SecurityUtils;
@@ -37,6 +43,9 @@ public class ApiAddressService {
 
 	private Logger logger = Logger.getLogger(ApiUserService.class.getName());
 
+	private static final String MSG_ADDRESS_IN_USE = "Code address %d cannot be removed because there is a constraint in use";
+
+	
 	@Autowired
 	PagedResourcesAssembler<AddressResponse> assembler;
 
@@ -47,6 +56,9 @@ public class ApiAddressService {
 
 	@Autowired
 	private CityRepository cityRepository;
+	
+	@Autowired
+	private PersonRepository personRepository;
 
 	@Autowired
 	private SecurityUtils securityUtils;
@@ -96,6 +108,17 @@ public class ApiAddressService {
 
 		var entity = modelMapper.map(addressRequest, Address.class);
 
+		// Get person by ID from the request
+		Long personId = addressRequest.getPersonId();
+		Optional<Person> optionalPerson = personRepository.findById(personId);
+		if (optionalPerson.isEmpty()) {
+			// Handle case when person with provided ID does not exist
+			throw new PersonNotFoundException(
+					"Person not found with ID: " + personId);
+		}
+		Person person = optionalPerson.get();
+		entity.setPerson(person);
+		
 		// Get city by ID from the request
 		Long cityId = addressRequest.getCityId();
 		Optional<City> optionalCity = cityRepository.findById(cityId);
@@ -155,13 +178,24 @@ public class ApiAddressService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
 		logger.info("Deleting one address!");
 		var entity = addressRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		addressRepository.delete(entity);
+		try {
+			addressRepository.delete(entity);
+			addressRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new AddressNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_ADDRESS_IN_USE, id));
+		}
 	}
+	
 	
 	// -------------------------------------------------------------------------------------------------------------
 

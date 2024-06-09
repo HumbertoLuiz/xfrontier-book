@@ -57,7 +57,7 @@ public class UserRequest implements Serializable {
 	@NotNull(message = "{not.null.message}")
 	private Boolean enabled;
 	
-	@NotNull(message = "{not.null.message}")
+	// @NotNull(message = "{not.null.message}") // removed to be able to register user without having to specify person
 	private Long personId;
 
 	private Set<PermissionRequest> permissions = new HashSet<>();

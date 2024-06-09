@@ -6,6 +6,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -14,8 +16,9 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nofrontier.book.api.v1.controller.BookRestController;
 import com.nofrontier.book.api.v1.controller.PersonRestController;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
+import com.nofrontier.book.domain.exceptions.PersonNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Person;
@@ -34,6 +37,8 @@ public class ApiPersonService {
 
 	private static final org.slf4j.Logger logger = LoggerFactory
 			.getLogger(ApiPersonService.class);
+	
+	private static final String MSG_PERSON_IN_USE = "Code person %d cannot be removed because there is a constraint in use";
 
 	private final PersonRepository personRepository;
 
@@ -131,35 +136,43 @@ public class ApiPersonService {
 
 	@Transactional
 	public PersonResponse update(Long id, PersonRequest personRequest) {
-		if (personRequest == null) {
-			throw new RequiredObjectIsNullException();
-		}
-		logger.info("Updating one person!");
+	    if (personRequest == null) {
+	        throw new RequiredObjectIsNullException();
+	    }
+	    logger.info("Updating one person!");
+	    logger.info("Enabled value: " + personRequest.getEnabled());
+	    logger.info("PersonRequest: " + personRequest.toString());
 
-		var entity = personRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException(
-						"No records found for this ID!"));
+	    var entity = personRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException(
+	                    "No records found for this ID!"));
 
-		entity.setFirstName(personRequest.getFirstName());
-		entity.setLastName(personRequest.getLastName());
-		entity.setGender(personRequest.getGender());
-		entity.setCpf(personRequest.getCpf());
-		entity.setBirth(personRequest.getBirth());
-		entity.setPhoneNumber(personRequest.getPhoneNumber());
-		entity.setMobileNumber(personRequest.getMobileNumber());
-		entity.setKeyPix(personRequest.getKeyPix());
-		entity.setEnabled(personRequest.getEnabled());
+	    entity.setFirstName(personRequest.getFirstName());
+	    entity.setLastName(personRequest.getLastName());
+	    entity.setGender(personRequest.getGender());
+	    entity.setCpf(personRequest.getCpf());
+	    entity.setBirth(personRequest.getBirth());
+	    entity.setPhoneNumber(personRequest.getPhoneNumber());
+	    entity.setMobileNumber(personRequest.getMobileNumber());
+	    entity.setKeyPix(personRequest.getKeyPix());
+	    // Ensure that 'enabled' is not null
+	    if (personRequest.getEnabled() != null) {
+	        entity.setEnabled(personRequest.getEnabled());
+	    } else {
+	        throw new IllegalArgumentException("Enabled field cannot be null");
+	    }
 
-		var updatedEntity = personRepository.save(entity);
+	    var updatedEntity = personRepository.save(entity);
 
-		// Converting the updated entity to the response
-		PersonResponse personResponse = modelMapper.map(updatedEntity,
-				PersonResponse.class);
-		personResponse.add(linkTo(methodOn(BookRestController.class)
-				.findById(personResponse.getKey())).withSelfRel());
+	    // Converting the updated entity to the response
+	    PersonResponse personResponse = modelMapper.map(updatedEntity,
+	            PersonResponse.class);
+	    personResponse.add(linkTo(methodOn(PersonRestController.class)
+	            .findById(personResponse.getKey())).withSelfRel());
 
-		return personResponse;
+	    return personResponse;
 	}
+
 
 	// -------------------------------------------------------------------------------------------------------------
 
@@ -178,11 +191,23 @@ public class ApiPersonService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	
+	@Transactional
 	public void delete(Long id) {
 		logger.info("Deleting one person!");
 		var entity = personRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		personRepository.delete(entity);
+		try {
+			personRepository.delete(entity);
+			personRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new PersonNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_PERSON_IN_USE, id));
+		}
 	}
+	
 }

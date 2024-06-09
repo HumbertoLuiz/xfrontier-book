@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `person` (
   `phone_number` varchar(15) DEFAULT NULL,
   `mobile_number` varchar(15) DEFAULT NULL,
   `key_pix` varchar(255) DEFAULT NULL,
-  `enabled` BIT(1) NOT NULL DEFAULT b'1',
+  `enabled` bit NOT NULL,
   UNIQUE KEY `cpf` (`cpf`),
   UNIQUE KEY `uk_key_pix` (`key_pix`),
   PRIMARY KEY (`id`)
