@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -18,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.StateRestController;
 import com.nofrontier.book.domain.exceptions.CountryNotFoundException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
+import com.nofrontier.book.domain.exceptions.StateNotFoundException;
 import com.nofrontier.book.domain.model.Country;
 import com.nofrontier.book.domain.model.State;
 import com.nofrontier.book.domain.repository.CountryRepository;
@@ -34,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class ApiStateService {
 
 	private Logger logger = Logger.getLogger(ApiStateService.class.getName());
+
+	private static final String MSG_STATE_IN_USE = "Code state %d cannot be removed because there is a constraint in use";
 
 	@Autowired
 	PagedResourcesAssembler<StateResponse> assembler;
@@ -144,14 +150,24 @@ public class ApiStateService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
-		logger.info("Deleting one state!");
+		logger.info("Deleting one address!");
 		var entity = stateRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		stateRepository.delete(entity);
-	}
+		try {
+			stateRepository.delete(entity);
+			stateRepository.flush();
 
+		} catch (EmptyResultDataAccessException e) {
+			throw new StateNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_STATE_IN_USE, id));
+		}
+	}
+	
 	// -------------------------------------------------------------------------------------------------------------
 
 }

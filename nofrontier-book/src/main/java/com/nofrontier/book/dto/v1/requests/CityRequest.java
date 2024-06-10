@@ -21,9 +21,6 @@ import lombok.Setter;
 public class CityRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-    @NotBlank(message = "{not.blank.message}")
-    private Long id;
 	
 	@NotBlank(message = "{not.blank.message}")
     private String name;
@@ -32,6 +29,5 @@ public class CityRequest implements Serializable {
 	@Size(max = 7, message = "{size.message}")
     private String ibgeCode;
 
-	@NotNull(message = "{not.null.message}")
     private Long stateId;
 }

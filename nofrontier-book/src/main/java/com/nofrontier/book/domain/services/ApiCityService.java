@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.CityRestController;
+import com.nofrontier.book.domain.exceptions.CityNotFoundException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.exceptions.StateNotFoundException;
@@ -34,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 public class ApiCityService {
 
 	private Logger logger = Logger.getLogger(ApiCityService.class.getName());
+	
+	private static final String MSG_CITY_IN_USE = "Code city %d cannot be removed because there is a constraint in use";
 
 	@Autowired
 	PagedResourcesAssembler<CityResponse> assembler;
@@ -145,12 +151,22 @@ public class ApiCityService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
 		logger.info("Deleting one city!");
 		var entity = cityRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		cityRepository.delete(entity);
+		try {
+			cityRepository.delete(entity);
+			cityRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new CityNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_CITY_IN_USE, id));
+		}
 	}
 	
 	// -------------------------------------------------------------------------------------------------------------

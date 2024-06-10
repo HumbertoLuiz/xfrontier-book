@@ -2,6 +2,7 @@ package com.nofrontier.book.dto.v1.requests;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
@@ -9,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.nofrontier.book.core.enums.BookStatus;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -40,9 +40,16 @@ public class BookRequest implements Serializable {
 	private String isbn;
 
 	@NotNull(message = "{not.null.message}")
-	@Future(message = "{future.message}")
 	private Date launchDate;
 
+	private OffsetDateTime registrationDate;
+	
+	private OffsetDateTime updateDate;
+
+	private Integer createdBy;
+
+	private Integer lastModifiedBy;
+	
 	@NotNull(message = "{not.null.message}")
 	private Boolean active;
 	
@@ -50,16 +57,16 @@ public class BookRequest implements Serializable {
 	private BookStatus bookStatus;
 	
 	@NotNull(message = "{not.null.message}")
-	@DecimalMin(value = "0.0", inclusive = false, message = "{positive.message}")
+	@DecimalMin(value = "0.0", inclusive = true, message = "{positive.message}")
 	private BigDecimal shippingRate;
 	
 	@NotNull(message = "{not.null.message}")
-	@DecimalMin(value = "0.0", inclusive = false, message = "{positive.message}")
+	@DecimalMin(value = "0.0", inclusive = true, message = "{positive.message}")
     private BigDecimal price;
 	
-	@NotBlank(message = "{not.blank.message}")
     private String observation;
 
-	@NotBlank(message = "{not.blank.message}")
     private String reasonCancellation;
+	
+	private Long categoryId;
 }

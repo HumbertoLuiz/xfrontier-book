@@ -24,7 +24,6 @@ public class CountryRequest implements Serializable {
 	@NotBlank(message = "Country name cannot be blank")
 	private String name;
 
-	@NotBlank(message = "Initials cannot be blank")
 	@Size(max = 5, message = "{size.message}")
 	private String initials;
 }

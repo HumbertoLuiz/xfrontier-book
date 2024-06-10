@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.CategoryRestController;
+import com.nofrontier.book.domain.exceptions.CategoryNotFoundException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Category;
@@ -30,6 +34,8 @@ import lombok.RequiredArgsConstructor;
 public class ApiCategoryService {
 
 	private Logger logger = Logger.getLogger(ApiCategoryService.class.getName());
+	
+	private static final String MSG_CATEGORY_IN_USE = "Code category %d cannot be removed because there is a constraint in use";
 
 	private final CategoryRepository categoryRepository;
 
@@ -128,11 +134,21 @@ public class ApiCategoryService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
-		logger.info("Deleting one category!");
+		logger.info("Deleting one category");
 		var entity = categoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		categoryRepository.delete(entity);
+		try {
+			categoryRepository.delete(entity);
+			categoryRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new CategoryNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_CATEGORY_IN_USE, id));
+		}
 	}
 }

@@ -3,11 +3,14 @@ package com.nofrontier.book.domain.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -17,10 +20,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.BookRestController;
+import com.nofrontier.book.domain.exceptions.BookNotFoundException;
+import com.nofrontier.book.domain.exceptions.CategoryNotFoundException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Book;
+import com.nofrontier.book.domain.model.Category;
 import com.nofrontier.book.domain.repository.BookRepository;
+import com.nofrontier.book.domain.repository.CategoryRepository;
 import com.nofrontier.book.dto.v1.requests.BookRequest;
 import com.nofrontier.book.dto.v1.responses.BookResponse;
 
@@ -31,8 +39,12 @@ import lombok.RequiredArgsConstructor;
 public class ApiBookService {
 
 	private Logger logger = Logger.getLogger(ApiBookService.class.getName());
+	
+	private static final String MSG_BOOK_IN_USE = "Code book %d cannot be removed because there is a constraint in use";
 
 	private final BookRepository bookRepository;
+	
+	private final CategoryRepository categoryRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -104,6 +116,17 @@ public class ApiBookService {
 		// Maps the BookRequest to the Book entity
 		var entity = modelMapper.map(bookRequest, Book.class);
 
+		// Get category by ID from the request
+		Long categoryId = bookRequest.getCategoryId();
+		Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+		if (optionalCategory.isEmpty()) {
+			// Handle case when person with provided ID does not exist
+			throw new CategoryNotFoundException(
+					"Person not found with ID: " + categoryId);
+		}
+		Category category = optionalCategory.get();
+		entity.setCategory(category);
+		
 		// Saves the new entity in the database
 		var savedEntity = bookRepository.save(entity);
 
@@ -134,7 +157,19 @@ public class ApiBookService {
 		entity.setAuthor(bookRequest.getAuthor());
 		entity.setIsbn(bookRequest.getIsbn());
 		entity.setLaunchDate(bookRequest.getLaunchDate());
-		entity.setActive(bookRequest.getActive());
+		entity.setCreatedBy(bookRequest.getCreatedBy());
+		entity.setLastModifiedBy(bookRequest.getLastModifiedBy());
+		// Ensure that 'active' is not null
+	    if (bookRequest.getActive() != null) {
+	        entity.setActive(bookRequest.getActive());
+	    } else {
+	        throw new IllegalArgumentException("Active field cannot be null");
+	    }
+		entity.setBookStatus(bookRequest.getBookStatus());
+		entity.setShippingRate(bookRequest.getShippingRate());
+		entity.setPrice(bookRequest.getPrice());
+		entity.setObservation(bookRequest.getObservation());
+		entity.setReasonCancellation(bookRequest.getReasonCancellation());
 
 		var updatedEntity = bookRepository.save(entity);
 
@@ -149,12 +184,22 @@ public class ApiBookService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
 		logger.info("Deleting one book!");
 		var entity = bookRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		bookRepository.delete(entity);
+		try {
+			bookRepository.delete(entity);
+			bookRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new BookNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_BOOK_IN_USE, id));
+		}
 	}
 
 	public BookResponse findById(Set<Book> books) {

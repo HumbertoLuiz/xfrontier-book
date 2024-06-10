@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.CountryRestController;
+import com.nofrontier.book.domain.exceptions.CountryNotFoundException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Country;
@@ -30,6 +34,8 @@ import lombok.RequiredArgsConstructor;
 public class ApiCountryService {
 
 	private Logger logger = Logger.getLogger(ApiCountryService.class.getName());
+	
+	private static final String MSG_COUNTRY_IN_USE = "Code country %d cannot be removed because there is a constraint in use";
 
 	private final CountryRepository countryRepository;
 
@@ -38,7 +44,7 @@ public class ApiCountryService {
 
 	@Autowired
 	PagedResourcesAssembler<CountryResponse> assembler;
-
+	
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
@@ -112,7 +118,6 @@ public class ApiCountryService {
 
 		// Updating entity fields with request values
 		entity.setName(countryRequest.getName());
-		entity.setInitials(countryRequest.getInitials());
 
 		var updatedEntity = countryRepository.save(entity);
 
@@ -127,11 +132,21 @@ public class ApiCountryService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public void delete(Long id) {
-		logger.info("Deleting one country!");
+		logger.info("Deleting one country");
 		var entity = countryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		countryRepository.delete(entity);
+		try {
+			countryRepository.delete(entity);
+			countryRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new CountryNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_COUNTRY_IN_USE, id));
+		}
 	}
 }

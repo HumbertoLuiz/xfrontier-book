@@ -133,7 +133,7 @@ public class BookRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
@@ -144,7 +144,7 @@ public class BookRestController {
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public BookResponse update(@RequestBody @Valid Long id, BookRequest bookRequest) {
+	public BookResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid BookRequest bookRequest) {
 		return bookService.update(id, bookRequest);
 	}
 

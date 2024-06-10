@@ -28,7 +28,7 @@ public class Country extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String name;
 	
 	@Column(nullable = false, length = 5, unique = true)

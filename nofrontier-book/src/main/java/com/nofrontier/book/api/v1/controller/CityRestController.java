@@ -103,7 +103,7 @@ public class CityRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
@@ -114,7 +114,7 @@ public class CityRestController {
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CityResponse update(@RequestBody @Valid Long id,	CityRequest cityRequest) {
+	public CityResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid CityRequest cityRequest) {
 		return apiCityService.update(id, cityRequest);
 	}
 
