@@ -69,11 +69,10 @@ public class SecurityConfig {
 						.requestMatchers("/api/**", "/auth/**"));
 		http.authorizeHttpRequests(
 				authorizeHttpRequestsCustomizer -> authorizeHttpRequestsCustomizer
-						// .anyRequest().permitAll());
-
+				//.anyRequest().permitAll()
 						.requestMatchers(SWAGGER_WHITELIST).permitAll()
 
-						.requestMatchers("/auth/token", "/auth/refresh/**")
+						.requestMatchers("/auth/token", "/auth/refresh")
 						.permitAll()
 
 						.requestMatchers("/css/**", "/js/**", "/img/**",
@@ -81,8 +80,7 @@ public class SecurityConfig {
 						.permitAll()
 
 						.requestMatchers("/api/**").authenticated()
-						.requestMatchers("/users").denyAll().anyRequest()
-						.authenticated());
+						.requestMatchers("/users").denyAll());
 
 		http.csrf(AbstractHttpConfigurer::disable);
 		

@@ -55,7 +55,7 @@ public class NofrontierBookApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(NofrontierBookApplication.class, args);
 
-//        var key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // or HS512, HS384
+//        var key = Keys.secretKeyFor(SignatureAlgorithm.HS512); // or HS512, HS384
 //        var base64Key = Base64.getEncoder().encodeToString(key.getEncoded());
 //        System.out.println(base64Key);
 	}

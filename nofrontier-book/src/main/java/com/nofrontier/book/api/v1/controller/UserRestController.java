@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(value = "/api/users/v1", produces = MediaType.APPLICATION_JSON)
+@RequestMapping(path = "/api/users/v1", produces = MediaType.APPLICATION_JSON)
 @Tag(name = "Users", description = "Endpoints for Managing Users")
 public class UserRestController {
 
@@ -94,7 +95,7 @@ public class UserRestController {
 
 	@CrossOrigin(origins = {"http://localhost:8080",
 			"https://nofrontier.com.br"})
-	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
@@ -104,7 +105,8 @@ public class UserRestController {
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public UserResponse create(@RequestBody @Valid UserRequest userRequest) throws IOException {
+	public UserResponse create(
+			@ModelAttribute @Valid UserRequest userRequest) throws IOException {
 	       // Check that the password and password confirmation match
         if (!userRequest.getPassword().equals(userRequest.getPasswordConfirmation())) {
             throw new IllegalArgumentException("Password and password confirmation do not match");

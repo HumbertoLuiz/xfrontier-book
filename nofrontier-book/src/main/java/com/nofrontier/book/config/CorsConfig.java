@@ -16,6 +16,7 @@ import com.nofrontier.book.converter.YamlJackson2HttpMessageConverter;
 public class CorsConfig implements WebMvcConfigurer {
 
 	private static final MediaType MEDIA_TYPE_YML = MediaType.valueOf("application/x-yaml");
+	private static final MediaType MULTIPART_FORM_DATA = MediaType.valueOf("multipart/form-data");
 	
 	@Value("${cors.originPatterns:default}")
 	private String corsOriginPatterns = "";
@@ -42,7 +43,8 @@ public class CorsConfig implements WebMvcConfigurer {
 	        .defaultContentType(MediaType.APPLICATION_JSON)
 	        .mediaType("json", MediaType.APPLICATION_JSON)
 	        .mediaType("xml", MediaType.APPLICATION_XML)
-	        .mediaType("x-yaml", MEDIA_TYPE_YML);
+	        .mediaType("x-yaml", MEDIA_TYPE_YML)
+	        .mediaType("multipart", MULTIPART_FORM_DATA);
 	}
 
 }

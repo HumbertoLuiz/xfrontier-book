@@ -9,6 +9,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.nofrontier.book.config.IntegerToUserTypeConverter;
 import com.nofrontier.book.core.enums.UserType;
 import com.nofrontier.book.domain.model.Person;
 import com.nofrontier.book.dto.v1.responses.PersonResponse;
@@ -18,7 +19,11 @@ public class ModelMapperConfig {
 
 	@Bean
 	ModelMapper modelMapper() {
+		
 		ModelMapper modelMapper = new ModelMapper();
+		
+		modelMapper.addConverter(new IntegerToUserTypeConverter());
+		
 		modelMapper.getConfiguration().setFieldMatchingEnabled(true)
 				.setFieldAccessLevel(
 						org.modelmapper.config.Configuration.AccessLevel.PRIVATE)

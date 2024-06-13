@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -161,41 +163,54 @@ public class CustomizedResponseEntityExceptionHandler
 				exception.getLocalizedMessage(), request.getRequestURI());
 	}
 
-	@ExceptionHandler(ValidatingException.class)
-	public ResponseEntity<Object> handleValidatingException(
-			ValidatingException exception) {
-		var body = new HashMap<String, List<String>>();
-		var fieldError = exception.getFieldError();
-		var fieldErrors = new ArrayList<String>();
-		fieldErrors.add(fieldError.getDefaultMessage());
-		var field = camelCaseToSnakeCase.translate(fieldError.getField());
-		body.put(field, fieldErrors);
-		return ResponseEntity.badRequest().body(body);
-	}
+    @ExceptionHandler(ValidatingException.class)
+    public ResponseEntity<Object> handleValidatingException(ValidatingException exception) {
+        Map<String, List<String>> body = new HashMap<>();
+        var fieldError = exception.getFieldError();
+        var fieldErrors = new ArrayList<String>();
+        fieldErrors.add(fieldError.getDefaultMessage());
+        var field = camelCaseToSnakeCase.translate(fieldError.getField());
+        body.put(field, fieldErrors);
 
-	protected ResponseEntity<Object> handleMethodArgumentNotValid(
-			MethodArgumentNotValidException exception, HttpHeaders headers,
-			HttpStatus status, WebRequest request) {
-		var body = new HashMap<String, List<String>>();
-		exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
-			var field = camelCaseToSnakeCase.translate(fieldError.getField());
-			body.computeIfAbsent(field, k -> new ArrayList<>())
-					.add(fieldError.getDefaultMessage());
-		});
-		return ResponseEntity.badRequest().body(body);
-	}
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+    }
 
-	private ResponseEntity<Object> createErrorResponse(HttpStatus status,
-			String message, String path) {
-		var errorResponse = ErrorResponse.builder().status(status.value())
-				.timestamp(LocalDateTime.now()).message(message).path(path)
-				.build();
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Map<String, List<String>> body = new HashMap<>();
+        exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
+            var field = camelCaseToSnakeCase.translate(fieldError.getField());
+            body.computeIfAbsent(field, k -> new ArrayList<>()).add(fieldError.getDefaultMessage());
+        });
 
-		// para garantir que a resposta seja sempre em JSON
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+    }
 
-		return new ResponseEntity<>(errorResponse, headers, status);
-	}
+    protected ResponseEntity<Object> handleBindException(BindException exception, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Map<String, List<String>> body = new HashMap<>();
+        exception.getBindingResult().getFieldErrors().forEach(fieldError -> {
+            var field = camelCaseToSnakeCase.translate(fieldError.getField());
+            body.computeIfAbsent(field, k -> new ArrayList<>()).add(fieldError.getDefaultMessage());
+        });
+
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new ResponseEntity<>(body, headers, HttpStatus.BAD_REQUEST);
+    }
+
+    private ResponseEntity<Object> createErrorResponse(HttpStatus status, String message, String path) {
+        var errorResponse = ErrorResponse.builder()
+                .status(status.value())
+                .timestamp(LocalDateTime.now())
+                .message(message)
+                .path(path)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        return new ResponseEntity<>(errorResponse, headers, status);
+    }
 
 }

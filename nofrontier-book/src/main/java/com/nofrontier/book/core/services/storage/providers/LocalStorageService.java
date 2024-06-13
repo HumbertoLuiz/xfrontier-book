@@ -23,59 +23,69 @@ import com.nofrontier.book.domain.model.Picture;
 import com.nofrontier.book.domain.repository.PictureRepository;
 
 @Service
+//@Profile("dev")
 public class LocalStorageService implements StorageService {
 
-	private final Path folderUpload = Paths.get("uploads");
+    private final Path pastaUpload = Paths.get("uploads");
 
-	@Autowired
-	private PictureRepository pictureRepository;
+    @Autowired
+    private PictureRepository pictureRepository;
 
-	@Override
-	public Picture save(MultipartFile file) throws StorageServiceException {
-		try {
-			return trySave(file);
-		} catch (IOException exception) {
-			throw new StorageServiceException(exception.getLocalizedMessage());
-		}
-	}
-
-	public Resource findPicture(String filename) {
-		var file = folderUpload.resolve(filename);
-		try {
-			return new UrlResource(file.toUri());
-		} catch (MalformedURLException e) {
-		throw new StorageServiceException(e.getLocalizedMessage());
-		}
-	}
-
-	private Picture trySave(MultipartFile file) throws IOException {
-		if (!Files.exists(folderUpload)) {
-			Files.createDirectories(folderUpload);
-		}
-		var picture = generateModelPicture(file);
-		Files.copy(file.getInputStream(), folderUpload.resolve(picture.getFilename()));
-		return pictureRepository.save(picture);
-	}
-
-    private Picture generateModelPicture(MultipartFile file) throws IOException {
-		var picture = new Picture();
-		var filename = generateNewFilename(file.getOriginalFilename());
-        var url= linkTo(methodOn(StorageRestController.class).findPicture(filename)).toString();
-		picture.setFilename(filename);
-		picture.setContentLength(file.getSize());
-		picture.setContentType(file.getContentType());
-        picture.setUrl(url);
-		return picture;
-	}
-
-    private String generateNewFilename(String filenameOriginal) {
-        var ext= filenameOriginal.split("\\.")[1];
-        var filename= UUID.randomUUID().toString() + "." + ext;
-        return filename;
+    @Override
+    public Picture save(MultipartFile file) throws StorageServiceException {
+        try {
+            return trySave(file);
+        } catch (IOException exception) {
+            throw new StorageServiceException(exception.getLocalizedMessage());
+        }
     }
 
-	@Override
-	public void remove(String filename) throws StorageServiceException {
-	}
+    @Override
+    public void remove(String filename) throws StorageServiceException {
+        var arquivo = pastaUpload.resolve(filename);
+
+        try {
+            Files.deleteIfExists(arquivo);
+        } catch (IOException exception) {
+            throw new StorageServiceException(exception.getLocalizedMessage());
+        }
+    }
+
+    public Resource findPicture(String filename) {
+        var arquivo = pastaUpload.resolve(filename);
+
+        try {
+            return new UrlResource(arquivo.toUri());
+        } catch (MalformedURLException e) {
+            throw new StorageServiceException(e.getLocalizedMessage());
+        }
+    }
+
+    private Picture trySave(MultipartFile file) throws IOException {
+        if (!Files.exists(pastaUpload)) {
+            Files.createDirectories(pastaUpload);
+        }
+
+        var picture = generateModelPicture(file);
+        Files.copy(file.getInputStream(), pastaUpload.resolve(picture.getFilename()));
+        return pictureRepository.save(picture);
+    }
+
+    private Picture generateModelPicture(MultipartFile file) throws IOException {
+        var picture = new Picture();
+        var filename = generateNewFilename(file.getOriginalFilename());
+        var url = linkTo(methodOn(StorageRestController.class).findPicture(filename)).toString();
+        picture.setFilename(filename);
+        picture.setContentLength(file.getSize());
+        picture.setContentType(file.getContentType());
+        picture.setUrl(url);
+        return picture;
+    }
+
+    private String generateNewFilename(String filenameOriginal) {
+        var ext = filenameOriginal.split("\\.")[1];
+        var filename = UUID.randomUUID().toString() + "." + ext;
+        return filename;
+    }
 
 }

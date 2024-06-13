@@ -48,6 +48,7 @@ import com.nofrontier.book.utils.SecurityUtils;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.validation.constraints.Size;
 
 @Service
 public class ApiUserService {
@@ -125,9 +126,10 @@ public class ApiUserService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
+	@Transactional
 	public UserResponse create(UserRequest request) throws IOException {
 		validatePasswordConfirmation(request);
-
+ 
 		var userToSave = modelMapper.map(request, User.class);
 		
 //		// Get person by ID from the request
@@ -149,18 +151,17 @@ public class ApiUserService {
 				.encode(userToSave.getPassword());
 		userToSave.setPassword(passwordEncrypted);
 
+        // Convert and save document picture
+        if (request.getDocumentPicture() != null && !request.getDocumentPicture().isEmpty()) {
+            Picture documentPicture = storageService.save(request.getDocumentPicture());
+            userToSave.setDocumentPicture(documentPicture);
+        }
 
-		// Saves the user's document image if it's not null
-		if (request.getDocumentPicture() != null && !request.getDocumentPicture().isEmpty()) {
-			var documentPicture = saveMultipartFile(request.getDocumentPicture());
-			userToSave.setDocumentPicture(documentPicture);
-		}
-		
-		// Saves the user's user picture if it's not null
-		if (request.getUserPicture() != null && !request.getUserPicture().isEmpty()) {
-			var userPicture = saveMultipartFile(request.getUserPicture());
-			userToSave.setUserPicture(userPicture);
-		}
+        // Convert and save user picture
+        if (request.getUserPicture() != null && !request.getUserPicture().isEmpty()) {
+            Picture userPicture = storageService.save(request.getUserPicture());
+            userToSave.setUserPicture(userPicture);
+        }
 		
 		// Saves the user in the repository
 		var userSaved = userRepository.save(userToSave);
@@ -377,12 +378,4 @@ public class ApiUserService {
 
 	// -------------------------------------------------------------------------------------------------------------
 
-	private Picture saveMultipartFile(MultipartFile file) throws IOException {
-		var picture = new Picture();
-		picture.setFilename(file.getOriginalFilename());
-		picture.setContentLength(file.getSize());
-		picture.setContentType(file.getContentType());
-		picture.setUrl(file.getBytes().toString());
-		return storageService.save((MultipartFile) picture);
-	}
 }

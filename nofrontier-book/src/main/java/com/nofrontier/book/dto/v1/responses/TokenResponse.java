@@ -9,6 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TokenResponse {
 
+//	private Boolean authenticated;
+//	private Date created;
+//	private Date expiration;
+	
     private String access;
     private String refresh;
 

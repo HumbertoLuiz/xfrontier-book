@@ -37,4 +37,5 @@ public class Picture extends IdBaseEntity implements Serializable {
 
 	@Column(nullable = false)
 	private String url;
+
 }

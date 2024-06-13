@@ -14,22 +14,25 @@ import com.nofrontier.book.domain.repository.PictureRepository;
 
 @RestController
 @RequestMapping("/uploads")
+//@Profile("dev")
 public class StorageRestController {
 
-	@Autowired
-	private PictureRepository pictureRepository;
+    @Autowired
+    private PictureRepository pictureRepository;
 
-	@Autowired
-	private LocalStorageService localStorageService;
+    @Autowired
+    private LocalStorageService localStorageService;
 
-	@GetMapping
-	public ResponseEntity<Object> findPicture(@RequestParam String filename) throws IOException {
-		var picture = pictureRepository.findByFilename(filename).get();
-		var file = localStorageService.findPicture(filename);
-		return ResponseEntity.ok()
-				.header("Content-Type", picture.getContentType())
-				.header("Content-Length", picture.getContentLength().toString())
-				.body(file.getInputStream().readAllBytes());
-	}
+    @GetMapping
+    public ResponseEntity<Object> findPicture(@RequestParam String filename) throws IOException {
+        var picture = pictureRepository.findByFilename(filename).get();
+        var file = localStorageService.findPicture(filename);
+
+        return ResponseEntity.ok()
+            .header("Content-Type", picture.getContentType())
+            .header("Content-Length", picture.getContentLength().toString())
+            .body(file.getInputStream().readAllBytes());
+    }
 
 }
+

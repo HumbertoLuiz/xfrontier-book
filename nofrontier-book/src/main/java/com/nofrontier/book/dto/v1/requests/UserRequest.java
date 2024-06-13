@@ -7,10 +7,6 @@ import java.util.Set;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.nofrontier.book.core.enums.UserType;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonNaming(SnakeCaseStrategy.class)
+//@JsonNaming(SnakeCaseStrategy.class) // não funciona com @ModelAttribute apenas com @RequestBody
 public class UserRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -48,14 +44,35 @@ public class UserRequest implements Serializable {
 	private OffsetDateTime registerDate;
 
 	@NotNull(message = "{not.null.message}")
-	private UserType userType;
+	private Integer userType;
 
-	private MultipartFile documentPicture;
+	private MultipartFile documentPicture; // precisa usar @ModelAttribute ao invés de @RequestBody senão não funciona
 
-	private MultipartFile userPicture;
+	private MultipartFile userPicture; // precisa usar @ModelAttribute ao invés de @RequestBody senão não funciona
 
 	@NotNull(message = "{not.null.message}")
 	private Boolean enabled;
+	
+	
+    public void setComplete_name(String completeName) {
+        setCompleteName(completeName);
+    }
+
+    public void setPassword_confirmation(String passwordConfirmation) {
+        setPasswordConfirmation(passwordConfirmation);
+    }
+
+    public void setUser_type(Integer userType) {
+        setUserType(userType);
+    }
+
+    public void setDocument_picture(MultipartFile documentPicture) {
+        setDocumentPicture(documentPicture);
+    }
+
+    public void setUser_picture(MultipartFile userPicture) {
+        setUserPicture(userPicture);
+    }
 	
 	// @NotNull(message = "{not.null.message}") // removed to be able to register user without having to specify person
 	private Long personId;
