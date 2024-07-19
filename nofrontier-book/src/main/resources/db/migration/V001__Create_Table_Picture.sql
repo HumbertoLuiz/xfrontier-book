@@ -1,4 +1,4 @@
-CREATE TABLE `picture` (
+CREATE TABLE IF NOT EXISTS `picture` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `filename` varchar(255) NOT NULL,
   `content_length` bigint NOT NULL,

@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties("nofrontier.email")
+@ConfigurationProperties("com.nofrontier.email")
 public class EmailProperties {
 
 	private Implementation impl = Implementation.FAKE;

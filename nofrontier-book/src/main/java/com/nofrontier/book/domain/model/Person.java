@@ -62,6 +62,4 @@ public class Person extends IdBaseEntity implements Serializable {
 	@OneToMany(mappedBy = "person", fetch = FetchType.LAZY)
 	private Set<Address> addresses = new HashSet<>();
 
-	public void setAddresses(Address address) {}
-
 }

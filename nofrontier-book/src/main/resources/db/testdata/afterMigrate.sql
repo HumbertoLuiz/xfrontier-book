@@ -1,75 +1,75 @@
-
+SET GLOBAL sql_mode = '';
 SET foreign_key_checks = 0;
 
 
-lock tables picture write, payment_method write, person write, countries write, states write, cities write, 
-			address write, users write, order_entity write, category write, books write, order_book write,
-			product write, book_user_responsible write, order_item write, book_payment_method write, product_image write, 
-			permission write, group_entity write, group_permission write, user_group write, user_permission write, 
-			city_user write, token_black_list write, rating write, password_reset write;  
+lock tables `picture` write, `payment_method` write, `person` write, `countries` write, `states` write, `cities` write, 
+			`address` write, `users` write, `order_entity` write, `category` write, `books` write, `order_book` write,
+			`product` write, `book_user_responsible` write, `order_item` write, `book_payment_method` write, `product_image` write, 
+			`permission` write, `group_entity` write, `group_permission` write, `user_group` write, `user_permission` write, 
+			`city_user` write, `token_black_list` write, `rating` write, `password_reset` write;  
 
 SET SQL_SAFE_UPDATES=0;
 
-DELETE FROM picture;
-DELETE FROM payment_method;
-DELETE FROM person;
-DELETE FROM countries;
-DELETE FROM states;
-DELETE FROM cities;
-DELETE FROM address;
-DELETE FROM users;
-DELETE FROM order_entity;
-DELETE FROM category;
-DELETE FROM books;
-DELETE FROM order_book;
-DELETE FROM product;
-DELETE FROM book_user_responsible;
-DELETE FROM order_item;
-DELETE FROM book_payment_method;
-DELETE FROM product_image;
-DELETE FROM permission;
-DELETE FROM group_entity;
-DELETE FROM group_permission;
-DELETE FROM user_group;
-DELETE FROM user_permission;
-DELETE FROM city_user;
-DELETE FROM token_black_list;
-DELETE FROM rating;
-DELETE FROM password_reset;
+DELETE FROM `picture`;
+DELETE FROM `payment_method`;
+DELETE FROM `person`;
+DELETE FROM `countries`;
+DELETE FROM `states`;
+DELETE FROM `cities`;
+DELETE FROM `address`;
+DELETE FROM `users`;
+DELETE FROM `order_entity`;
+DELETE FROM `category`;
+DELETE FROM `books`;
+DELETE FROM `order_book`;
+DELETE FROM `product`;
+DELETE FROM `book_user_responsible`;
+DELETE FROM `order_item`;
+DELETE FROM `book_payment_method`;
+DELETE FROM `product_image`;
+DELETE FROM `permission`;
+DELETE FROM `group_entity`;
+DELETE FROM `group_permission`;
+DELETE FROM `user_group`;
+DELETE FROM `user_permission`;
+DELETE FROM `city_user`;
+DELETE FROM `token_black_list`;
+DELETE FROM `rating`;
+DELETE FROM `password_reset`;
 
 
 SET SQL_SAFE_UPDATES=1;
 
 SET foreign_key_checks = 1;
 
-ALTER TABLE picture auto_increment = 1;
-ALTER TABLE payment_method auto_increment = 1;
-ALTER TABLE person auto_increment = 1;
-ALTER TABLE countries auto_increment = 1;
-ALTER TABLE states auto_increment = 1;
-ALTER TABLE cities auto_increment = 1;
-ALTER TABLE address auto_increment = 1;
-ALTER TABLE users auto_increment = 1;
-ALTER TABLE order_entity auto_increment = 1;
-ALTER TABLE category auto_increment = 1;
-ALTER TABLE books auto_increment = 1;
-ALTER TABLE order_book auto_increment = 1;
-ALTER TABLE product auto_increment = 1;
-ALTER TABLE book_user_responsible auto_increment = 1;
-ALTER TABLE order_item auto_increment = 1;
-ALTER TABLE book_payment_method auto_increment = 1;
-ALTER TABLE product_image auto_increment = 1;
-ALTER TABLE permission auto_increment = 1;
-ALTER TABLE group_entity auto_increment = 1;
-ALTER TABLE token_black_list auto_increment = 1;
-ALTER TABLE rating auto_increment = 1;
-ALTER TABLE password_reset auto_increment = 1;
+ALTER TABLE `picture` auto_increment = 1;
+ALTER TABLE `payment_method` auto_increment = 1;
+ALTER TABLE `person` auto_increment = 1;
+ALTER TABLE `countries` auto_increment = 1;
+ALTER TABLE `states` auto_increment = 1;
+ALTER TABLE `cities` auto_increment = 1;
+ALTER TABLE `address` auto_increment = 1;
+ALTER TABLE `users` auto_increment = 1;
+ALTER TABLE `order_entity` auto_increment = 1;
+ALTER TABLE `category` auto_increment = 1;
+ALTER TABLE `books` auto_increment = 1;
+ALTER TABLE `order_book` auto_increment = 1;
+ALTER TABLE `product` auto_increment = 1;
+ALTER TABLE `book_user_responsible` auto_increment = 1;
+ALTER TABLE `order_item` auto_increment = 1;
+ALTER TABLE `book_payment_method` auto_increment = 1;
+ALTER TABLE `product_image` auto_increment = 1;
+ALTER TABLE `permission` auto_increment = 1;
+ALTER TABLE `group_entity` auto_increment = 1;
+ALTER TABLE `token_black_list` auto_increment = 1;
+ALTER TABLE `rating` auto_increment = 1;
+ALTER TABLE `password_reset` auto_increment = 1;
 
 
-INSERT INTO payment_method (id, description, value, created_at, updated_at, payment_status, book_status, transaction_id) VALUES
-    (1, 'Credit Card', 0.0, UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
-    (2, 'Debit Card', 0.0, UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
-    (3, 'Cash', 0.0, UTC_TIMESTAMP(), UTC_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55');
+INSERT INTO `payment_method` (`id`, `description`, `value`, `created_at`, `updated_at`, `payment_status`, `book_status`, `transaction_id`) VALUES
+    (1, 'Credit Card', 0.0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
+    (2, 'Debit Card', 0.0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55'),
+    (3, 'Cash', 0.0, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP(), 'ACCEPTED', 'PAID', 'f9981ca4-5a5e-4da3-af04-933861df3e55');
 
 
 INSERT INTO `person` (`id`, `first_name`, `last_name`, `gender`, `cpf`, `birth`, `phone_number`, `mobile_number`, `key_pix`, `enabled`) VALUES
@@ -326,7 +326,7 @@ INSERT INTO `countries` (`id`, `name`, `initials`) VALUES
 
 
 
-INSERT INTO states (id, name, ibge_code, country_id) VALUES 
+INSERT INTO `states` (`id`, `name`, `ibge_code`, `country_id`) VALUES 
 (1, 'Acre', '12', 30), 
 (2, 'Alagoas', '27', 30),
 (3, 'Amapá', '16', 30),
@@ -356,7 +356,7 @@ INSERT INTO states (id, name, ibge_code, country_id) VALUES
 (27, 'Tocantins', '17', 30);
 
 
-INSERT INTO cities (name, ibge_code, state_id) VALUES 
+INSERT INTO `cities` (`name`, `ibge_code`, `state_id`) VALUES 
 ("Alta Floresta D'Oeste",	"1100015",	22),
 ("Alto Alegre dos Parecis",	"1100379",	22),
 ("Alto Paraíso",	"1100403",	22),
@@ -5929,7 +5929,7 @@ INSERT INTO cities (name, ibge_code, state_id) VALUES
 ("Brasília",	"5300108",	7);
 
 
-INSERT INTO address (id, street, number, neighborhood, complement, zip_code, address_type, city_id, person_id) VALUES 
+INSERT INTO `address` (`id`, `street`, `number`, `neighborhood`, `complement`, `zip_code`, `address_type`, `city_id`, `person_id`) VALUES 
 (1, 'Rua Floriano Peixoto', '500', 'Brasil', 'Apto 801', '38400000', 'RESIDENTIAL', 3069, 1),
 (2, 'Rua Acre', '300', 'Centro', 'Casa 2', '38400111', 'RESIDENTIAL', 3069, 2),
 (3, 'Rua Natal', '200', 'Brasil', null, '38400222', 'RESIDENTIAL', 3069, 3),
@@ -5938,29 +5938,29 @@ INSERT INTO address (id, street, number, neighborhood, complement, zip_code, add
 (6, 'Rua Amâncio Jorge Monteiro', '458', 'Segismundo Pereira', 'Casa', '38408350', 'RESIDENTIAL', 3069, 6),
 (7, 'Avenida Nossa Senhora do Carmo', '112', 'Santa Rosa', 'Casa', '38401710', 'RESIDENTIAL', 3069, 7 );
 
-INSERT INTO users (id, complete_name, email, password, register_date, user_type, enabled, person_id, document_picture, user_picture) VALUES
-(1, 'João da Silva', 'admin@mail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'ADMIN', true, 1, null, null),
-(2, 'Maria Joaquina', 'maria.vnd@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'MANAGER', true, 2, null, null),
-(3, 'José Souza', 'jose.aux@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'REGISTER', true, 3, null, null),
-(4, 'Sebastião Martins', 'sebastiao.cad@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'CUSTOMER', true, 4, null, null),
-(5, 'Manoel Lima', 'manoel.loja@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'CUSTOMER', true, 5, null, null),
-(6, 'Débora Mendonça', 'email.teste.aw+debora@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'CUSTOMER', true, 6, null, null),
-(7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', UTC_TIMESTAMP(), 'CUSTOMER', true, 7, null, null);
+INSERT INTO `users` (`id`, `complete_name`, `email`, `password`, `register_date`, `user_type`, `enabled`, `person_id`, `document_picture`, `user_picture`) VALUES
+(1, 'João da Silva', 'admin@mail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'ADMIN', true, 1, null, null),
+(2, 'Maria Joaquina', 'maria.vnd@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'MANAGER', true, 2, null, null),
+(3, 'José Souza', 'jose.aux@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'REGISTER', true, 3, null, null),
+(4, 'Sebastião Martins', 'sebastiao.cad@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 4, null, null),
+(5, 'Manoel Lima', 'manoel.loja@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 5, null, null),
+(6, 'Débora Mendonça', 'email.teste.aw+debora@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 6, null, null),
+(7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 7, null, null);
 
 
-INSERT INTO order_entity (id, code, subtotal, shipping_rate, total_value,  
-order_status, creation_date, confirmation_date, cancellation_date, delivery_date, 
+INSERT INTO `order_entity` (`id`, `code`, `subtotal`, `shipping_rate`, `total_value`,  
+`order_status`, `creation_date`, `confirmation_date`, `cancellation_date`, `delivery_date`, 
 payment_method_id, user_customer_id, shipping_address_id) VALUES 
-(1, 'f9981ca4-5a5e-4da3-af04-933861df3e55', 1204.70, 16, 1220.70, 'CREATED', utc_timestamp, null, null, null, 1, 6, 1),
-(2, 'd178b637-a785-4768-a3cb-aa1ce5a8cdab', 182.33, 0, 182.33, 'CREATED', utc_timestamp, null, null, null, 2, 6, 1),
-(3, 'b5741512-8fbc-47fa-9ac1-b530354fc0ff', 331.81, 16, 347.81, 'DELIVERED', utc_timestamp, '2019-10-30 21:10:00', '2019-10-30 21:10:45', '2019-10-30 21:55:44', 1, 7, 1),
-(4, '5c621c9a-ba61-4454-8631-8aabefe58dc2', 379.14, 16, 395.14, 'DELIVERED', utc_timestamp, '2019-11-02 20:34:04', '2019-11-02 20:35:10', '2019-11-02 21:10:32', 1, 7, 1),
-(5, '8d774bcf-b238-42f3-aef1-5fb388754d63', 189.57, 16, 205.57, 'DELIVERED', utc_timestamp, '2019-11-03 02:00:30', '2019-11-03 02:01:21', '2019-11-03 02:20:10', 2, 3, 1);
+(1, 'f9981ca4-5a5e-4da3-af04-933861df3e55', 1204.70, 16, 1220.70, 'CREATED', CURRENT_TIMESTAMP(), null, null, null, 1, 6, 1),
+(2, 'd178b637-a785-4768-a3cb-aa1ce5a8cdab', 182.33, 0, 182.33, 'CREATED', CURRENT_TIMESTAMP(), null, null, null, 2, 6, 1),
+(3, 'b5741512-8fbc-47fa-9ac1-b530354fc0ff', 331.81, 16, 347.81, 'DELIVERED', CURRENT_TIMESTAMP(), '2019-10-30 21:10:00', '2019-10-30 21:10:45', '2019-10-30 21:55:44', 1, 7, 1),
+(4, '5c621c9a-ba61-4454-8631-8aabefe58dc2', 379.14, 16, 395.14, 'DELIVERED', CURRENT_TIMESTAMP(), '2019-11-02 20:34:04', '2019-11-02 20:35:10', '2019-11-02 21:10:32', 1, 7, 1),
+(5, '8d774bcf-b238-42f3-aef1-5fb388754d63', 189.57, 16, 205.57, 'DELIVERED', CURRENT_TIMESTAMP(), '2019-11-03 02:00:30', '2019-11-03 02:01:21', '2019-11-03 02:20:10', 2, 3, 1);
 
 
 
 
-INSERT INTO category (id, title, name, description) VALUES
+INSERT INTO `category` (`id`, `title`, `name`, `description`) VALUES
 (1, 'Administração, Negócios e Economia', 'Desenvolvimento de Negócios e Empreendedorismo', null),
 (2, 'Arte, Cinema e Fotografia', 'Artes Cênicas', null),
 (3, 'Artesanato, Casa e Estilo de Vida', 'Design de Interiores', null),
@@ -5979,7 +5979,7 @@ INSERT INTO category (id, title, name, description) VALUES
 
 
 
-INSERT INTO books (id, title, author, isbn, launch_date, registration_date, update_date, created_by, last_modified_by, active, book_status, price, shipping_rate, observation, reason_cancellation, category_id) VALUES 
+INSERT INTO `books` (`id`, `title`, `author`, `isbn`, `launch_date`, `registration_date`, `update_date`, `created_by`, `last_modified_by`, `active`, `book_status`, `price`, `shipping_rate`, `observation`, `reason_cancellation`, `category_id`) VALUES 
 (1, 'Working effectively with legacy code', 'Michael C. Feathers', '9780136657125', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 'PAID', 0.0, 0.0, null, null, 7),
 (2, 'Design Patterns', 'Ralph Johnson, Erich Gamma, John Vlissides e Richard Helm', '9788131700075', '2017-11-29', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 'PAID', 0.0, 0.0, null, null, 7),
 (3, 'Clean Code', 'Robert C. Martin', '9780132350884', '2009-01-10', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 'PAID', 0.0, 0.0, null, null, 7),
@@ -5997,7 +5997,7 @@ INSERT INTO books (id, title, author, isbn, launch_date, registration_date, upda
 (15, 'Implantando a governança de TI', 'Aguinaldo Aragon Fernandes e Vladimir Ferraz de Abreu', '9788574526584', '2017-11-07', '2024-05-15 10:30:00', '2024-05-15 10:30:00', 1, 1, true, 'PAID', 0.0, 0.0, null, null, 7);
 
 
-INSERT INTO order_book (order_id, book_id) VALUES 
+INSERT INTO `order_book` (`order_id`, `book_id`) VALUES 
 (1, 1),
 (1, 2),
 (2, 6),
@@ -6005,7 +6005,7 @@ INSERT INTO order_book (order_id, book_id) VALUES
 (4, 3),
 (5, 3);
 
-insert into product (id, description, format, edition, price, active, book_id) values 
+insert into `product` (`id`, `description`, `format`, `edition`, `price`, `active`, `book_id`) values 
 (1, 'Is your code easy to change? Can you get nearly instantaneous feedback when you do change it? Do you understand it? If the answer to any of these questions is no, you have legacy code, and it is draining time and money away from your development efforts. `In` this book, Michael Feathers offers start-to-finish strategies for working more effectively with large, untested legacy code bases. This book draws `on` material Michael created for his renowned Object Mentor seminars: techniques Michael has used `in` mentoring to help hundreds of developers, technical managers, `and` testers bring their legacy systems under control.', 'Capa comun', '1ª Edition, english', 541.08, 0, 1),
 (2, 'Patterns allow designers to create more flexible, elegant, and ultimately reusable designs without having to rediscover the design solutions themselves. Highly influential, Design Patterns is a modern classic that introduces what patterns are and how they can help you design object-oriented software and provides a catalog of simple solutions for those already programming in at last one object-oriented programming language.', 'Capa comun', '1ª Edition, english', 331.81, 1, 2),
 (3, 'Noted software expert Robert C. Martin presents a revolutionary paradigm with Clean Code: A Handbook of Agile Software Craftsmanship. Martin has teamed up with his colleagues from Object Mentor to distill their best agile practice of cleaning code “on the fly” into a book that will instill within you the values of a software craftsman and make you a better programmer—but only if you work at it. What kind of work will you be doing? You’ll be reading code—lots of code. And you will be challenged to think about what’s right about that code, and what’s wrong with it. More importantly, you will be challenged to reassess your professional values and your commitment to your craft. Clean Code is divided into three parts. The first describes the principles, patterns, and practices of writing clean code. The second part consists of several case studies of increasing complexity. Each case study is an exercise in cleaning up code—of transforming a code base that has some problems into one that is sound and efficient. The third part is the payoff: a single chapter containing a list of heuristics and “smells” gathered while creating the case studies. The result is a knowledge base that describes the way we think when we write, read, and clean code.',  'Capa comun', '1ª Edition, english', 189.57, 1, 3),
@@ -6023,9 +6023,9 @@ insert into product (id, description, format, edition, price, active, book_id) v
 (15, 'Este livro apresenta uma visão integrada e inovadora da Governança de TI que pode ser adaptada a vários ambientes organizacionais. A partir de um modelo genérico os autores detalham as etapas de implementação da Governança de TI abrangendo o alinhamento estratégico da TI ao negócio a elaboração do Portfolio de TI as operações e serviços de TI os modelos de relacionamento com usuários clientes e fornecedores e por fim a gestão de desempenho da TI. São analisadas as características e benefícios de mais de 20 modelos de melhores práticas que podem ser aplicados aos processos de TI dentre eles assim como as implicações de regulamentações externas como a Sarbanes-Oxley e o Acordo da Basiléia II sobre as atividades de TI. Outro ponto relevante do livro é um Capítulo inteiramente dedicado ao outsourcing que aborda os principais elementos da Governança de TI que influenciam a gestão de serviços terceirizados e mostra como os modelos de melhores práticas podem ser usados nesse contexto.', 'Capa comun', '1ª Edition, portugues', 33.00, 1, 15);
 
 
-insert into book_user_responsible (book_id, user_id) values (1, 5), (3, 5);
+insert into `book_user_responsible` (`book_id`, `user_id`) values (1, 5), (3, 5);
 
-INSERT INTO order_item (id, order_id, book_id, quantity, unit_price, total_price, observation) VALUES 
+INSERT INTO `order_item` (`id`, `order_id`, `book_id`, `quantity`, `unit_price`, `total_price`, `observation`) VALUES 
 	(1, 1, 1, 1, 541.08, 541.08, null),
 	(2, 1, 2, 2, 331.81, 663.62, null),
 	(3, 2, 6, 1, 182.33, 182.33, null),
@@ -6034,11 +6034,11 @@ INSERT INTO order_item (id, order_id, book_id, quantity, unit_price, total_price
 	(6, 5, 3, 1, 189.57, 189.57, null);
 
 
-insert into book_payment_method (book_id, payment_method_id) values 
+insert into `book_payment_method` (`book_id`, `payment_method_id`) values 
 (1, 1), (1, 2), (1, 3), (2, 3), (3, 2), (3, 3), (4, 1), (4, 2), (5, 1), (5, 2), (6, 3);
 
 
-INSERT INTO permission (id, name, description) VALUES 
+INSERT INTO `permission` (`id`, `name`, `description`) VALUES 
 (1, 'EDIT_BOOKS', 'Allows edit books'),
 (2, 'EDIT_PAYMENT_METHODS', 'Allows generate or edit payment methods'),
 (3, 'EDIT_CITIES', 'Allows generate or edit cities'),
@@ -6051,7 +6051,7 @@ INSERT INTO permission (id, name, description) VALUES
 (10,'GENERATE_REPORTS', 'Allows generate reports');
 
 
-INSERT INTO group_entity (id, name) VALUES 
+INSERT INTO `group_entity` (`id`, `name`) VALUES 
 	(1, 'ADMIN'),
 	(2, 'MANAGER'), 
 	(3, 'COMMON_USER'), 
@@ -6059,26 +6059,26 @@ INSERT INTO group_entity (id, name) VALUES
 
 
 # Adiciona todas permissoes no grupo do admin
-INSERT INTO group_permission (group_id, permission_id)
-SELECT 1, id FROM permission;
+INSERT INTO `group_permission` (`group_id`, `permission_id`)
+SELECT 1, `id` FROM `permission`;
 
 # Adiciona permissoes no grupo do gerente
-INSERT INTO group_permission (group_id, permission_id)
-SELECT 2, id FROM permission WHERE name LIKE 'CONSULT_%';
+INSERT INTO `group_permission` (`group_id`, `permission_id`)
+SELECT 2, `id` FROM `permission` WHERE `name` LIKE 'CONSULT_%';
 
-INSERT INTO group_permission (group_id, permission_id)
-SELECT 2, id FROM permission WHERE name = 'EDIT_ORDERS';
+INSERT INTO `group_permission` (`group_id`, `permission_id`)
+SELECT 2, `id` FROM `permission` WHERE `name` = 'EDIT_ORDERS';
 
 # Adiciona permissoes no grupo do common user
-INSERT INTO group_permission (group_id, permission_id)
-SELECT 3, id FROM permission WHERE name LIKE 'CONSULT_%';
+INSERT INTO `group_permission` (`group_id`, `permission_id`)
+SELECT 3, `id` FROM `permission` WHERE `name` LIKE 'CONSULT_%';
 
 # Adiciona permissoes no grupo Register
-INSERT INTO group_permission (group_id, permission_id)
-SELECT 4, id FROM permission WHERE name LIKE '%_ORDERS';
+INSERT INTO `group_permission` (`group_id`, `permission_id`)
+SELECT 4, `id` FROM `permission` WHERE `name` LIKE '%_ORDERS';
 
 
-INSERT INTO user_group (user_id, group_id) VALUES 
+INSERT INTO `user_group` (`user_id`, `group_id`) VALUES 
 	(1, 1), 
 	(1, 2), 
 	(2, 2), 

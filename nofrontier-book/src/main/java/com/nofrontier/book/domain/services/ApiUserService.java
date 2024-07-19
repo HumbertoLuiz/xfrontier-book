@@ -48,7 +48,6 @@ import com.nofrontier.book.utils.SecurityUtils;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.validation.constraints.Size;
 
 @Service
 public class ApiUserService {

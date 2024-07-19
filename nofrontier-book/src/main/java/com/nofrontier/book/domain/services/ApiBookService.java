@@ -4,7 +4,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -122,7 +121,7 @@ public class ApiBookService {
 		if (optionalCategory.isEmpty()) {
 			// Handle case when person with provided ID does not exist
 			throw new CategoryNotFoundException(
-					"Person not found with ID: " + categoryId);
+					"Book not found with ID: " + categoryId);
 		}
 		Category category = optionalCategory.get();
 		entity.setCategory(category);
@@ -202,10 +201,4 @@ public class ApiBookService {
 		}
 	}
 
-	public BookResponse findById(Set<Book> books) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	
 }

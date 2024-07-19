@@ -209,5 +209,5 @@ public class ApiPersonService {
 			throw new EntityInUseException(String.format(MSG_PERSON_IN_USE, id));
 		}
 	}
-	
+
 }

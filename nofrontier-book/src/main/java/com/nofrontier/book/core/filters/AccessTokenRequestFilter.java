@@ -22,12 +22,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-
-
 @Component
 public class AccessTokenRequestFilter extends OncePerRequestFilter {
 
-    private final static String TOKEN_TYPE = "Bearer ";
+    private static final String TOKEN_TYPE = "Bearer ";
 
 	private final TokenService tokenService;
     private final UserDetailsService userDetailsService;

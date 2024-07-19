@@ -1,4 +1,4 @@
-package com.nofrontier.book.config;
+package com.nofrontier.book.converter;
 
 import org.modelmapper.Converter;
 import org.modelmapper.spi.MappingContext;

@@ -2,9 +2,7 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -51,11 +49,11 @@ public class User extends IdBaseEntity implements Serializable {
 	private String password;
 
 	@CreationTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "register_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime registerDate;
 
 	@Enumerated(EnumType.STRING)
-	@Column(length = 11, nullable = false)
+	@Column(name = "user_type", length = 11, nullable = false)
 	private UserType userType;
 
 	@OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
@@ -74,11 +72,11 @@ public class User extends IdBaseEntity implements Serializable {
 	@JoinColumn(name = "person_id", nullable = true)
 	private Person person;
 
-	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
-	@JoinTable(name = "user_permission", joinColumns = {
-			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
-					@JoinColumn(name = "permission_id")})
-	private Set<Permission> permissions = new HashSet<>();
+//	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
+//	@JoinTable(name = "user_permission", joinColumns = {
+//			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
+//					@JoinColumn(name = "permission_id")})
+//	private Set<Permission> permissions = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
 	@JoinTable(name = "user_group", joinColumns = {
@@ -86,17 +84,17 @@ public class User extends IdBaseEntity implements Serializable {
 					@JoinColumn(name = "group_id")})
 	private Set<Group> groups = new HashSet<>();
 
-	public List<String> getRoles() {
-		List<String> roles = new ArrayList<>();
-		for (Permission permission : permissions) {
-			roles.add(permission.getDescription());
-		}
-		return roles;
-	}
-
-	public void addRole(Permission role) {
-		permissions.add(role);
-	}
+//	public List<String> getRoles() {
+//		List<String> roles = new ArrayList<>();
+//		for (Permission permission : permissions) {
+//			roles.add(permission.getDescription());
+//		}
+//		return roles;
+//	}
+//
+//	public void addRole(Permission role) {
+//		permissions.add(role);
+//	}
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
 	@JoinTable(name = "city_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "city_id"))

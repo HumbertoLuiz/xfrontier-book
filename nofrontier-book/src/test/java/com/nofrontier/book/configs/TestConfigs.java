@@ -10,6 +10,7 @@ public class TestConfigs {
 	public static final String CONTENT_TYPE_JSON = "application/json";
 	public static final String CONTENT_TYPE_XML = "application/xml";
 	public static final String CONTENT_TYPE_YML = "application/x-yaml";
+	public static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
 	public static final String ORIGIN_NFRONTIER = "https://nfrontier.com.br";
 	public static final String ORIGIN_XFRONTIER = "https://xfrontier.com.br";

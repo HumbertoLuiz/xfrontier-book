@@ -13,7 +13,7 @@ import com.nofrontier.book.domain.services.SendEmailService.Message;
 public class NotificationCustomerOrderConfirmedListener {
 
 	@Autowired
-	private SendEmailService sendEmail;
+	private SendEmailService sendEmailService;
 	
 	@TransactionalEventListener
 	public void toConfirmOrder(OrderConfirmedEvent event) {
@@ -26,7 +26,7 @@ public class NotificationCustomerOrderConfirmedListener {
 				.addressee(order.getCustomer().getEmail())
 				.build();
 
-		sendEmail.send(message);
+		sendEmailService.send(message);
 	}
 	
 }

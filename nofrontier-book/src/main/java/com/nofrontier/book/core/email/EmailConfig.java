@@ -5,9 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.nofrontier.book.domain.services.SendEmailService;
-import com.nofrontier.book.infrastructure.service.email.FakeEnvioEmailService;
-import com.nofrontier.book.infrastructure.service.email.SandboxEnvioEmailService;
-import com.nofrontier.book.infrastructure.service.email.SmtpEnvioEmailService;
+import com.nofrontier.book.infrastructure.service.email.FakeSendEmailService;
+import com.nofrontier.book.infrastructure.service.email.SandboxSendEmailService;
+import com.nofrontier.book.infrastructure.service.email.SmtpSendEmailService;
 
 @Configuration
 public class EmailConfig {
@@ -16,14 +16,14 @@ public class EmailConfig {
 	private EmailProperties emailProperties;
 
 	@Bean
-	SendEmailService envioEmailService() {
+	SendEmailService sendEmailService() {
 		switch (emailProperties.getImpl()) {
 			case FAKE:
-				return new FakeEnvioEmailService();
+				return new FakeSendEmailService();
 			case SMTP:
-				return new SmtpEnvioEmailService();
+				return new SmtpSendEmailService();
 			case SANDBOX:
-				return new SandboxEnvioEmailService();
+				return new SandboxSendEmailService();
 			default:
 				return null;
 		}

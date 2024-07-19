@@ -1,12 +1,11 @@
 server:
-  port: 8080
+  port: 8888
   
   error:
     include-stacktrace: never
 
   tomcat:
     max-http-form-post-size: 5000000
-
   
 #não colocar espaço depois da virgula entre os domínios
 cors:
@@ -24,55 +23,15 @@ spring:
       file-size-threshold: 2KB
       max-file-size: 200MB
       max-request-size: 215MB
-  thymeleaf:
-    cache: false
-    check-template-location: false
-  
-  main:
-    allow-bean-definition-overriding: true
-    lazy-initialization: true
-  
-  mvc:      
-    media-types: application/json
-    content-negotiation:
-      favor-path-extension: false
-      favor-parameter: false
-      favor-parameter-parameter-name: mediaType
-      ignore-accept-header: true
-      default-content-type: application/json
-    converters:
-      preferred-json-mapper: jackson
-  
   messages:
     basename: ValidationMessages
-
   datasource:
-    driverClassName: com.mysql.cj.jdbc.Driver   
-    url: jdbc:mysql://${DB_HOST:localhost:3306}/book-db?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
-    username: root
-    password: cabula132
-
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: none
-    properties:
-      databasePlataform: org.hibernate.dialect.MySQLDialect
+      ddl-auto: update
     show-sql: false
     open-in-view: false
-    
-# Flyway Configs
-  flyway:
-    enabled: true
-    validate-on-migrate: true
-    url: jdbc:mysql://localhost/book-db?createDatabaseIfNotExist=true&serverTimezone=UTC
-    schemas: book-db
-    user: root
-    password: cabula132
-    locations: classpath:db/migration,classpath:db/testdata
-
-# Jackson Configs
-  jackson:
-    default-property-inclusion: NON_NULL
 
 #Email
   mail:
@@ -85,16 +44,11 @@ spring:
         smtp:
           auth: true
           starttls:
-            enable: true
-            
-# Remember Me
+            enable: true 
+      
+# Token
 com:
   nofrontier:
-    rememberMe:
-      key: wv_JCH0)0=KLEpzSs9{Mg#o}'T9"$Y]09#..SA?e6+)"y#aX"3LK|8CBD%D/9c)
-      validitySeconds: 172800 # 2 dias
-      
-# Remember Me
     access:
       key: O+1NWji6nuKgL5VB462fEK1+w3bzB6LSqAf+PRsSdCZhQJYrrkAwMveM12TzAMA5cTzwwityZcJeJaK+gcqVdQ==
       expiration: 7200  # 2 hours in seconds / 1800  # 30 minutos  /  3600000 # 1 hora in milliseconds
@@ -126,18 +80,26 @@ com:
     frontend:
       host: http://localhost:3000
 
+# Email
+    email:
+      impl: fake
+      sender: NoFrontierFood <naoresponder@nofrontier.com.br>
 
-
-  
 springdoc:
   pathsToMatch: 
     - /auth/**
     - /api/**/v1/**
+  swagger-ui:
+    use-root-path: true
 
 logging:
   level:
     org:
       springframework: INFO
+      flywaydb: DEBUG
+    hibernate:
+      SQL: DEBUG
+      type: TRACE
     com:
       nofrontier:
         book: DEBUG

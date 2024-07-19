@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApiAddressService {
 
-	private Logger logger = Logger.getLogger(ApiUserService.class.getName());
+	private Logger logger = Logger.getLogger(ApiAddressService.class.getName());
 
 	private static final String MSG_ADDRESS_IN_USE = "Code address %d cannot be removed because there is a constraint in use";
 

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `order_entity` (
   `shipping_rate` decimal(10,2) NOT NULL,
   `total_value` decimal(10,2) NOT NULL,
   `order_status` varchar(10) NOT NULL,
-  `creation_date` datetime NOT NULL,
+  `creation_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `confirmation_date` datetime,
   `cancellation_date` datetime,
   `delivery_date` datetime,

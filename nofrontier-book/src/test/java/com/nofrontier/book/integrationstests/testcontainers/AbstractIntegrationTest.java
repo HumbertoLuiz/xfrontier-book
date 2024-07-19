@@ -22,8 +22,10 @@ public class AbstractIntegrationTest {
 		}
 
 		private static Map<String, Object> createConnectionConfiguration() {
-			return Map.of("spring.datasource.url", mysql.getJdbcUrl(), "spring.datasource.username",
-					mysql.getUsername(), "spring.datasource.password", mysql.getPassword());
+			return Map.of(
+					"spring.datasource.url", mysql.getJdbcUrl(), 
+					"spring.datasource.username", mysql.getUsername(), 
+					"spring.datasource.password", mysql.getPassword());
 		}
 
 		@Override

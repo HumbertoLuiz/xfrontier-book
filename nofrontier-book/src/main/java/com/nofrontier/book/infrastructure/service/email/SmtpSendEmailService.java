@@ -1,8 +1,10 @@
 package com.nofrontier.book.infrastructure.service.email;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Service;
 
 import com.nofrontier.book.core.email.EmailProperties;
 import com.nofrontier.book.domain.services.SendEmailService;
@@ -10,7 +12,9 @@ import com.nofrontier.book.domain.services.SendEmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
-public class SmtpEnvioEmailService implements SendEmailService {
+@Service
+@Qualifier("smtpSendEmailService")
+public class SmtpSendEmailService implements SendEmailService {
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -19,7 +23,7 @@ public class SmtpEnvioEmailService implements SendEmailService {
 	private EmailProperties emailProperties;
 
 	@Autowired
-	private ProcessorEmailTemplate processadorEmailTemplate;
+	private ProcessorEmailTemplate processorEmailTemplate;
 
 	@Override
 	public void send(Message message) {
@@ -34,7 +38,7 @@ public class SmtpEnvioEmailService implements SendEmailService {
 
 	protected MimeMessage createMimeMessage(Message message)
 			throws MessagingException {
-		String body = processadorEmailTemplate.processTemplate(message);
+		String body = processorEmailTemplate.processTemplate(message);
 
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 

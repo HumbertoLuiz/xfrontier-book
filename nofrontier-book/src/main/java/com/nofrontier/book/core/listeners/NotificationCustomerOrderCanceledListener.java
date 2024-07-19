@@ -14,7 +14,7 @@ import com.nofrontier.book.domain.services.SendEmailService.Message;
 public class NotificationCustomerOrderCanceledListener {
 
 	@Autowired
-	private SendEmailService sendEmail;
+	private SendEmailService sendEmailService;
 	
 	@TransactionalEventListener
 	public void toCancelOrder(OrderCancelledEvent event) {
@@ -27,7 +27,7 @@ public class NotificationCustomerOrderCanceledListener {
 				.addressee(order.getCustomer().getEmail())
 				.build();
 
-		sendEmail.send(message);
+		sendEmailService.send(message);
 	}
 	
 }
