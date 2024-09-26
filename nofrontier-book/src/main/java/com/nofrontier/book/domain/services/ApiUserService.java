@@ -5,6 +5,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -25,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.nofrontier.book.api.v1.controller.UserRestController;
 import com.nofrontier.book.core.publishers.NewUserPublisher;
 import com.nofrontier.book.core.services.storage.adapters.StorageService;
-import com.nofrontier.book.core.services.token.providers.JjwtService;
+import com.nofrontier.book.core.services.token.jwt.JwtTokenProvider;
 import com.nofrontier.book.core.validation.UserValidator;
 import com.nofrontier.book.domain.exceptions.BusinessException;
 import com.nofrontier.book.domain.exceptions.EntityInUseException;
@@ -38,14 +40,14 @@ import com.nofrontier.book.domain.model.Group;
 import com.nofrontier.book.domain.model.Picture;
 import com.nofrontier.book.domain.model.User;
 import com.nofrontier.book.domain.repository.UserRepository;
-import com.nofrontier.book.dto.v1.requests.UpdateUserRequest;
-import com.nofrontier.book.dto.v1.requests.UserRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
-import com.nofrontier.book.dto.v1.responses.TokenResponse;
-import com.nofrontier.book.dto.v1.responses.UserRegisterResponse;
-import com.nofrontier.book.dto.v1.responses.UserResponse;
+import com.nofrontier.book.dto.v1.MessageResponse;
+import com.nofrontier.book.dto.v1.TokenDto;
+import com.nofrontier.book.dto.v1.UpdateUserRequest;
+import com.nofrontier.book.dto.v1.UserDto;
+import com.nofrontier.book.dto.v1.UserRegisterResponse;
 import com.nofrontier.book.utils.SecurityUtils;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
@@ -57,7 +59,7 @@ public class ApiUserService {
 	private static final String MSG_USER_IN_USE = "Code user %d cannot be removed because there is a constraint in use";
 
 	@Autowired
-	PagedResourcesAssembler<UserResponse> assembler;
+	PagedResourcesAssembler<UserDto> assembler;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -81,7 +83,7 @@ public class ApiUserService {
 	private NewUserPublisher newUserPublisher;
 
 	@Autowired
-	private JjwtService tokenService;
+	private JwtTokenProvider tokenProvider;
 
 	@Autowired
 	private SecurityUtils securityUtils;
@@ -91,29 +93,40 @@ public class ApiUserService {
 	
     @PersistenceContext
     private EntityManager entityManager;
+    
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(User.class, UserDto.class)
+            .addMapping(User::getId, UserDto::setKey);
+        modelMapper.typeMap(UserDto.class, User.class)
+        	.addMapping(UserDto::getKey, User::setId);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public EntityModel<UserResponse> findById(Long id) {
+	public UserDto findById(Long id) {
 		logger.info("Finding one user!");
 		var entity = userRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
-		var dto = modelMapper.map(entity, UserResponse.class);
-		dto.add(linkTo(methodOn(UserRestController.class).findById(id))
-				.withSelfRel());
-		return EntityModel.of(dto);
-	}
+		
+		// Maps the saved entity to BookResponse
+		UserDto userDtoResponse = modelMapper.map(entity, UserDto.class);
+		userDtoResponse.add(linkTo(methodOn(UserRestController.class)
+				.findById(userDtoResponse.getKey())).withSelfRel());
 
+		return userDtoResponse;
+	}
+	
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<UserResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<UserDto>> findAll(Pageable pageable) {
 		logger.info("Finding all users!");
 		var userPage = userRepository.findAll(pageable);
 		var userDtoPage = userPage
-				.map(user -> modelMapper.map(user, UserResponse.class));
+				.map(user -> modelMapper.map(user, UserDto.class));
 		userDtoPage.map(userResponse -> userResponse
 				.add(linkTo(methodOn(UserRestController.class)
 						.findById(userResponse.getKey())).withSelfRel()));
@@ -126,7 +139,7 @@ public class ApiUserService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public UserResponse create(UserRequest request) throws IOException {
+	public UserDto create(UserDto request) throws IOException {
 		validatePasswordConfirmation(request);
  
 		var userToSave = modelMapper.map(request, User.class);
@@ -170,7 +183,7 @@ public class ApiUserService {
 		// Maps the saved user to UserResponse
 		var response = modelMapper.map(userSaved, UserRegisterResponse.class);
 		// Generates the response token and sets it in UserResponse
-		var tokenResponse = generateTokenResponse(response);
+		var tokenResponse = generateTokenResponse(response, response.getRoles());
 		response.setToken(tokenResponse);
 
 		// Adds the self link to UserResponse
@@ -248,16 +261,19 @@ public class ApiUserService {
 		}
 	}
 
+	
 	private void checkPassword(UpdateUserRequest request, User loggedUser) {
-		var passwordRequest = request.getPassword();
-		var passwordDB = loggedUser.getPassword();
+	    var passwordRequest = request.getPassword();
+	    var passwordDB = loggedUser.getPassword();
+	    
+	    System.out.println("Password Request: " + passwordRequest);
+	    System.out.println("Password DB: " + passwordDB);
 
-		if (!passwordEncoder.matches(passwordRequest, passwordDB)) {
-			var message = "The password you entered is incorrect";
-			var fieldError = new FieldError(request.getClass().getName(),
-					"password", passwordRequest, false, null, null, message);
-			throw new IncorrectPasswordException(message, fieldError);
-		}
+	    if (!passwordEncoder.matches(passwordRequest, passwordDB)) {
+	        var message = "The password you entered is incorrect";
+	        var fieldError = new FieldError(request.getClass().getName(), "password", passwordRequest, false, null, null, message);
+	        throw new IncorrectPasswordException(message, fieldError);
+	    }
 	}
 
 	
@@ -298,14 +314,14 @@ public class ApiUserService {
 //						loggedUser.getPerson().getEnabled()));
 	}
 
-	private TokenResponse generateTokenResponse(UserRegisterResponse response) {
-		var token = tokenService.generateAccessToken(response.getEmail());
-		var refresh = tokenService.generateRefreshToken(response.getEmail());
-		var tokenResponse = new TokenResponse(token, refresh);
-		return tokenResponse;
+	private TokenDto generateTokenResponse(UserRegisterResponse response, List<String> roles) {
+	    var accessToken = tokenProvider.createAccessToken(response.getEmail(), roles);
+	    var refreshToken = tokenProvider.getRefreshToken(response.getEmail(), roles, new Date());
+	    
+	    return new TokenDto(accessToken, refreshToken);
 	}
 
-	private void validatePasswordConfirmation(UserRequest request) {
+	private void validatePasswordConfirmation(UserDto request) {
 		var password = request.getPassword();
 		var passwordConfirmation = request.getPasswordConfirmation();
 

@@ -10,6 +10,6 @@ CREATE TABLE IF NOT EXISTS `person` (
   `key_pix` varchar(255) DEFAULT NULL,
   `enabled` bit NOT NULL,
   UNIQUE KEY `cpf` (`cpf`),
-  UNIQUE KEY `uk_key_pix` (`key_pix`),
+  UNIQUE KEY `key_pix` (`key_pix`),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

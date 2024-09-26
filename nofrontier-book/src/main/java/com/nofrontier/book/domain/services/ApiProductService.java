@@ -3,6 +3,7 @@ package com.nofrontier.book.domain.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -16,14 +17,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.ProductRestController;
+import com.nofrontier.book.domain.exceptions.BookNotFoundException;
 import com.nofrontier.book.domain.exceptions.ProductNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
+import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.model.Product;
+import com.nofrontier.book.domain.repository.BookRepository;
 import com.nofrontier.book.domain.repository.ProductRepository;
-import com.nofrontier.book.dto.v1.requests.ProductRequest;
-import com.nofrontier.book.dto.v1.responses.ProductResponse;
+import com.nofrontier.book.dto.v1.ProductDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,24 +37,33 @@ public class ApiProductService {
 	private Logger logger = Logger.getLogger(ApiProductService.class.getName());
 
 	private final ProductRepository productRepository;
+	
+	private final BookRepository bookRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
 
 	@Autowired
-	PagedResourcesAssembler<ProductResponse> assembler;
+	PagedResourcesAssembler<ProductDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(Product.class, ProductDto.class)
+                   .addMapping(Product::getId, ProductDto::setKey)
+        .addMapping(src -> src.getBook().getId(), ProductDto::setBookId);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public ProductResponse findById(Long id) {
+	public ProductDto findById(Long id) {
 		logger.info("Finding one product!");
 		var entity = productRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
-		// Maps the saved entity to ProductResponse
-		ProductResponse productResponse = modelMapper.map(entity, ProductResponse.class);
+		// Maps the saved entity to ProductDto
+		ProductDto productResponse = modelMapper.map(entity, ProductDto.class);
 		productResponse.add(linkTo(methodOn(ProductRestController.class)
 				.findById(productResponse.getKey())).withSelfRel());
 
@@ -67,11 +80,11 @@ public class ApiProductService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<ProductResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<ProductDto>> findAll(Pageable pageable) {
 		logger.info("Finding all products!");
 		var productPage = productRepository.findAll(pageable);
 		var productResponsesPage = productPage
-				.map(product -> modelMapper.map(product, ProductResponse.class));
+				.map(product -> modelMapper.map(product, ProductDto.class));
 		productResponsesPage.map(product -> product.add(linkTo(
 				methodOn(ProductRestController.class).findById(product.getKey()))
 				.withSelfRel()));
@@ -84,21 +97,32 @@ public class ApiProductService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public ProductResponse create(ProductRequest productRequest) {
-		if (productRequest == null) {
+	public ProductDto create(ProductDto productDtoRequest) {
+		if (productDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new product!");
 
 		// Maps the ProductRequest to the Product entity
-		var entity = modelMapper.map(productRequest, Product.class);
+		var entity = modelMapper.map(productDtoRequest, Product.class);
 
 		// Saves the new entity in the database
 		var savedEntity = productRepository.save(entity);
 
-		// Maps the saved entity to ProductResponse
-		ProductResponse productResponse = modelMapper.map(savedEntity,
-				ProductResponse.class);
+		// Get book by ID from the request
+		Long bookId = productDtoRequest.getBookId();
+		Optional<Book> optionalBook = bookRepository.findById(bookId);
+		if (optionalBook.isEmpty()) {
+			// Handle case when book with provided ID does not exist
+			throw new BookNotFoundException(
+					"Book not found with ID: " + bookId);
+		}
+		Book book = optionalBook.get();
+		entity.setBook(book);
+		
+		// Maps the saved entity to ProductDto
+		ProductDto productResponse = modelMapper.map(savedEntity,
+				ProductDto.class);
 		productResponse.add(linkTo(methodOn(ProductRestController.class)
 				.findById(productResponse.getKey())).withSelfRel());
 
@@ -108,8 +132,8 @@ public class ApiProductService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public ProductResponse update(Long id, ProductRequest productRequest) {
-		if (productRequest == null) {
+	public ProductDto update(Long id, ProductDto productDtoRequest) {
+		if (productDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one product!");
@@ -119,17 +143,17 @@ public class ApiProductService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setDescription(productRequest.getDescription());
-		entity.setFormat(productRequest.getFormat());
-		entity.setEdition(productRequest.getEdition());
-		entity.setPrice(productRequest.getPrice());
-		entity.setActive(productRequest.getActive());
+		entity.setDescription(productDtoRequest.getDescription());
+		entity.setFormat(productDtoRequest.getFormat());
+		entity.setEdition(productDtoRequest.getEdition());
+		entity.setPrice(productDtoRequest.getPrice());
+		entity.setActive(productDtoRequest.getActive());
 
 		var updatedEntity = productRepository.save(entity);
 
 		// Converting the updated entity to the response
-		ProductResponse productResponse = modelMapper.map(updatedEntity,
-				ProductResponse.class);
+		ProductDto productResponse = modelMapper.map(updatedEntity,
+				ProductDto.class);
 		productResponse.add(linkTo(methodOn(ProductRestController.class)
 				.findById(productResponse.getKey())).withSelfRel());
 

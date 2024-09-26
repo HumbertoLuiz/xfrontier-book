@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiRatingService;
-import com.nofrontier.book.dto.v1.requests.RatingRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
+import com.nofrontier.book.dto.v1.RatingDto;
+import com.nofrontier.book.dto.v1.MessageResponse;
 
 import jakarta.validation.Valid;
 
@@ -22,7 +22,7 @@ public class RatingRestController {
 
 	@PatchMapping
 	public MessageResponse rateBook(
-			@RequestBody @Valid RatingRequest ratingRequest,
+			@RequestBody @Valid RatingDto ratingRequest,
 			@PathVariable Long id) {
 		return apiRatingservice.rateBook(ratingRequest, id);
 	}

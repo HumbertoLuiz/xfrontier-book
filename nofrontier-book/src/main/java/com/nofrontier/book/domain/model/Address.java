@@ -5,6 +5,7 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.nofrontier.book.core.enums.AddressType;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -43,18 +44,17 @@ public class Address extends IdBaseEntity implements Serializable {
 	@Column(name = "zip_code", nullable = false, length = 9, unique = true)
 	protected String zipCode;
 
-	@Column(length = 11, nullable = false)
+	@Column(name = "address_type", length = 11, nullable = false)
 	@Enumerated(EnumType.STRING)
 	protected AddressType addressType;
 
 	@JsonBackReference
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "city_id")
-	private City city;
-	
+	private City city;	
 	
 	@JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id", nullable = true)
     private Person person;	
 

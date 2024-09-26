@@ -3,7 +3,6 @@ package com.nofrontier.book.domain.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
@@ -28,55 +27,64 @@ import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.model.Category;
 import com.nofrontier.book.domain.repository.BookRepository;
 import com.nofrontier.book.domain.repository.CategoryRepository;
-import com.nofrontier.book.dto.v1.requests.BookRequest;
-import com.nofrontier.book.dto.v1.responses.BookResponse;
+import com.nofrontier.book.dto.v1.BookDto;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.PostConstruct;
 
 @Service
-@RequiredArgsConstructor
 public class ApiBookService {
 
 	private Logger logger = Logger.getLogger(ApiBookService.class.getName());
 	
 	private static final String MSG_BOOK_IN_USE = "Code book %d cannot be removed because there is a constraint in use";
 
-	private final BookRepository bookRepository;
+	@Autowired
+	private BookRepository bookRepository;
 	
-	private final CategoryRepository categoryRepository;
+	@Autowired
+	private CategoryRepository categoryRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
 
 	@Autowired
-	PagedResourcesAssembler<BookResponse> assembler;
+	PagedResourcesAssembler<BookDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+    	modelMapper.typeMap(Book.class, BookDto.class)
+        	.addMapping(Book::getId, BookDto::setKey)
+        	.addMapping(src -> src.getCategory().getId(), BookDto::setCategoryId);
+    	modelMapper.typeMap(BookDto.class, Book.class)
+        	.addMapping(BookDto::getKey, Book::setId);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public BookResponse findById(Long id) {
+	public BookDto findById(Long id) {
 		logger.info("Finding one book!");
 		var entity = bookRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
 		// Maps the saved entity to BookResponse
-		BookResponse bookResponse = modelMapper.map(entity, BookResponse.class);
-		bookResponse.add(linkTo(methodOn(BookRestController.class)
-				.findById(bookResponse.getKey())).withSelfRel());
+		BookDto bookDtoResponse = modelMapper.map(entity, BookDto.class);
+		bookDtoResponse.add(linkTo(methodOn(BookRestController.class)
+				.findById(bookDtoResponse.getKey())).withSelfRel());
 
-		return bookResponse;
+		return bookDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<BookResponse>> findBookByAuthor(String author,
+	public PagedModel<EntityModel<BookDto>> findBookByAuthor(String author,
 			Pageable pageable) {
 		logger.info("Finding books by author: {}");
 		var bookPage = bookRepository.findByAuthor(author, pageable);
 		var bookResponsesPage = bookPage
-				.map(book -> modelMapper.map(book, BookResponse.class));
+				.map(book -> modelMapper.map(book, BookDto.class));
 		bookResponsesPage.map(book -> book.add(linkTo(
 				methodOn(BookRestController.class).findById(book.getKey()))
 				.withSelfRel()));
@@ -89,11 +97,11 @@ public class ApiBookService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<BookResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<BookDto>> findAll(Pageable pageable) {
 		logger.info("Finding all books!");
 		var bookPage = bookRepository.findAll(pageable);
 		var bookResponsesPage = bookPage
-				.map(book -> modelMapper.map(book, BookResponse.class));
+				.map(book -> modelMapper.map(book, BookDto.class));
 		bookResponsesPage.map(book -> book.add(linkTo(
 				methodOn(BookRestController.class).findById(book.getKey()))
 				.withSelfRel()));
@@ -106,79 +114,83 @@ public class ApiBookService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public BookResponse create(BookRequest bookRequest) {
-		if (bookRequest == null) {
-			throw new RequiredObjectIsNullException();
-		}
-		logger.info("Creating a new book!");
+	public BookDto create(BookDto bookDtoRequest) {
+	    if (bookDtoRequest == null) {
+	        throw new RequiredObjectIsNullException();
+	    }
+	    logger.info("Creating a new book!");
 
-		// Maps the BookRequest to the Book entity
-		var entity = modelMapper.map(bookRequest, Book.class);
+	    // Mapeia o BookDto para Book sem o Category
+	    var entity = modelMapper.map(bookDtoRequest, Book.class);
 
-		// Get category by ID from the request
-		Long categoryId = bookRequest.getCategoryId();
-		Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
-		if (optionalCategory.isEmpty()) {
-			// Handle case when person with provided ID does not exist
-			throw new CategoryNotFoundException(
-					"Book not found with ID: " + categoryId);
-		}
-		Category category = optionalCategory.get();
-		entity.setCategory(category);
-		
-		// Saves the new entity in the database
-		var savedEntity = bookRepository.save(entity);
+	    // Busca a Category pelo categoryId do DTO
+	    Long categoryId = bookDtoRequest.getCategoryId();
+	    logger.info("Category ID to find: " + categoryId);
+	    Category category = categoryRepository.findById(categoryId)
+	            .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + categoryId));
+	    // Atribui a Category à entidade Book
+	    entity.setCategory(category);
 
-		// Maps the saved entity to BookResponse
-		BookResponse bookResponse = modelMapper.map(savedEntity,
-				BookResponse.class);
-		bookResponse.add(linkTo(methodOn(BookRestController.class)
-				.findById(bookResponse.getKey())).withSelfRel());
+	    var savedEntity = bookRepository.save(entity);
 
-		return bookResponse;
+	    BookDto bookDtoResponse = modelMapper.map(savedEntity, BookDto.class);
+	    bookDtoResponse.add(linkTo(methodOn(BookRestController.class)
+	            .findById(bookDtoResponse.getKey())).withSelfRel());
+
+	    return bookDtoResponse;
 	}
+
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public BookResponse update(Long id, BookRequest bookRequest) {
-		if (bookRequest == null) {
+	public BookDto update(BookDto bookDtoRequest) {
+		if (bookDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one book!");
 
-		var entity = bookRepository.findById(id)
+		var entity = bookRepository.findById(bookDtoRequest.getKey())
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setTitle(bookRequest.getTitle());
-		entity.setAuthor(bookRequest.getAuthor());
-		entity.setIsbn(bookRequest.getIsbn());
-		entity.setLaunchDate(bookRequest.getLaunchDate());
-		entity.setCreatedBy(bookRequest.getCreatedBy());
-		entity.setLastModifiedBy(bookRequest.getLastModifiedBy());
+		entity.setTitle(bookDtoRequest.getTitle());
+		entity.setAuthor(bookDtoRequest.getAuthor());
+		entity.setIsbn(bookDtoRequest.getIsbn());
+		entity.setLaunchDate(bookDtoRequest.getLaunchDate());
+		entity.setRegistrationDate(bookDtoRequest.getRegistrationDate());
+		entity.setUpdateDate(bookDtoRequest.getUpdateDate());
+		entity.setCreatedBy(bookDtoRequest.getCreatedBy());
+		entity.setLastModifiedBy(bookDtoRequest.getLastModifiedBy());
 		// Ensure that 'active' is not null
-	    if (bookRequest.getActive() != null) {
-	        entity.setActive(bookRequest.getActive());
+	    if (bookDtoRequest.getActive() != null) {
+	        entity.setActive(bookDtoRequest.getActive());
 	    } else {
 	        throw new IllegalArgumentException("Active field cannot be null");
 	    }
-		entity.setBookStatus(bookRequest.getBookStatus());
-		entity.setShippingRate(bookRequest.getShippingRate());
-		entity.setPrice(bookRequest.getPrice());
-		entity.setObservation(bookRequest.getObservation());
-		entity.setReasonCancellation(bookRequest.getReasonCancellation());
+		entity.setBookStatus(bookDtoRequest.getBookStatus());
+		entity.setShippingRate(bookDtoRequest.getShippingRate());
+		entity.setPrice(bookDtoRequest.getPrice());
+		entity.setObservation(bookDtoRequest.getObservation());
+		entity.setReasonCancellation(bookDtoRequest.getReasonCancellation());
 
+	    // Atualiza a Category se necessário
+	    if (bookDtoRequest.getCategoryId() != null) {
+	        Category category = categoryRepository.findById(bookDtoRequest.getCategoryId())
+	                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + bookDtoRequest.getCategoryId()));
+	        entity.setCategory(category);
+	    }
+		
 		var updatedEntity = bookRepository.save(entity);
 
 		// Converting the updated entity to the response
-		BookResponse bookResponse = modelMapper.map(updatedEntity,
-				BookResponse.class);
-		bookResponse.add(linkTo(methodOn(BookRestController.class)
-				.findById(bookResponse.getKey())).withSelfRel());
+		BookDto bookDtoResponse = modelMapper.map(updatedEntity,
+				BookDto.class);
+		bookDtoResponse.add(linkTo(methodOn(BookRestController.class)
+				.findById(bookDtoResponse.getKey())).withSelfRel());
 
-		return bookResponse;
+		return bookDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------

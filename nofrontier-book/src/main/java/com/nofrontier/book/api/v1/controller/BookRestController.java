@@ -1,5 +1,6 @@
 package com.nofrontier.book.api.v1.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,8 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiBookService;
-import com.nofrontier.book.dto.v1.requests.BookRequest;
-import com.nofrontier.book.dto.v1.responses.BookResponse;
+import com.nofrontier.book.dto.v1.BookDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,15 +30,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/books/v1")
 @Tag(name = "Books", description = "Endpoints for Managing Books")
 public class BookRestController {
 
-	private final ApiBookService bookService;
+	@Autowired
+	private ApiBookService bookService;
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -47,13 +46,13 @@ public class BookRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Book", description = "Finds a Book", tags = {
 			"Books"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public BookResponse findById(@PathVariable(value = "id") Long id) {
+	public BookDto findById(@PathVariable(value = "id") Long id) {
 		return bookService.findById(id);
 	}
 
@@ -66,12 +65,12 @@ public class BookRestController {
 	@Operation(summary = "Finds Books by Author", description = "Finds Books by Author Name", tags = {
 			"Books"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<BookResponse>>> findBookByAuthor(
+	public ResponseEntity<PagedModel<EntityModel<BookDto>>> findBookByAuthor(
 			@PathVariable(value = "author") String author,
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
@@ -94,12 +93,12 @@ public class BookRestController {
 	@Operation(summary = "Finds all Books", description = "Finds all Books", tags = {
 			"Books"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = BookDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<BookResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<BookDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -115,37 +114,36 @@ public class BookRestController {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = {"http://localhost:8080",
-			"https://nofrontier.com.br"})
+	@CrossOrigin(origins = {"http://localhost:8080", "https://nofrontier.com.br"})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new Book", description = "Adds a new Book by passing in a JSON, XML or YML representation of the book!", tags = {
 			"Books"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = BookDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public BookResponse create(@RequestBody @Valid BookRequest bookRequest) {
-		return bookService.create(bookRequest);
+	public BookDto create(@RequestBody @Valid BookDto bookDtoRequest) {
+		return bookService.create(bookDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a Book", description = "Updates a Book by passing in a JSON, XML or YML representation of the book!", tags = {
 			"Books"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = BookResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = BookDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public BookResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid BookRequest bookRequest) {
-		return bookService.update(id, bookRequest);
+	public BookDto update(@RequestBody @Valid BookDto bookDtoRequest) {
+		return bookService.update(bookDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------

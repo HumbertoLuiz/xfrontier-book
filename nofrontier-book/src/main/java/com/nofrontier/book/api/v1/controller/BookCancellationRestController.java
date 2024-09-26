@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiBookCancellationService;
-import com.nofrontier.book.dto.v1.requests.BookCancellationRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
+import com.nofrontier.book.dto.v1.BookCancellationRequest;
+import com.nofrontier.book.dto.v1.MessageResponse;
 
 import jakarta.validation.Valid;
 

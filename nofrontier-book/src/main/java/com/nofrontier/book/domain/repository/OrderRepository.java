@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.nofrontier.book.domain.model.Order;
-import com.nofrontier.book.dto.v1.responses.OrderResponse;
+import com.nofrontier.book.dto.v1.OrderDto;
 
 @Repository
 public interface OrderRepository
@@ -27,5 +27,5 @@ public interface OrderRepository
 
 	boolean existsOrderByCode(String code);
 
-	Order save(OrderResponse order);
+	Order save(OrderDto order);
 }

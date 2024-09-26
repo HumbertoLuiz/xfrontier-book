@@ -27,9 +27,10 @@ import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.PaymentMethod;
 import com.nofrontier.book.domain.repository.PaymentMethodRepository;
-import com.nofrontier.book.dto.v1.requests.PaymentMethodRequest;
-import com.nofrontier.book.dto.v1.responses.PaymentMethodResponse;
+import com.nofrontier.book.dto.v1.PaymentMethodDto;
 import com.nofrontier.book.utils.SecurityUtils;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class ApiPaymentMethodService {
@@ -48,33 +49,39 @@ public class ApiPaymentMethodService {
 	private SecurityUtils securityUtils;
 	
 	@Autowired
-	PagedResourcesAssembler<PaymentMethodResponse> assembler;
+	PagedResourcesAssembler<PaymentMethodDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(PaymentMethod.class, PaymentMethodDto.class)
+                   .addMapping(PaymentMethod::getId, PaymentMethodDto::setKey);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PaymentMethodResponse findById(Long id) {
+	public PaymentMethodDto findById(Long id) {
 		logger.info("Finding one payment!");
 		var entity = paymentMethodRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
 		// Maps the saved entity to PaymentMethodResponse
-		PaymentMethodResponse paymentMethodResponse = modelMapper.map(entity, PaymentMethodResponse.class);
-		paymentMethodResponse.add(linkTo(methodOn(PaymentMethodRestController.class)
-				.findById(paymentMethodResponse.getKey())).withSelfRel());
+		PaymentMethodDto paymentMethodDtoResponse = modelMapper.map(entity, PaymentMethodDto.class);
+		paymentMethodDtoResponse.add(linkTo(methodOn(PaymentMethodRestController.class)
+				.findById(paymentMethodDtoResponse.getKey())).withSelfRel());
 
-		return paymentMethodResponse;
+		return paymentMethodDtoResponse;
 	}
 	
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<PaymentMethodResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<PaymentMethodDto>> findAll(Pageable pageable) {
 		logger.info("Finding all payments!");
 		var paymentMethodPage = paymentMethodRepository.findAll(pageable);
 		var paymentMethodResponsesPage = paymentMethodPage
-				.map(paymentMethod -> modelMapper.map(paymentMethod, PaymentMethodResponse.class));
+				.map(paymentMethod -> modelMapper.map(paymentMethod, PaymentMethodDto.class));
 		paymentMethodResponsesPage.map(paymentMethod -> paymentMethod.add(linkTo(
 				methodOn(PaymentMethodRestController.class).findById(paymentMethod.getKey()))
 				.withSelfRel()));
@@ -87,32 +94,32 @@ public class ApiPaymentMethodService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public PaymentMethodResponse create(PaymentMethodRequest paymentMethodRequest) {
-		if (paymentMethodRequest == null) {
+	public PaymentMethodDto create(PaymentMethodDto paymentMethodDtoRequest) {
+		if (paymentMethodDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new payment!");
 
 		// Maps the PaymentMethodResponse to the Book entity
-		var entity = modelMapper.map(paymentMethodRequest, PaymentMethod.class);
+		var entity = modelMapper.map(paymentMethodDtoRequest, PaymentMethod.class);
 
 		// Saves the new entity in the database
 		var savedEntity = paymentMethodRepository.save(entity);
 
 		// Maps the saved entity to PaymentMethodResponse
-		PaymentMethodResponse paymentMethodResponse = modelMapper.map(savedEntity,
-				PaymentMethodResponse.class);
-		paymentMethodResponse.add(linkTo(methodOn(PaymentMethodRestController.class)
-				.findById(paymentMethodResponse.getKey())).withSelfRel());
+		PaymentMethodDto paymentMethodDtoResponse = modelMapper.map(savedEntity,
+				PaymentMethodDto.class);
+		paymentMethodDtoResponse.add(linkTo(methodOn(PaymentMethodRestController.class)
+				.findById(paymentMethodDtoResponse.getKey())).withSelfRel());
 
-		return paymentMethodResponse;
+		return paymentMethodDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public PaymentMethodResponse update(Long id, PaymentMethodRequest paymentMethodRequest) {
-		if (paymentMethodRequest == null) {
+	public PaymentMethodDto update(Long id, PaymentMethodDto paymentMethodDtoRequest) {
+		if (paymentMethodDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one payment!");
@@ -122,19 +129,19 @@ public class ApiPaymentMethodService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setDescription(paymentMethodRequest.getDescription());
-		entity.setPaymentStatus(paymentMethodRequest.getPaymentStatus());
-		entity.setTransactionId(paymentMethodRequest.getCardHash());
+		entity.setDescription(paymentMethodDtoRequest.getDescription());
+		entity.setPaymentStatus(paymentMethodDtoRequest.getPaymentStatus());
+		entity.setTransactionId(paymentMethodDtoRequest.getTransactionId());
 
 		var updatedEntity = paymentMethodRepository.save(entity);
 
 		// Converting the updated entity to the response
-		PaymentMethodResponse paymentMethodResponse = modelMapper.map(updatedEntity,
-				PaymentMethodResponse.class);
-		paymentMethodResponse.add(linkTo(methodOn(PaymentMethodRestController.class)
-				.findById(paymentMethodResponse.getKey())).withSelfRel());
+		PaymentMethodDto paymentMethodDtoResponse = modelMapper.map(updatedEntity,
+				PaymentMethodDto.class);
+		paymentMethodDtoResponse.add(linkTo(methodOn(PaymentMethodRestController.class)
+				.findById(paymentMethodDtoResponse.getKey())).withSelfRel());
 
-		return paymentMethodResponse;
+		return paymentMethodDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -160,7 +167,7 @@ public class ApiPaymentMethodService {
 
 	// -------------------------------------------------------------------------------------------------------------
 	
-	public List<PaymentMethodResponse> listPayments() {
+	public List<PaymentMethodDto> listPayments() {
 		var loggedUser = securityUtils.getLoggedUser();
 		Set<BookStatus> bookStatus = Set.of(BookStatus.PAID, BookStatus.RATED,
 				BookStatus.CANCELLED);
@@ -168,7 +175,7 @@ public class ApiPaymentMethodService {
 		return paymentMethodRepository
 				.findByBooksAndBookStatusIn(loggedUser, bookStatus).stream()
 				.map(paymentMethod -> modelMapper.map(paymentMethod,
-						PaymentMethodResponse.class))
+						PaymentMethodDto.class))
 				.toList();
 	}
 

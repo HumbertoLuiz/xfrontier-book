@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiCountryService;
-import com.nofrontier.book.dto.v1.requests.CountryRequest;
-import com.nofrontier.book.dto.v1.responses.CountryResponse;
+import com.nofrontier.book.dto.v1.CountryDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,13 +46,13 @@ public class CountryRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Country", description = "Finds a Country", tags = {
 			"Countries"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CountryResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CountryDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CountryResponse findById(@PathVariable(value = "id") Long id) {
+	public CountryDto findById(@PathVariable(value = "id") Long id) {
 		return apiCountryService.findById(id);
 	}
 
@@ -64,12 +63,12 @@ public class CountryRestController {
 	@Operation(summary = "Finds all Countries", description = "Finds all Countries", tags = {
 			"Countries"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CountryResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CountryDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<CountryResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<CountryDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -93,12 +92,12 @@ public class CountryRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new Country", description = "Adds a new Country by passing in a JSON, XML or YML representation of the country!", tags = {
 			"Countries"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CountryResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CountryDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CountryResponse create(@RequestBody @Valid CountryRequest countryRequest) {
-		return apiCountryService.create(countryRequest);
+	public CountryDto create(@RequestBody @Valid CountryDto countryDtoRequest) {
+		return apiCountryService.create(countryDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -109,13 +108,13 @@ public class CountryRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a Country", description = "Updates a Country by passing in a JSON, XML or YML representation of the country!", tags = {
 			"Countries"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = CountryResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = CountryDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CountryResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid CountryRequest countryRequest) {
-		return apiCountryService.update(id, countryRequest);
+	public CountryDto update(@PathVariable(value = "id") Long id, @RequestBody @Valid CountryDto countryDtoRequest) {
+		return apiCountryService.update(id, countryDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------

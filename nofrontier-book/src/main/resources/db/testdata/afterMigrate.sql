@@ -1,4 +1,3 @@
-SET GLOBAL sql_mode = '';
 SET foreign_key_checks = 0;
 
 
@@ -5938,14 +5937,14 @@ INSERT INTO `address` (`id`, `street`, `number`, `neighborhood`, `complement`, `
 (6, 'Rua Amâncio Jorge Monteiro', '458', 'Segismundo Pereira', 'Casa', '38408350', 'RESIDENTIAL', 3069, 6),
 (7, 'Avenida Nossa Senhora do Carmo', '112', 'Santa Rosa', 'Casa', '38401710', 'RESIDENTIAL', 3069, 7 );
 
-INSERT INTO `users` (`id`, `complete_name`, `email`, `password`, `register_date`, `user_type`, `enabled`, `person_id`, `document_picture`, `user_picture`) VALUES
-(1, 'João da Silva', 'admin@mail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'ADMIN', true, 1, null, null),
-(2, 'Maria Joaquina', 'maria.vnd@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'MANAGER', true, 2, null, null),
-(3, 'José Souza', 'jose.aux@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'REGISTER', true, 3, null, null),
-(4, 'Sebastião Martins', 'sebastiao.cad@nofrontier.com.br', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 4, null, null),
-(5, 'Manoel Lima', 'manoel.loja@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 5, null, null),
-(6, 'Débora Mendonça', 'email.teste.aw+debora@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 6, null, null),
-(7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '$2a$10$3bHtw88LCzLnEB0zbBr.Uu2dwH2qE4IsBEw1S0SH2JZMSh2idTNTa', CURRENT_TIMESTAMP(), 'CUSTOMER', true, 7, null, null);
+INSERT INTO `users` (`id`, `complete_name`, `email`, `password`, `register_date`, `user_type`, `account_non_expired`, `account_non_locked`, `credentials_non_expired`, `enabled`, `person_id`, `document_picture`, `user_picture`) VALUES
+(1, 'João da Silva', 'admin@mail.com', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'ADMIN', true, true, true, true,1, null, null),
+(2, 'Maria Joaquina', 'maria.vnd@nofrontier.com.br', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'MANAGER', true, true, true, true, 2, null, null),
+(3, 'José Souza', 'jose.aux@nofrontier.com.br', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'REGISTER', true, true, true, true, 3, null, null),
+(4, 'Sebastião Martins', 'sebastiao.cad@nofrontier.com.br', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'CUSTOMER', true, true, true, true, 4, null, null),
+(5, 'Manoel Lima', 'manoel.loja@gmail.com', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'CUSTOMER', true, true, true, true, 5, null, null),
+(6, 'Débora Mendonça', 'email.teste.aw+debora@gmail.com', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'CUSTOMER', true, true, true, true, 6, null, null),
+(7, 'Carlos Lima', 'email.teste.aw+carlos@gmail.com', '1e3cdeeaaaeeda173ff6d002e7cb5e3f91ebc354dcff52156c9eaba1793a3a5e5bee306c11099e22', CURRENT_TIMESTAMP(), 'CUSTOMER', true, true, true, true, 7, null, null);
 
 
 INSERT INTO `order_entity` (`id`, `code`, `subtotal`, `shipping_rate`, `total_value`,  
@@ -6025,13 +6024,13 @@ insert into `product` (`id`, `description`, `format`, `edition`, `price`, `activ
 
 insert into `book_user_responsible` (`book_id`, `user_id`) values (1, 5), (3, 5);
 
-INSERT INTO `order_item` (`id`, `order_id`, `book_id`, `quantity`, `unit_price`, `total_price`, `observation`) VALUES 
-	(1, 1, 1, 1, 541.08, 541.08, null),
-	(2, 1, 2, 2, 331.81, 663.62, null),
-	(3, 2, 6, 1, 182.33, 182.33, null),
-	(4, 3, 2, 1, 331.81, 331.81, null),
-	(5, 4, 3, 2, 189.57, 379.14, null),
-	(6, 5, 3, 1, 189.57, 189.57, null);
+INSERT INTO `order_item` (`id`, `order_id`, `book_id`, `product_id`, `quantity`, `unit_price`, `total_price`, `observation`) VALUES 
+	(1, 1, 1, 1, 1, 541.08, 541.08, null),
+	(2, 1, 2, 2, 2, 331.81, 663.62, null),
+	(3, 2, 6, 1, 1, 182.33, 182.33, null),
+	(4, 3, 2, 1, 1, 331.81, 331.81, null),
+	(5, 4, 3, 2, 2, 189.57, 379.14, null),
+	(6, 5, 3, 1, 1, 189.57, 189.57, null);
 
 
 insert into `book_payment_method` (`book_id`, `payment_method_id`) values 

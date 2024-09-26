@@ -17,9 +17,9 @@ import com.nofrontier.book.core.services.PasswordResetService;
 import com.nofrontier.book.core.services.email.adapters.EmailService;
 import com.nofrontier.book.core.services.email.dtos.EmailParams;
 import com.nofrontier.book.domain.exceptions.PasswordDoesntMatchException;
-import com.nofrontier.book.dto.v1.requests.ResetPasswordConfirmationRequest;
-import com.nofrontier.book.dto.v1.requests.ResetPasswordRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
+import com.nofrontier.book.dto.v1.ResetPasswordConfirmationRequest;
+import com.nofrontier.book.dto.v1.ResetPasswordRequest;
+import com.nofrontier.book.dto.v1.MessageResponse;
 
 @Service
 public class ApiResetPasswordService {

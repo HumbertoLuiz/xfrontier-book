@@ -19,7 +19,7 @@ import com.nofrontier.book.domain.exceptions.PasswordResetNotFound;
 import com.nofrontier.book.domain.model.PasswordReset;
 import com.nofrontier.book.domain.repository.PasswordResetRepository;
 import com.nofrontier.book.domain.repository.UserRepository;
-import com.nofrontier.book.dto.v1.responses.PasswordResetResponse;
+import com.nofrontier.book.dto.v1.PasswordResetResponse;
 
 @Service
 public class PasswordResetService {
@@ -56,9 +56,9 @@ public class PasswordResetService {
 	// -------------------------------------------------------------------------------------------------------------
     
     @Transactional
-    public EntityModel<PasswordResetResponse> createPasswordReset(String email) {
-        if (userRepository.existsByEmail(email)) {
-            var passwordReset = PasswordReset.builder().email(email)
+    public EntityModel<PasswordResetResponse> createPasswordReset(String username) {
+        if (userRepository.existsByEmail(username)) {
+            var passwordReset = PasswordReset.builder().email(username)
                     .token(UUID.randomUUID().toString()).build();
             PasswordReset savedPasswordReset = passwordResetRepository.save(passwordReset);
 

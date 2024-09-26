@@ -10,8 +10,8 @@ import com.nofrontier.book.core.validation.PaymentValidator;
 import com.nofrontier.book.domain.exceptions.BookNotFoundException;
 import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.repository.BookRepository;
-import com.nofrontier.book.dto.v1.requests.PaymentMethodRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
+import com.nofrontier.book.dto.v1.PaymentMethodDto;
+import com.nofrontier.book.dto.v1.MessageResponse;
 
 @Service
 public class ApiBookPaymentMethodService {
@@ -28,14 +28,14 @@ public class ApiBookPaymentMethodService {
 		this.gatewayPaymentService = gatewayPaymentService;
 	}
 
-	public MessageResponse pay(Set<Book> books, PaymentMethodRequest request,
+	public MessageResponse pay(Set<Book> books, PaymentMethodDto request,
 			Long id) {
 		var book = findBookById(id);
 
 		validator.validate(book);
 
 		var payment = gatewayPaymentService.pay(book, books,
-				request.getCardHash());
+				request.getTransactionId());
 		if (payment.isAccepted()) {
 			((Book) books).setPaymentMethods(BookStatus.PAID);
 			bookRepository.save(book);

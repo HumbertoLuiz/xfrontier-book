@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.model.Group;
 import com.nofrontier.book.domain.services.ApiGroupService;
-import com.nofrontier.book.dto.v1.responses.PermissionResponse;
+import com.nofrontier.book.dto.v1.PermissionDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,10 +39,10 @@ public class GroupPermissionRestController {
 	private ApiGroupService apiGroupService;
 
 	@Autowired
-	private PagedResourcesAssembler<PermissionResponse> pagedResourcesAssembler;
+	private PagedResourcesAssembler<PermissionDto> pagedResourcesAssembler;
 
 	@GetMapping
-	public PagedModel<EntityModel<PermissionResponse>> list(
+	public PagedModel<EntityModel<PermissionDto>> list(
 			@PathVariable Long groupId,
 			@RequestParam(required = false, defaultValue = "0") int page,
 			@RequestParam(required = false, defaultValue = "10") int size,
@@ -51,9 +51,9 @@ public class GroupPermissionRestController {
 		Group group = apiGroupService.findOrFail(groupId);
 
 		// Convert the Set<Permission> to a List<PermissionResponse>
-		List<PermissionResponse> permissions = group.getPermissions().stream()
+		List<PermissionDto> permissions = group.getPermissions().stream()
 				.map(permission -> {
-					PermissionResponse response = new PermissionResponse();
+					PermissionDto response = new PermissionDto();
 					response.setKey(permission.getId());
 					response.setName(permission.getName());
 					response.setDescription(permission.getDescription());
@@ -62,10 +62,10 @@ public class GroupPermissionRestController {
 				}).collect(Collectors.toList());
 
 		// Create a Page object from the List<PermissionResponse>
-		Page<PermissionResponse> permissionsPage = new PageImpl<>(permissions,
+		Page<PermissionDto> permissionsPage = new PageImpl<>(permissions,
 				pageable, permissions.size());
 
-		PagedModel<EntityModel<PermissionResponse>> permissionsPagedModel = pagedResourcesAssembler
+		PagedModel<EntityModel<PermissionDto>> permissionsPagedModel = pagedResourcesAssembler
 				.toModel(permissionsPage);
 
 		permissionsPagedModel
@@ -77,7 +77,7 @@ public class GroupPermissionRestController {
 
 		// Add custom links for each permission
 		permissionsPagedModel.getContent().forEach(permissionEntityModel -> {
-			PermissionResponse permissionResponse = permissionEntityModel
+			PermissionDto permissionResponse = permissionEntityModel
 					.getContent();
 			if (permissionResponse != null) {
 				// Link to disassociate permission

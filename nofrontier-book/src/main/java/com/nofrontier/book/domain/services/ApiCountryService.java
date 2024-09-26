@@ -24,9 +24,9 @@ import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Country;
 import com.nofrontier.book.domain.repository.CountryRepository;
-import com.nofrontier.book.dto.v1.requests.CountryRequest;
-import com.nofrontier.book.dto.v1.responses.CountryResponse;
+import com.nofrontier.book.dto.v1.CountryDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -43,33 +43,39 @@ public class ApiCountryService {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	PagedResourcesAssembler<CountryResponse> assembler;
+	PagedResourcesAssembler<CountryDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(Country.class, CountryDto.class)
+                   .addMapping(Country::getId, CountryDto::setKey);
+    }
 	
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public CountryResponse findById(Long id) {
+	public CountryDto findById(Long id) {
 		logger.info("Finding one country!");
 		var entity = countryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
-		// Maps the saved entity to CountryResponse
-		CountryResponse countryResponse = modelMapper.map(entity, CountryResponse.class);
-		countryResponse.add(linkTo(methodOn(CountryRestController.class)
-				.findById(countryResponse.getKey())).withSelfRel());
+		// Maps the saved entity to CountryDto
+		CountryDto countryDtoResponse = modelMapper.map(entity, CountryDto.class);
+		countryDtoResponse.add(linkTo(methodOn(CountryRestController.class)
+				.findById(countryDtoResponse.getKey())).withSelfRel());
 
-		return countryResponse;
+		return countryDtoResponse;
 	}
-
+	
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<CountryResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<CountryDto>> findAll(Pageable pageable) {
 		logger.info("Finding all countries!");
 		var countryPage = countryRepository.findAll(pageable);
 		var countryResponsesPage = countryPage
-				.map(country -> modelMapper.map(country, CountryResponse.class));
+				.map(country -> modelMapper.map(country, CountryDto.class));
 		countryResponsesPage.map(country -> country.add(linkTo(
 				methodOn(CountryRestController.class).findById(country.getKey()))
 				.withSelfRel()));
@@ -82,32 +88,32 @@ public class ApiCountryService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public CountryResponse create(CountryRequest countryRequest) {
-		if (countryRequest == null) {
+	public CountryDto create(CountryDto countryDtoRequest) {
+		if (countryDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new country!");
 
 		// Maps the CountryRequest to the Country entity
-		var entity = modelMapper.map(countryRequest, Country.class);
+		var entity = modelMapper.map(countryDtoRequest, Country.class);
 
 		// Saves the new entity in the database
 		var savedEntity = countryRepository.save(entity);
 
-		// Maps the saved entity to CountryResponse
-		CountryResponse countryResponse = modelMapper.map(savedEntity,
-				CountryResponse.class);
-		countryResponse.add(linkTo(methodOn(CountryRestController.class)
-				.findById(countryResponse.getKey())).withSelfRel());
+		// Maps the saved entity to CountryDto
+		CountryDto countryDtoResponse = modelMapper.map(savedEntity,
+				CountryDto.class);
+		countryDtoResponse.add(linkTo(methodOn(CountryRestController.class)
+				.findById(countryDtoResponse.getKey())).withSelfRel());
 
-		return countryResponse;
+		return countryDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public CountryResponse update(Long id, CountryRequest countryRequest) {
-		if (countryRequest == null) {
+	public CountryDto update(Long id, CountryDto countryDtoRequest) {
+		if (countryDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one country!");
@@ -117,17 +123,18 @@ public class ApiCountryService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setName(countryRequest.getName());
-
+		entity.setName(countryDtoRequest.getName());
+		entity.setInitials(countryDtoRequest.getInitials());
+		
 		var updatedEntity = countryRepository.save(entity);
 
 		// Converting the updated entity to the response
-		CountryResponse countryResponse = modelMapper.map(updatedEntity,
-				CountryResponse.class);
-		countryResponse.add(linkTo(methodOn(CountryRestController.class)
-				.findById(countryResponse.getKey())).withSelfRel());
+		CountryDto countryDtoResponse = modelMapper.map(updatedEntity,
+				CountryDto.class);
+		countryDtoResponse.add(linkTo(methodOn(CountryRestController.class)
+				.findById(countryDtoResponse.getKey())).withSelfRel());
 
-		return countryResponse;
+		return countryDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ import com.nofrontier.book.domain.exceptions.TokenBlackListException;
 import com.nofrontier.book.domain.exceptions.TokenServiceException;
 import com.nofrontier.book.domain.exceptions.UserNotFoundException;
 import com.nofrontier.book.domain.exceptions.ValidatingException;
-import com.nofrontier.book.dto.v1.responses.ErrorResponse;
+import com.nofrontier.book.dto.v1.ErrorResponse;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiCityService;
-import com.nofrontier.book.dto.v1.requests.CityRequest;
-import com.nofrontier.book.dto.v1.responses.CityResponse;
+import com.nofrontier.book.dto.v1.CityDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,13 +46,13 @@ public class CityRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a City", description = "Finds a City", tags = {
 			"Cities"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CityResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CityDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CityResponse findById(@PathVariable(value = "id") Long id) {
+	public CityDto findById(@PathVariable(value = "id") Long id) {
 		return apiCityService.findById(id);
 	}
 
@@ -64,12 +63,12 @@ public class CityRestController {
 	@Operation(summary = "Finds all Cityes", description = "Finds all Cityes", tags = {
 			"Cities"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CityResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CityDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<CityResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<CityDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -93,12 +92,12 @@ public class CityRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new City", description = "Adds a new City by passing in a JSON, XML or YML representation of the city!", tags = {
 			"Cities"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CityResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = CityDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CityResponse create(@RequestBody @Valid CityRequest cityRequest) {
-		return apiCityService.create(cityRequest);
+	public CityDto create(@RequestBody @Valid CityDto cityDtoRequest) {
+		return apiCityService.create(cityDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -109,13 +108,13 @@ public class CityRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a City", description = "Updates a City by passing in a JSON, XML or YML representation of the city!", tags = {
 			"Cities"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = CityResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = CityDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public CityResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid CityRequest cityRequest) {
-		return apiCityService.update(id, cityRequest);
+	public CityDto update(@PathVariable(value = "id") Long id, @RequestBody @Valid CityDto cityDtoRequest) {
+		return apiCityService.update(id, cityDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------

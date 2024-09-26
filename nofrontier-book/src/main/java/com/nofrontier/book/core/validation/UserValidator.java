@@ -15,15 +15,15 @@ public class UserValidator {
 	private UserRepository repository;
 
 	public void validate(User user) {
-		validateEmail(user);
+		validateUsername(user);
 	}
 
 	// ---------------------------------------------------------------------------------------------------------------------
 
-	private void validateEmail(User user) {
+	private void validateUsername(User user) {
 		if (repository.isEmailAlreadyRegistered(user)) {
-			var message = "User Registered Already exists with this e-mail";
-			var fieldError = new FieldError(user.getClass().getName(), "email",
+			var message = "User Registered Already exists with this username";
+			var fieldError = new FieldError(user.getClass().getName(), "username",
 					user.getEmail(), false, null, null, message);
 			throw new UserAlreadyRegisteredException(message, fieldError);
 		}

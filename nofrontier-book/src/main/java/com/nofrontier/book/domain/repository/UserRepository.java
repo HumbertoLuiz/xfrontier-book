@@ -17,6 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	// public static final PersonRepository personRepository = null;
 
 	Optional<User> findByEmail(String email);
+	
+//	@Query("SELECT u FROM User u WHERE u.username =:username")
+//	Optional<User> findByUsername(@Param("username") String username);
 
 	Page<User> findByCitiesIbgeCode(String ibgeCode, Pageable pageable);
 

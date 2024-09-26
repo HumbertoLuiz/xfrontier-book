@@ -21,8 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.model.Order;
 import com.nofrontier.book.domain.services.IssueOrderService;
-import com.nofrontier.book.dto.v1.requests.OrderRequest;
-import com.nofrontier.book.dto.v1.responses.OrderResponse;
+import com.nofrontier.book.dto.v1.OrderDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,13 +50,13 @@ public class OrderRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Order", description = "Finds a Order", tags = {
 			"Orders"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = OrderDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public OrderResponse findById(@PathVariable(value = "id") Long id) {
+	public OrderDto findById(@PathVariable(value = "id") Long id) {
 		return issueOrderService.findById(id);
 	}
 
@@ -68,12 +67,12 @@ public class OrderRestController {
 	@Operation(summary = "Finds all Orders", description = "Finds all Orders", tags = {
 			"Orders"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = OrderResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<OrderResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<OrderDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -97,30 +96,29 @@ public class OrderRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new Order", description = "Adds a new Order by passing in a JSON, XML or YML representation of the order!", tags = {
 			"Orders"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = OrderDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public OrderResponse create(@RequestBody @Valid OrderRequest orderRequest) {
-		return issueOrderService.create(orderRequest);
+	public OrderDto create(@RequestBody @Valid OrderDto orderDtoRequest) {
+		return issueOrderService.create(orderDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a Order", description = "Updates a Order by passing in a JSON, XML or YML representation of the order!", tags = {
 			"Orders"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = OrderResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = OrderDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public OrderResponse update(@RequestBody @Valid Long id,
-			OrderRequest orderRequest) {
-		return issueOrderService.update(id, orderRequest);
+	public OrderDto update(@PathVariable(value = "id") Long id, @RequestBody @Valid	OrderDto orderDtoRequest) {
+		return issueOrderService.update(id, orderDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------

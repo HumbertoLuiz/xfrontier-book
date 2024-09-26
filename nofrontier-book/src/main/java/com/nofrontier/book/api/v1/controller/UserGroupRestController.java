@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.model.User;
 import com.nofrontier.book.domain.services.ApiUserService;
-import com.nofrontier.book.dto.v1.responses.GroupResponse;
+import com.nofrontier.book.dto.v1.GroupDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,10 +39,10 @@ public class UserGroupRestController {
 	private ApiUserService apiUserService;
 
 	@Autowired
-	private PagedResourcesAssembler<GroupResponse> pagedResourcesAssembler;
+	private PagedResourcesAssembler<GroupDto> pagedResourcesAssembler;
 
 	@GetMapping
-	public PagedModel<EntityModel<GroupResponse>> list(
+	public PagedModel<EntityModel<GroupDto>> list(
 			@PathVariable Long userId,
 			@RequestParam(required = false, defaultValue = "0") int page,
 			@RequestParam(required = false, defaultValue = "10") int size,
@@ -51,8 +51,8 @@ public class UserGroupRestController {
 		User user = apiUserService.findOrFail(userId);
 
 		// Convert the Set<Group> to a List<GroupResponse>
-		List<GroupResponse> groups = user.getGroups().stream().map(group -> {
-			GroupResponse response = new GroupResponse();
+		List<GroupDto> groups = user.getGroups().stream().map(group -> {
+			GroupDto response = new GroupDto();
 			response.setKey(group.getId());
 			response.setName(group.getName());
 			// Add other fields if necessary
@@ -60,10 +60,10 @@ public class UserGroupRestController {
 		}).collect(Collectors.toList());
 
 		// Create a Page object from the List<GroupResponse>
-		Page<GroupResponse> groupsPage = new PageImpl<>(groups, pageable,
+		Page<GroupDto> groupsPage = new PageImpl<>(groups, pageable,
 				groups.size());
 
-		PagedModel<EntityModel<GroupResponse>> groupsPagedModel = pagedResourcesAssembler
+		PagedModel<EntityModel<GroupDto>> groupsPagedModel = pagedResourcesAssembler
 				.toModel(groupsPage);
 
 		groupsPagedModel
@@ -75,13 +75,13 @@ public class UserGroupRestController {
 
 		// Add custom links for each group
 		groupsPagedModel.getContent().forEach(groupEntityModel -> {
-			GroupResponse groupResponse = groupEntityModel.getContent();
-			if (groupResponse != null) {
+			GroupDto groupDtoResponse = groupEntityModel.getContent();
+			if (groupDtoResponse != null) {
 				// Link to dissociate group
 				groupEntityModel.add(WebMvcLinkBuilder
 						.linkTo(WebMvcLinkBuilder
 								.methodOn(UserGroupRestController.class)
-								.disassociate(userId, groupResponse.getKey()))
+								.disassociate(userId, groupDtoResponse.getKey()))
 						.withRel("disassociate"));
 			}
 		});

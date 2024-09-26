@@ -24,52 +24,59 @@ import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Category;
 import com.nofrontier.book.domain.repository.CategoryRepository;
-import com.nofrontier.book.dto.v1.requests.CategoryRequest;
-import com.nofrontier.book.dto.v1.responses.CategoryResponse;
+import com.nofrontier.book.dto.v1.CategoryDto;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.PostConstruct;
 
 @Service
-@RequiredArgsConstructor
 public class ApiCategoryService {
 
 	private Logger logger = Logger.getLogger(ApiCategoryService.class.getName());
 	
 	private static final String MSG_CATEGORY_IN_USE = "Code category %d cannot be removed because there is a constraint in use";
 
-	private final CategoryRepository categoryRepository;
+	@Autowired
+	private CategoryRepository categoryRepository;
 
 	@Autowired
 	private ModelMapper modelMapper;
 
 	@Autowired
-	PagedResourcesAssembler<CategoryResponse> assembler;
+	PagedResourcesAssembler<CategoryDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(Category.class, CategoryDto.class)
+                   .addMapping(Category::getId, CategoryDto::setKey);
+        modelMapper.typeMap(CategoryDto.class, Category.class)
+        .addMapping(CategoryDto::getKey, Category::setId);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public CategoryResponse findById(Long id) {
+	public CategoryDto findById(Long id) {
 		logger.info("Finding one category!");
 		var entity = categoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
 		// Maps the saved entity to CategoryResponse
-		CategoryResponse categoryResponse = modelMapper.map(entity, CategoryResponse.class);
-		categoryResponse.add(linkTo(methodOn(CategoryRestController.class)
-				.findById(categoryResponse.getKey())).withSelfRel());
+		CategoryDto categoryDtoResponse = modelMapper.map(entity, CategoryDto.class);
+		categoryDtoResponse.add(linkTo(methodOn(CategoryRestController.class)
+				.findById(categoryDtoResponse.getKey())).withSelfRel());
 
-		return categoryResponse;
+		return categoryDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<CategoryResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<CategoryDto>> findAll(Pageable pageable) {
 		logger.info("Finding all categories!");
 		var categoryPage = categoryRepository.findAll(pageable);
 		var categoryResponsesPage = categoryPage
-				.map(category -> modelMapper.map(category, CategoryResponse.class));
+				.map(category -> modelMapper.map(category, CategoryDto.class));
 		categoryResponsesPage.map(category -> category.add(linkTo(
 				methodOn(CategoryRestController.class).findById(category.getKey()))
 				.withSelfRel()));
@@ -82,32 +89,32 @@ public class ApiCategoryService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public CategoryResponse create(CategoryRequest categoryRequest) {
-		if (categoryRequest == null) {
+	public CategoryDto create(CategoryDto categoryDtoRequest) {
+		if (categoryDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new category!");
 
 		// Maps the CategoryRequest to the Category entity
-		var entity = modelMapper.map(categoryRequest, Category.class);
+		var entity = modelMapper.map(categoryDtoRequest, Category.class);
 
 		// Saves the new entity in the database
 		var savedEntity = categoryRepository.save(entity);
 
 		// Maps the saved entity to CategoryResponse
-		CategoryResponse categoryResponse = modelMapper.map(savedEntity,
-				CategoryResponse.class);
-		categoryResponse.add(linkTo(methodOn(CategoryRestController.class)
-				.findById(categoryResponse.getKey())).withSelfRel());
+		CategoryDto categoryDtoResponse = modelMapper.map(savedEntity,
+				CategoryDto.class);
+		categoryDtoResponse.add(linkTo(methodOn(CategoryRestController.class)
+				.findById(categoryDtoResponse.getKey())).withSelfRel());
 
-		return categoryResponse;
+		return categoryDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public CategoryResponse update(Long id, CategoryRequest categoryRequest) {
-		if (categoryRequest == null) {
+	public CategoryDto update(Long id, CategoryDto categoryDtoRequest) {
+		if (categoryDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one category!");
@@ -117,19 +124,19 @@ public class ApiCategoryService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setTitle(categoryRequest.getTitle());
-		entity.setName(categoryRequest.getName());
-		entity.setDescription(categoryRequest.getDescription());
+		entity.setTitle(categoryDtoRequest.getTitle());
+		entity.setName(categoryDtoRequest.getName());
+		entity.setDescription(categoryDtoRequest.getDescription());
 
 		var updatedEntity = categoryRepository.save(entity);
 
 		// Converting the updated entity to the response
-		CategoryResponse categoryResponse = modelMapper.map(updatedEntity,
-				CategoryResponse.class);
-		categoryResponse.add(linkTo(methodOn(CategoryRestController.class)
-				.findById(categoryResponse.getKey())).withSelfRel());
+		CategoryDto categoryDtoResponse = modelMapper.map(updatedEntity,
+				CategoryDto.class);
+		categoryDtoResponse.add(linkTo(methodOn(CategoryRestController.class)
+				.findById(categoryDtoResponse.getKey())).withSelfRel());
 
-		return categoryResponse;
+		return categoryDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------

@@ -26,9 +26,9 @@ import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
 import com.nofrontier.book.domain.model.Group;
 import com.nofrontier.book.domain.model.Permission;
 import com.nofrontier.book.domain.repository.GroupRepository;
-import com.nofrontier.book.dto.v1.requests.GroupRequest;
-import com.nofrontier.book.dto.v1.responses.GroupResponse;
+import com.nofrontier.book.dto.v1.GroupDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,20 +47,26 @@ public class ApiGroupService {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	PagedResourcesAssembler<GroupResponse> assembler;
+	PagedResourcesAssembler<GroupDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(Group.class, GroupDto.class)
+                   .addMapping(Group::getId, GroupDto::setKey);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public GroupResponse findById(Long id) {
+	public GroupDto findById(Long id) {
 		logger.info("Finding one group!");
 		var entity = groupRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
 		// Maps the saved entity to GroupResponse
-		GroupResponse groupResponse = modelMapper.map(entity,
-				GroupResponse.class);
+		GroupDto groupResponse = modelMapper.map(entity,
+				GroupDto.class);
 		groupResponse.add(linkTo(methodOn(GroupRestController.class)
 				.findById(groupResponse.getKey())).withSelfRel());
 
@@ -70,11 +76,11 @@ public class ApiGroupService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<GroupResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<GroupDto>> findAll(Pageable pageable) {
 		logger.info("Finding all groups!");
 		var groupPage = groupRepository.findAll(pageable);
 		var groupResponsesPage = groupPage
-				.map(group -> modelMapper.map(group, GroupResponse.class));
+				.map(group -> modelMapper.map(group, GroupDto.class));
 		groupResponsesPage.map(group -> group.add(linkTo(
 				methodOn(GroupRestController.class).findById(group.getKey()))
 				.withSelfRel()));
@@ -87,32 +93,32 @@ public class ApiGroupService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public GroupResponse create(GroupRequest groupRequest) {
-		if (groupRequest == null) {
+	public GroupDto create(GroupDto groupDtoRequest) {
+		if (groupDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new group!");
 
 		// Maps the GroupRequest to the Group entity
-		var entity = modelMapper.map(groupRequest, Group.class);
+		var entity = modelMapper.map(groupDtoRequest, Group.class);
 
 		// Saves the new entity in the database
 		var savedEntity = groupRepository.save(entity);
 
 		// Maps the saved entity to GroupResponse
-		GroupResponse groupResponse = modelMapper.map(savedEntity,
-				GroupResponse.class);
-		groupResponse.add(linkTo(methodOn(GroupRestController.class)
-				.findById(groupResponse.getKey())).withSelfRel());
+		GroupDto groupDtoResponse = modelMapper.map(savedEntity,
+				GroupDto.class);
+		groupDtoResponse.add(linkTo(methodOn(GroupRestController.class)
+				.findById(groupDtoResponse.getKey())).withSelfRel());
 
-		return groupResponse;
+		return groupDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public GroupResponse update(Long id, GroupRequest groupRequest) {
-		if (groupRequest == null) {
+	public GroupDto update(Long id, GroupDto groupDtoRequest) {
+		if (groupDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one group!");
@@ -122,17 +128,17 @@ public class ApiGroupService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setName(groupRequest.getName());
+		entity.setName(groupDtoRequest.getName());
 
 		var updatedEntity = groupRepository.save(entity);
 
 		// Converting the updated entity to the response
-		GroupResponse groupResponse = modelMapper.map(updatedEntity,
-				GroupResponse.class);
-		groupResponse.add(linkTo(methodOn(GroupRestController.class)
-				.findById(groupResponse.getKey())).withSelfRel());
+		GroupDto groupDtoResponse = modelMapper.map(updatedEntity,
+				GroupDto.class);
+		groupDtoResponse.add(linkTo(methodOn(GroupRestController.class)
+				.findById(groupDtoResponse.getKey())).withSelfRel());
 
-		return groupResponse;
+		return groupDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -165,8 +171,6 @@ public class ApiGroupService {
 		group.removePermission(permission);
 	}
 
-	
-	
 	
 	@Transactional
 	public void associatePermission(Long groupId, Long permissionId) {

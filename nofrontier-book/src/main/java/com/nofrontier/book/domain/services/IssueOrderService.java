@@ -3,10 +3,13 @@ package com.nofrontier.book.domain.services;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
@@ -16,20 +19,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.api.v1.controller.OrderRestController;
+import com.nofrontier.book.domain.exceptions.AddressNotFoundException;
 import com.nofrontier.book.domain.exceptions.BusinessException;
+import com.nofrontier.book.domain.exceptions.EntityInUseException;
 import com.nofrontier.book.domain.exceptions.OrderNotFoundException;
+import com.nofrontier.book.domain.exceptions.PaymentMethodNotFoundException;
 import com.nofrontier.book.domain.exceptions.RequiredObjectIsNullException;
 import com.nofrontier.book.domain.exceptions.ResourceNotFoundException;
+import com.nofrontier.book.domain.exceptions.UserNotFoundException;
+import com.nofrontier.book.domain.model.Address;
 import com.nofrontier.book.domain.model.Order;
+import com.nofrontier.book.domain.model.PaymentMethod;
 import com.nofrontier.book.domain.model.Product;
+import com.nofrontier.book.domain.model.User;
+import com.nofrontier.book.domain.repository.AddressRepository;
 import com.nofrontier.book.domain.repository.OrderRepository;
-import com.nofrontier.book.dto.v1.requests.OrderRequest;
-import com.nofrontier.book.dto.v1.responses.BookResponse;
-import com.nofrontier.book.dto.v1.responses.CityResponse;
-import com.nofrontier.book.dto.v1.responses.OrderResponse;
-import com.nofrontier.book.dto.v1.responses.PaymentMethodResponse;
-import com.nofrontier.book.dto.v1.responses.UserResponse;
+import com.nofrontier.book.domain.repository.PaymentMethodRepository;
+import com.nofrontier.book.domain.repository.UserRepository;
+import com.nofrontier.book.dto.v1.BookDto;
+import com.nofrontier.book.dto.v1.CityDto;
+import com.nofrontier.book.dto.v1.OrderDto;
+import com.nofrontier.book.dto.v1.PaymentMethodDto;
+import com.nofrontier.book.dto.v1.UserDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,8 +51,19 @@ public class IssueOrderService {
 
 	private Logger logger = Logger.getLogger(ApiGroupService.class.getName());
 
+	private static final String MSG_GROUP_IN_USE = "Code order %d cannot be removed as it is in use";
+
 	@Autowired
 	private OrderRepository orderRepository;
+	
+	@Autowired
+	private AddressRepository addressRepository;
+	
+	@Autowired
+	private PaymentMethodRepository paymentMethodRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Autowired
 	private ApiBookService apiBookService;
@@ -60,34 +84,44 @@ public class IssueOrderService {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	PagedResourcesAssembler<OrderResponse> assembler;
+	PagedResourcesAssembler<OrderDto> assembler;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(Order.class, OrderDto.class)
+                   .addMapping(Order::getId, OrderDto::setKey)
+        .addMapping(src -> src.getShippingAddress().getId(), OrderDto::setShippingAddressId)
+        .addMapping(src -> src.getPaymentMethod().getId(), OrderDto::setPaymentMethodId)
+        .addMapping(src -> src.getCustomer().getId(), OrderDto::setCustomerId);
+    }
+ 
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public OrderResponse findById(Long id) {
+	public OrderDto findById(Long id) {
 		logger.info("Finding one order!");
 		var entity = orderRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 
 		// Maps the saved entity to OrderResponse
-		OrderResponse orderResponse = modelMapper.map(entity,
-				OrderResponse.class);
-		orderResponse.add(linkTo(methodOn(OrderRestController.class)
-				.findById(orderResponse.getKey())).withSelfRel());
+		OrderDto orderDtoResponse = modelMapper.map(entity,
+				OrderDto.class);
+		orderDtoResponse.add(linkTo(methodOn(OrderRestController.class)
+				.findById(orderDtoResponse.getKey())).withSelfRel());
 
-		return orderResponse;
+		return orderDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<OrderResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<OrderDto>> findAll(Pageable pageable) {
 		logger.info("Finding all orders!");
 		var orderPage = orderRepository.findAll(pageable);
 		var orderResponsesPage = orderPage
-				.map(order -> modelMapper.map(order, OrderResponse.class));
+				.map(order -> modelMapper.map(order, OrderDto.class));
 		orderResponsesPage.map(order -> order.add(linkTo(
 				methodOn(OrderRestController.class).findById(order.getKey()))
 				.withSelfRel()));
@@ -100,32 +134,66 @@ public class IssueOrderService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public OrderResponse create(OrderRequest orderRequest) {
-		if (orderRequest == null) {
+	public OrderDto create(OrderDto orderDtoRequest) {
+		if (orderDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new order!");
 
 		// Maps the OrderRequest to the Order entity
-		var entity = modelMapper.map(orderRequest, Order.class);
+		var entity = modelMapper.map(orderDtoRequest, Order.class);
 
+		// Get address by ID from the request
+		Long addressId = orderDtoRequest.getShippingAddressId();
+		Optional<Address> optionalAddress = addressRepository.findById(addressId);
+		if (optionalAddress.isEmpty()) {
+			// Handle case when address with provided ID does not exist
+			throw new AddressNotFoundException(
+					"Address not found with ID: " + addressId);
+		}
+		Address address = optionalAddress.get();
+		entity.setShippingAddress(address);
+
+		// Get payment by ID from the request
+		Long paymentId = orderDtoRequest.getPaymentMethodId();
+		Optional<PaymentMethod> optionalPayment = paymentMethodRepository.findById(paymentId);
+		if (optionalPayment.isEmpty()) {
+			// Handle case when payment with provided ID does not exist
+			throw new PaymentMethodNotFoundException(
+					"Payment not found with ID: " + paymentId);
+		}
+		PaymentMethod payment = optionalPayment.get();
+		entity.setPaymentMethod(payment);
+		
+		// Get customer by ID from the request
+		Long customerId = orderDtoRequest.getCustomerId();
+		Optional<User> optionalCustomer = userRepository.findById(customerId);
+		if (optionalCustomer.isEmpty()) {
+			// Handle case when customer with provided ID does not exist
+			throw new UserNotFoundException(
+					"Customer not found with ID: " + customerId);
+		}
+		User customer = optionalCustomer.get();
+		entity.setCustomer(customer);
+		
+		
 		// Saves the new entity in the database
 		var savedEntity = orderRepository.save(entity);
 
 		// Maps the saved entity to OrderResponse
-		OrderResponse orderResponse = modelMapper.map(savedEntity,
-				OrderResponse.class);
-		orderResponse.add(linkTo(methodOn(OrderRestController.class)
-				.findById(orderResponse.getKey())).withSelfRel());
+		OrderDto orderDtoResponse = modelMapper.map(savedEntity,
+				OrderDto.class);
+		orderDtoResponse.add(linkTo(methodOn(OrderRestController.class)
+				.findById(orderDtoResponse.getKey())).withSelfRel());
 
-		return orderResponse;
+		return orderDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public OrderResponse update(Long id, OrderRequest orderRequest) {
-		if (orderRequest == null) {
+	public OrderDto update(Long id, OrderDto orderDtoRequest) {
+		if (orderDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one order!");
@@ -135,56 +203,62 @@ public class IssueOrderService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setCode(orderRequest.getCode());
-		entity.setSubtotal(orderRequest.getSubtotal());
-		entity.setShippingRate(orderRequest.getShippingRate());
-		entity.setTotalValue(orderRequest.getTotalValue());
-		entity.setOrderStatus(orderRequest.getOrderStatus());
-		entity.setConfirmationDate(orderRequest.getConfirmationDate());
-		entity.setCancellationDate(orderRequest.getCancellationDate());
-		entity.setDeliveryDate(orderRequest.getDeliveryDate());
+		entity.setSubtotal(orderDtoRequest.getSubtotal());
+		entity.setShippingRate(orderDtoRequest.getShippingRate());
+		entity.setTotalValue(orderDtoRequest.getTotalValue());
+		entity.setOrderStatus(orderDtoRequest.getOrderStatus());
 
 		var updatedEntity = orderRepository.save(entity);
 
 		// Converting the updated entity to the response
-		OrderResponse orderResponse = modelMapper.map(updatedEntity,
-				OrderResponse.class);
-		orderResponse.add(linkTo(methodOn(OrderRestController.class)
-				.findById(orderResponse.getKey())).withSelfRel());
+		OrderDto orderDtoResponse = modelMapper.map(updatedEntity,
+				OrderDto.class);
+		orderDtoResponse.add(linkTo(methodOn(OrderRestController.class)
+				.findById(orderDtoResponse.getKey())).withSelfRel());
 
-		return orderResponse;
-	}
-
-	// -------------------------------------------------------------------------------------------------------------
-
-	public void delete(Long id) {
-		logger.info("Deleting one order!");
-		var entity = orderRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException(
-						"No records found for this ID!"));
-		orderRepository.delete(entity);
+		return orderDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public Order issue(OrderResponse order) {
+	public void delete(Long id) {
+		logger.info("Deleting one order!");
+		var entity = orderRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException(
+						"No records found for this ID!"));
+		try {
+			orderRepository.delete(entity);
+			orderRepository.flush();
+
+		} catch (EmptyResultDataAccessException e) {
+			throw new PaymentMethodNotFoundException(id);
+
+		} catch (DataIntegrityViolationException e) {
+			throw new EntityInUseException(String.format(MSG_GROUP_IN_USE, id));
+		}
+	}
+
+	// -------------------------------------------------------------------------------------------------------------
+
+	@Transactional
+	public Order issue(OrderDto order) {
 		validateOrder(order);
 		validateItems(order);
 
-		order.setShippingRate(order.getBooks());
+		order.getBooks();
 		order.calculateTotalValue();
 
 		return orderRepository.save(order);
 	}
 
-	private void validateOrder(OrderResponse order) {
-		CityResponse city = apiCityService
+	private void validateOrder(OrderDto order) {
+		CityDto city = apiCityService
 				.findById(order.getShippingAddress().getCity().getKey());
-		EntityModel<UserResponse> customer = apiUserService
+		UserDto customer = apiUserService
 				.findById(order.getCustomer().getKey());
-		BookResponse book = apiBookService.findById(order.getBooks());
-		PaymentMethodResponse paymentMethod = (PaymentMethodResponse) apiPaymentMethodService
+		BookDto book = apiBookService.findById(order.getBooks());
+		PaymentMethodDto paymentMethod = (PaymentMethodDto) apiPaymentMethodService
 				.findById(order.getPaymentMethod().getKey());
 
 		order.getShippingAddress().setCity(city);
@@ -199,7 +273,7 @@ public class IssueOrderService {
 		}
 	}
 
-	private void validateItems(OrderResponse order) {
+	private void validateItems(OrderDto order) {
 		order.getItems().forEach(item -> {
 			Product product = apiProductService.findOrFail(order.getBooks(),
 					item.getProduct().getId());

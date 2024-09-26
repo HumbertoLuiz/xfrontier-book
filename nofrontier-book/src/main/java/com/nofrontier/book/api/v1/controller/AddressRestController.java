@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiAddressService;
-import com.nofrontier.book.dto.v1.requests.AddressRequest;
-import com.nofrontier.book.dto.v1.responses.AddressResponse;
+import com.nofrontier.book.dto.v1.AddressDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,13 +46,13 @@ public class AddressRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Address", description = "Finds a Address", tags = {
 			"Addresses"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public AddressResponse findById(@PathVariable(value = "id") Long id) {
+	public AddressDto findById(@PathVariable(value = "id") Long id) {
 		return apiAddressService.findById(id);
 	}
 
@@ -64,12 +63,12 @@ public class AddressRestController {
 	@Operation(summary = "Finds all Addresses", description = "Finds all Addresses", tags = {
 			"Addresses"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AddressResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = AddressDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<AddressResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<AddressDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -93,13 +92,13 @@ public class AddressRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new Address", description = "Adds a new Address by passing in a JSON, XML or YML representation of the address!", tags = {
 			"Addresses"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public AddressResponse create(
-			@RequestBody @Valid AddressRequest addressRequest) {
-		return apiAddressService.create(addressRequest);
+	public AddressDto create(
+			@RequestBody @Valid AddressDto addressDtoRequest) {
+		return apiAddressService.create(addressDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -110,13 +109,13 @@ public class AddressRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a Address", description = "Updates a Address by passing in a JSON, XML or YML representation of the address!", tags = {
 			"Addresses"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = AddressDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public AddressResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid AddressRequest addressRequest) {
-		return apiAddressService.update(id, addressRequest);
+	public AddressDto update(@PathVariable(value = "id") Long id, @RequestBody @Valid AddressDto addressDtoRequest) {
+		return apiAddressService.update(id, addressDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -137,7 +136,7 @@ public class AddressRestController {
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
 	@GetMapping
-	public AddressResponse displayAddress() {
+	public AddressDto displayAddress() {
 		return apiAddressService.displayAddress();
 	}
 }

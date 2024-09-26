@@ -2,8 +2,8 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nofrontier.book.core.enums.BookStatus;
 
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,8 +30,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -58,8 +57,7 @@ public class Book extends IdBaseEntity implements Serializable {
 	private String isbn;
 
 	@Column(name = "launch_date", nullable = false)
-	@Temporal(TemporalType.DATE)
-	private Date launchDate;
+	private LocalDate launchDate;
 
 	@CreationTimestamp
 	@Column(name = "registration_date", nullable = false, columnDefinition = "datetime")
@@ -74,7 +72,7 @@ public class Book extends IdBaseEntity implements Serializable {
 	private Integer createdBy;
 
 	@LastModifiedBy
-	@Column(name = "lastModified_by", insertable = false)
+	@Column(name = "last_modified_by", insertable = false)
 	private Integer lastModifiedBy;
 
 	@Column(nullable = false)
@@ -101,10 +99,10 @@ public class Book extends IdBaseEntity implements Serializable {
 	private Set<Order> orders = new HashSet<>();
 
 	@JsonBackReference
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
-
+	
 	@ManyToMany
 	@JoinTable(name = "book_payment_method", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
 	private Set<PaymentMethod> paymentMethods = new HashSet<>();
@@ -114,7 +112,7 @@ public class Book extends IdBaseEntity implements Serializable {
 	private Set<User> responsible = new HashSet<>();
 
 	@JsonManagedReference
-	@OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "book", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
 	private Set<Product> products = new HashSet<>();
 
 	public Boolean isWithoutPayment() {
@@ -160,4 +158,5 @@ public class Book extends IdBaseEntity implements Serializable {
 	public boolean addResponsible(User user) {
 		return getResponsible().add(user);
 	}
+
 }

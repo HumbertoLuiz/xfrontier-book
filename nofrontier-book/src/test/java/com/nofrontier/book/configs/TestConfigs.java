@@ -12,6 +12,6 @@ public class TestConfigs {
 	public static final String CONTENT_TYPE_YML = "application/x-yaml";
 	public static final String MULTIPART_FORM_DATA = "multipart/form-data";
 
-	public static final String ORIGIN_NFRONTIER = "https://nfrontier.com.br";
-	public static final String ORIGIN_XFRONTIER = "https://xfrontier.com.br";
+	public static final String ORIGIN_NOFRONTIER = "https://nofrontier.com.br";
+	public static final String ORIGIN_SEM = "https://sem.com.br";
 }

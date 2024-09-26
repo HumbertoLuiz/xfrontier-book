@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiStateService;
-import com.nofrontier.book.dto.v1.requests.StateRequest;
-import com.nofrontier.book.dto.v1.responses.StateResponse;
+import com.nofrontier.book.dto.v1.StateDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,13 +46,13 @@ public class StateRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a State", description = "Finds a State", tags = {
 			"States"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = StateResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = StateDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public StateResponse findById(@PathVariable(value = "id") Long id) {
+	public StateDto findById(@PathVariable(value = "id") Long id) {
 		return apiStateService.findById(id);
 	}
 
@@ -64,12 +63,12 @@ public class StateRestController {
 	@Operation(summary = "Finds all States", description = "Finds all States", tags = {
 			"States"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = StateResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = StateDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<StateResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<StateDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -93,12 +92,12 @@ public class StateRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new State", description = "Adds a new State by passing in a JSON, XML or YML representation of the state!", tags = {
 			"States"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = StateResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = StateDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public StateResponse create(@RequestBody @Valid StateRequest stateRequest) {
-		return apiStateService.create(stateRequest);
+	public StateDto create(@RequestBody @Valid StateDto stateDtoRequest) {
+		return apiStateService.create(stateDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -109,13 +108,13 @@ public class StateRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a State", description = "Updates a State by passing in a JSON, XML or YML representation of the state!", tags = {
 			"States"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = StateResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = StateDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public StateResponse update(@PathVariable(value = "id") Long id, @RequestBody @Valid StateRequest stateRequest) {
-		return apiStateService.update(id, stateRequest);
+	public StateDto update(@PathVariable(value = "id") Long id, @RequestBody @Valid StateDto stateDtoRequest) {
+		return apiStateService.update(id, stateDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------

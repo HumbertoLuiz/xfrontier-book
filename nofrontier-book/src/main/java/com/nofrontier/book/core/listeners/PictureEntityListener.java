@@ -1,6 +1,7 @@
 package com.nofrontier.book.core.listeners;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.nofrontier.book.core.services.storage.adapters.StorageService;
@@ -12,16 +13,18 @@ import jakarta.persistence.PreRemove;
 public class PictureEntityListener {
 
     @Autowired
-    private static StorageService storageService;
-
-
-    public void setStorageService(StorageService storageService) {
-        PictureEntityListener.storageService = storageService;
-    }
+    @Lazy
+    private StorageService storageService;
 
     @PreRemove
     private void preRemove(Picture picture) {
-        storageService.remove(picture.getFilename());
+        // Check that the storageService is null before calling the remove method
+        if (storageService != null) {
+            storageService.remove(picture.getFilename());
+        } else {
+            throw new IllegalStateException("StorageService is not initialized.");
+        }
     }
-
 }
+
+

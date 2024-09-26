@@ -1,106 +1,84 @@
 package com.nofrontier.book.domain.services;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.nofrontier.book.core.services.TokenBlackListService;
-import com.nofrontier.book.core.services.token.adapters.TokenService;
-import com.nofrontier.book.dto.v1.requests.RefreshRequest;
-import com.nofrontier.book.dto.v1.requests.TokenRequest;
-import com.nofrontier.book.dto.v1.responses.TokenResponse;
+import com.nofrontier.book.core.services.token.jwt.JwtTokenProvider;
+import com.nofrontier.book.domain.repository.UserRepository;
+import com.nofrontier.book.dto.v1.AccountCredentialsDto;
+import com.nofrontier.book.dto.v1.TokenDto;
 
 @Service
 public class ApiAuthService {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiAuthService.class);
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
-    private final TokenService tokenService;
-    private final UserDetailsService userDetailsService;
-    private final AuthenticationManager authenticationManager;
-    private final TokenBlackListService tokenBlackListService;
+	@Autowired
+	private JwtTokenProvider tokenProvider;
 
-    public ApiAuthService(TokenService tokenService,
-                          UserDetailsService userDetailsService,
-                          AuthenticationManager authenticationManager,
-                          TokenBlackListService tokenBlackListService) {
-        this.tokenService = tokenService;
-        this.userDetailsService = userDetailsService;
-        this.authenticationManager = authenticationManager;
-        this.tokenBlackListService = tokenBlackListService;
-    }
+	@Autowired
+	private UserRepository repository;
 
-    @Transactional
-    public ResponseEntity<TokenResponse> authenticate(TokenRequest tokenRequest) {
-        try {
-            String username = tokenRequest.getEmail();
-            String password = tokenRequest.getPassword();
+	@Autowired
+	private TokenBlackListService tokenBlackListService;
 
-            UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(username, password);
 
-            // Autentica o usuário
-            log.info("Trying to authenticate the user: {}", username);
-            authenticationManager.authenticate(authentication);
-            log.info("Successful authentication for the user: {}", username);
+	public ResponseEntity<?> signin(AccountCredentialsDto data) {
+		try {
+			var email = data.getEmail();
+			var password = data.getPassword();
+			authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(email, password));
+			
+			var user = repository.findByEmail(email);
+			
+			var tokenResponse = new TokenDto();
+			if (user != null) {
+				tokenResponse = tokenProvider.createAccessToken(email, user.get().getRoles());
+			} else {
+				throw new UsernameNotFoundException("Username " + email + " not found!");
+			}
+			return ResponseEntity.ok(tokenResponse);
+			
+		} catch (BadCredentialsException e) {
+		    throw new BadCredentialsException("Invalid email/password supplied!");
+		} catch (Exception e) {
+		    // Registrar e tratar outras exceções
+		    throw new RuntimeException("Ocorreu um erro inesperado");
+		}
+	}
+	
 
-            // Gera tokens de acesso e atualização
-            String access = tokenService.generateAccessToken(username);
-            String refresh = tokenService.generateRefreshToken(username);
-            log.info("Tokens generated for the user: {}", username);
+	 public ResponseEntity<?> refreshToken(String email, String refreshToken) {
+	        // Checks if the token is blacklisted
+	        tokenBlackListService.checkToken(refreshToken);
 
-            // Cria a resposta com os tokens
-            TokenResponse tokenResponse = new TokenResponse(access, refresh);
+	        var user = repository.findByEmail(email);
 
-            return ResponseEntity.ok(tokenResponse);
-        } catch (BadCredentialsException e) {
-            // Loga a exceção de credenciais inválidas
-            log.error("Authentication failed for the user: " + tokenRequest.getEmail(), e);
-            throw new BadCredentialsException("Invalid username/password supplied!", e);
-        } catch (Exception e) {
-            // Loga qualquer outra exceção que ocorra
-            log.error("Unexpected error during authentication", e);
-            throw new RuntimeException("Unexpected error during authentication", e);
-        }
-    }
+	        var tokenResponse = new TokenDto();
+	        if (user != null) {
+	            // Generates a new access token
+	            tokenResponse = tokenProvider.refreshToken(refreshToken);
 
-    @Transactional
-    public ResponseEntity<TokenResponse> reauthenticate(RefreshRequest refreshRequest) {
-        try {
-            var token = refreshRequest.getRefresh();
-            tokenBlackListService.checkToken(token);
+	            // Add the old token to the blacklist
+	            tokenBlackListService.putTokenOnBlackList(refreshToken);
+	        } else {
+	            throw new UsernameNotFoundException("Username " + email + " not found!");
+	        }
+	        return ResponseEntity.ok(tokenResponse);
+	    }	
+	
+	public void logout(String refreshToken) {
+	    // Validar refreshToken antes de adicionar à lista negra
+	    tokenProvider.validateToken(refreshToken);
+	    tokenBlackListService.putTokenOnBlackList(refreshToken);
+	}
 
-            var email = tokenService.getSubjectDoRefreshToken(token);
-
-            // Carregar detalhes do usuário para confirmar que o usuário existe
-            var userDetails = userDetailsService.loadUserByUsername(email);
-            if (userDetails == null) {
-                throw new UsernameNotFoundException("Email " + email + " not found!");
-            }
-
-            var access = tokenService.generateAccessToken(email);
-            var refresh = tokenService.generateRefreshToken(email);
-
-            tokenBlackListService.putTokenOnBlackList(token);
-
-            var tokenResponse = new TokenResponse(access, refresh);
-
-            return ResponseEntity.ok(tokenResponse);
-        } catch (Exception e) {
-            throw new BadCredentialsException("Invalid refresh token supplied!", e);
-        }
-    }
-
-    @Transactional
-    public void logout(RefreshRequest refreshRequest) {
-        var token = refreshRequest.getRefresh();
-        tokenBlackListService.putTokenOnBlackList(token);
-    }
 }

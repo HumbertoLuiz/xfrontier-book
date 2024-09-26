@@ -30,12 +30,12 @@ public class SecurityUtils {
             .anyMatch(authority -> authority.getAuthority().equals(userType));
     }
 
-    public String getEmailUserLogged() {
+    public String getUsernameUserLogged() {
         return getAuthentication().getName();
     }
 
     public User getLoggedUser() {
-        var email = getEmailUserLogged();
+        var email = getUsernameUserLogged();
         var mensagem = String.format("User with email %s not found", email);
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new UserNotFoundException(mensagem));

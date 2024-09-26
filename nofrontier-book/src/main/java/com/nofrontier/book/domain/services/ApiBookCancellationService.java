@@ -9,8 +9,8 @@ import com.nofrontier.book.core.validation.BookCancellationValidator;
 import com.nofrontier.book.domain.exceptions.BookNotFoundException;
 import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.repository.BookRepository;
-import com.nofrontier.book.dto.v1.requests.BookCancellationRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
+import com.nofrontier.book.dto.v1.BookCancellationRequest;
+import com.nofrontier.book.dto.v1.MessageResponse;
 
 @Service
 public class ApiBookCancellationService {

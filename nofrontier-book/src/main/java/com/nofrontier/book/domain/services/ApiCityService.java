@@ -28,9 +28,9 @@ import com.nofrontier.book.domain.model.City;
 import com.nofrontier.book.domain.model.State;
 import com.nofrontier.book.domain.repository.CityRepository;
 import com.nofrontier.book.domain.repository.StateRepository;
-import com.nofrontier.book.dto.v1.requests.CityRequest;
-import com.nofrontier.book.dto.v1.responses.CityResponse;
+import com.nofrontier.book.dto.v1.CityDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,7 +42,7 @@ public class ApiCityService {
 	private static final String MSG_CITY_IN_USE = "Code city %d cannot be removed because there is a constraint in use";
 
 	@Autowired
-	PagedResourcesAssembler<CityResponse> assembler;
+	PagedResourcesAssembler<CityDto> assembler;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -50,32 +50,38 @@ public class ApiCityService {
 	private final CityRepository cityRepository;
 
 	private final StateRepository stateRepository;
+	
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(City.class, CityDto.class)
+                   .addMapping(City::getId, CityDto::setKey);
+    }
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public CityResponse findById(Long id) {
+	public CityDto findById(Long id) {
 		logger.info("Finding one city!");
 		var entity = cityRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 		// Maps the saved entity to CityResponse
-		CityResponse cityResponse = modelMapper.map(entity,
-				CityResponse.class);
-		cityResponse.add(linkTo(methodOn(CityRestController.class)
-				.findById(cityResponse.getKey())).withSelfRel());
+		CityDto cityDtoResponse = modelMapper.map(entity,
+				CityDto.class);
+		cityDtoResponse.add(linkTo(methodOn(CityRestController.class)
+				.findById(cityDtoResponse.getKey())).withSelfRel());
 
-		return cityResponse;
+		return cityDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<CityResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<CityDto>> findAll(Pageable pageable) {
 		logger.info("Finding all cities!");
 		var cityPage = cityRepository.findAll(pageable);
 		var cityResponsePage = cityPage.map(
-				city -> modelMapper.map(city, CityResponse.class));
+				city -> modelMapper.map(city, CityDto.class));
 		cityResponsePage.map(city -> city
 				.add(linkTo(methodOn(CityRestController.class)
 						.findById(city.getKey())).withSelfRel()));
@@ -88,16 +94,16 @@ public class ApiCityService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public CityResponse create(CityRequest cityRequest) {
-		if (cityRequest == null) {
+	public CityDto create(CityDto cityDtoRequest) {
+		if (cityDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new city!");
 
-		var entity = modelMapper.map(cityRequest, City.class);
+		var entity = modelMapper.map(cityDtoRequest, City.class);
 
 		// Get state by ID from the request
-		Long stateId = cityRequest.getStateId();
+		Long stateId = cityDtoRequest.getStateId();
 		Optional<State> optionalState = stateRepository.findById(stateId);
 		if (optionalState.isEmpty()) {
 			// Handle case when state with provided ID does not exist
@@ -111,21 +117,21 @@ public class ApiCityService {
 		var savedEntity = cityRepository.save(entity);
 
 		// Maps the saved entity to CityResponse
-		CityResponse cityResponse = modelMapper.map(savedEntity,
-				CityResponse.class);
+		CityDto cityDtoResponse = modelMapper.map(savedEntity,
+				CityDto.class);
 
 		// Add the self link to CityResponse
-		cityResponse.add(linkTo(methodOn(CityRestController.class)
-				.findById(cityResponse.getKey())).withSelfRel());
+		cityDtoResponse.add(linkTo(methodOn(CityRestController.class)
+				.findById(cityDtoResponse.getKey())).withSelfRel());
 
-		return cityResponse;
+		return cityDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public CityResponse update(Long id, CityRequest cityRequest) {
-		if (cityRequest == null) {
+	public CityDto update(Long id, CityDto cityDtoRequest) {
+		if (cityDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one city!");
@@ -135,18 +141,18 @@ public class ApiCityService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setName(cityRequest.getName());
-		entity.setIbgeCode(cityRequest.getIbgeCode());
+		entity.setName(cityDtoRequest.getName());
+		entity.setIbgeCode(cityDtoRequest.getIbgeCode());
 		
 		var updatedEntity = cityRepository.save(entity);
 
 		// Converting the updated entity to the response
-		CityResponse cityResponse = modelMapper.map(updatedEntity,
-				CityResponse.class);
-		cityResponse.add(linkTo(methodOn(CityRestController.class)
-				.findById(cityResponse.getKey())).withSelfRel());
+		CityDto cityDtoResponse = modelMapper.map(updatedEntity,
+				CityDto.class);
+		cityDtoResponse.add(linkTo(methodOn(CityRestController.class)
+				.findById(cityDtoResponse.getKey())).withSelfRel());
 
-		return cityResponse;
+		return cityDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------

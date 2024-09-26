@@ -2,7 +2,9 @@ package com.nofrontier.book.domain.model;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,16 +40,16 @@ import lombok.ToString;
 public class User extends IdBaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+    
 	@Column(name = "complete_name", nullable = false)
 	private String completeName;
 
-	@Column(nullable = false, unique = true)
+	@Column(name = "email", nullable = false, unique = true)
 	private String email;
 
 	@Column(nullable = false)
 	private String password;
-
+	
 	@CreationTimestamp
 	@Column(name = "register_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime registerDate;
@@ -63,6 +65,15 @@ public class User extends IdBaseEntity implements Serializable {
 	@OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "user_picture", nullable = true)
 	private Picture userPicture;
+	
+	@Column(name = "account_non_expired")
+	private Boolean accountNonExpired;
+	
+	@Column(name = "account_non_locked")
+	private Boolean accountNonLocked;
+	
+	@Column(name = "credentials_non_expired")
+	private Boolean credentialsNonExpired;
 
 	@Column(nullable = false)
 	private Boolean enabled;
@@ -72,11 +83,11 @@ public class User extends IdBaseEntity implements Serializable {
 	@JoinColumn(name = "person_id", nullable = true)
 	private Person person;
 
-//	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
-//	@JoinTable(name = "user_permission", joinColumns = {
-//			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
-//					@JoinColumn(name = "permission_id")})
-//	private Set<Permission> permissions = new HashSet<>();
+	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
+	@JoinTable(name = "user_permission", joinColumns = {
+			@JoinColumn(name = "user_id")}, inverseJoinColumns = {
+					@JoinColumn(name = "permission_id")})
+	private Set<Permission> permissions = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
 	@JoinTable(name = "user_group", joinColumns = {
@@ -84,17 +95,17 @@ public class User extends IdBaseEntity implements Serializable {
 					@JoinColumn(name = "group_id")})
 	private Set<Group> groups = new HashSet<>();
 
-//	public List<String> getRoles() {
-//		List<String> roles = new ArrayList<>();
-//		for (Permission permission : permissions) {
-//			roles.add(permission.getDescription());
-//		}
-//		return roles;
-//	}
-//
-//	public void addRole(Permission role) {
-//		permissions.add(role);
-//	}
+	public List<String> getRoles() {
+		List<String> roles = new ArrayList<>();
+		for (Permission permission : permissions) {
+			roles.add(permission.getDescription());
+		}
+		return roles;
+	}
+
+	public void addRole(Permission role) {
+		permissions.add(role);
+	}
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
 	@JoinTable(name = "city_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "city_id"))
@@ -118,5 +129,6 @@ public class User extends IdBaseEntity implements Serializable {
 
 	public Boolean isAdmin() {
 		return userType.equals(UserType.ADMIN);
-	}
+	}	
+
 }

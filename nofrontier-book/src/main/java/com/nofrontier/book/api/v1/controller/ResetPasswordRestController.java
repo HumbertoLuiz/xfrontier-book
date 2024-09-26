@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.core.services.PasswordResetService;
 import com.nofrontier.book.domain.services.ApiResetPasswordService;
-import com.nofrontier.book.dto.v1.requests.ResetPasswordConfirmationRequest;
-import com.nofrontier.book.dto.v1.requests.ResetPasswordRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
-import com.nofrontier.book.dto.v1.responses.PasswordResetResponse;
+import com.nofrontier.book.dto.v1.ResetPasswordConfirmationRequest;
+import com.nofrontier.book.dto.v1.ResetPasswordRequest;
+import com.nofrontier.book.dto.v1.MessageResponse;
+import com.nofrontier.book.dto.v1.PasswordResetResponse;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;

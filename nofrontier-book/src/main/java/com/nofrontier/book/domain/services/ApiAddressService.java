@@ -31,10 +31,10 @@ import com.nofrontier.book.domain.model.Person;
 import com.nofrontier.book.domain.repository.AddressRepository;
 import com.nofrontier.book.domain.repository.CityRepository;
 import com.nofrontier.book.domain.repository.PersonRepository;
-import com.nofrontier.book.dto.v1.requests.AddressRequest;
-import com.nofrontier.book.dto.v1.responses.AddressResponse;
+import com.nofrontier.book.dto.v1.AddressDto;
 import com.nofrontier.book.utils.SecurityUtils;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,7 +47,7 @@ public class ApiAddressService {
 
 	
 	@Autowired
-	PagedResourcesAssembler<AddressResponse> assembler;
+	PagedResourcesAssembler<AddressDto> assembler;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -62,65 +62,62 @@ public class ApiAddressService {
 
 	@Autowired
 	private SecurityUtils securityUtils;
+	
+	@PostConstruct
+	public void configureModelMapper() {
+	    modelMapper.typeMap(Address.class, AddressDto.class)
+	               .addMapping(Address::getId, AddressDto::setKey)
+	               .addMapping(src -> src.getCity().getId(), AddressDto::setCityId)
+	               .addMapping(src -> src.getPerson().getId(), AddressDto::setPersonId);
+	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public AddressResponse findById(Long id) {
+	public AddressDto findById(Long id) {
 		logger.info("Finding one address!");
 		var entity = addressRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 		// Maps the saved entity to AddressResponse
-		AddressResponse addressResponse = modelMapper.map(entity,
-				AddressResponse.class);
-		addressResponse.add(linkTo(methodOn(AddressRestController.class)
-				.findById(addressResponse.getKey())).withSelfRel());
+		AddressDto addressDto = modelMapper.map(entity,
+				AddressDto.class);
+		addressDto.add(linkTo(methodOn(AddressRestController.class)
+				.findById(addressDto.getKey())).withSelfRel());
 
-		return addressResponse;
+		return addressDto;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<AddressResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<AddressDto>> findAll(Pageable pageable) {
 		logger.info("Finding all addresses!");
 		var addressPage = addressRepository.findAll(pageable);
-		var addressResponsePage = addressPage.map(
-				address -> modelMapper.map(address, AddressResponse.class));
-		addressResponsePage.map(address -> address
+		var addressDtoPage = addressPage.map(
+				address -> modelMapper.map(address, AddressDto.class));
+		addressDtoPage.map(address -> address
 				.add(linkTo(methodOn(AddressRestController.class)
 						.findById(address.getKey())).withSelfRel()));
 		Link link = linkTo(methodOn(AddressRestController.class).findAll(
 				pageable.getPageNumber(), pageable.getPageSize(), "asc"))
 				.withSelfRel();
-		return assembler.toModel(addressResponsePage, link);
+		return assembler.toModel(addressDtoPage, link);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public AddressResponse create(AddressRequest addressRequest) {
-		if (addressRequest == null) {
+	public AddressDto create(AddressDto addressDtoRequest) {
+		if (addressDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new address!");
 
-		var entity = modelMapper.map(addressRequest, Address.class);
+		var entity = modelMapper.map(addressDtoRequest, Address.class);
 
-		// Get person by ID from the request
-		Long personId = addressRequest.getPersonId();
-		Optional<Person> optionalPerson = personRepository.findById(personId);
-		if (optionalPerson.isEmpty()) {
-			// Handle case when person with provided ID does not exist
-			throw new PersonNotFoundException(
-					"Person not found with ID: " + personId);
-		}
-		Person person = optionalPerson.get();
-		entity.setPerson(person);
-		
 		// Get city by ID from the request
-		Long cityId = addressRequest.getCityId();
+		Long cityId = addressDtoRequest.getCityId();
 		Optional<City> optionalCity = cityRepository.findById(cityId);
 		if (optionalCity.isEmpty()) {
 			// Handle case when city with provided ID does not exist
@@ -130,25 +127,36 @@ public class ApiAddressService {
 		City city = optionalCity.get();
 		entity.setCity(city);
 
+		// Get person by ID from the request
+		Long personId = addressDtoRequest.getPersonId();
+		Optional<Person> optionalPerson = personRepository.findById(personId);
+		if (optionalPerson.isEmpty()) {
+			// Handle case when person with provided ID does not exist
+			throw new PersonNotFoundException(
+					"Person not found with ID: " + personId);
+		}
+		Person person = optionalPerson.get();
+		entity.setPerson(person);
+		
 		// Saves the new entity in the database
 		var savedEntity = addressRepository.save(entity);
 
 		// Maps the saved entity to AddressResponse
-		AddressResponse addressResponse = modelMapper.map(savedEntity,
-				AddressResponse.class);
+		AddressDto addressDtoResponse = modelMapper.map(savedEntity,
+				AddressDto.class);
 
 		// Adds the self link to AddressResponse
-		addressResponse.add(linkTo(methodOn(AddressRestController.class)
-				.findById(addressResponse.getKey())).withSelfRel());
+		addressDtoResponse.add(linkTo(methodOn(AddressRestController.class)
+				.findById(addressDtoResponse.getKey())).withSelfRel());
 
-		return addressResponse;
+		return addressDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public AddressResponse update(Long id, AddressRequest addressRequest) {
-		if (addressRequest == null) {
+	public AddressDto update(Long id, AddressDto addressDtoRequest) {
+		if (addressDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one address!");
@@ -158,22 +166,22 @@ public class ApiAddressService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setStreet(addressRequest.getStreet());
-		entity.setNumber(addressRequest.getNumber());
-		entity.setNeighborhood(addressRequest.getNeighborhood());
-		entity.setComplement(addressRequest.getComplement());
-		entity.setZipCode(addressRequest.getZipCode());
-		entity.setAddressType(addressRequest.getAddressType());
+		entity.setStreet(addressDtoRequest.getStreet());
+		entity.setNumber(addressDtoRequest.getNumber());
+		entity.setNeighborhood(addressDtoRequest.getNeighborhood());
+		entity.setComplement(addressDtoRequest.getComplement());
+		entity.setZipCode(addressDtoRequest.getZipCode());
+		entity.setAddressType(addressDtoRequest.getAddressType());
 		
 		var updatedEntity = addressRepository.save(entity);
 
 		// Converting the updated entity to the response
-		AddressResponse addressResponse = modelMapper.map(updatedEntity,
-				AddressResponse.class);
-		addressResponse.add(linkTo(methodOn(AddressRestController.class)
-				.findById(addressResponse.getKey())).withSelfRel());
+		AddressDto addressDtoResponse = modelMapper.map(updatedEntity,
+				AddressDto.class);
+		addressDtoResponse.add(linkTo(methodOn(AddressRestController.class)
+				.findById(addressDtoResponse.getKey())).withSelfRel());
 
-		return addressResponse;
+		return addressDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
@@ -199,7 +207,7 @@ public class ApiAddressService {
 	
 	// -------------------------------------------------------------------------------------------------------------
 
-	public AddressResponse displayAddress() {
+	public AddressDto displayAddress() {
 		var loggedUser = securityUtils.getLoggedUser();
 		var address = loggedUser.getPerson().getAddresses();
 
@@ -208,7 +216,7 @@ public class ApiAddressService {
 					(loggedUser).getEmail());
 			throw new AddressNotFoundException(message);
 		}
-		return modelMapper.map(address, AddressResponse.class);
+		return modelMapper.map(address, AddressDto.class);
 	}
 
 }

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `order_entity` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `code` varchar(36) NOT NULL,
+  `code` varchar(36) NOT NULL UNIQUE,
   `subtotal` decimal(10,2) NOT NULL,
   `shipping_rate` decimal(10,2) NOT NULL,
   `total_value` decimal(10,2) NOT NULL,
@@ -18,3 +18,10 @@ CREATE TABLE IF NOT EXISTS `order_entity` (
   CONSTRAINT `fk_order_shipping_address` FOREIGN KEY (`shipping_address_id`) REFERENCES `address` (`id`),
   CONSTRAINT `uk_order_code` UNIQUE (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+/*
+CREATE TRIGGER before_insert_order_entity
+BEFORE INSERT ON order_entity
+FOR EACH ROW
+SET NEW.code = UUID();
+*/

@@ -25,8 +25,11 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
 	void disablePerson(@Param("id") Long id);
 	
 	
-    @Query("SELECT p FROM Person p WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")
-    Page<Person> findPersonByName(@Param("firstName") String firstName, Pageable pageable);
+	//%AND%
+	// Fernanda
+	// Alessandra
+	@Query("SELECT p FROM Person p WHERE p.firstName LIKE LOWER(CONCAT ('%',:firstName,'%'))")
+	Page<Person> findPersonByName(@Param("firstName") String firstName, Pageable pageable);
 	
     default Boolean isCpfAlreadyRegistered(Person person) {
         if (person.getCpf() == null) {

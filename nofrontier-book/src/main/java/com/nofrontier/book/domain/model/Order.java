@@ -13,7 +13,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.nofrontier.book.core.enums.OrderStatus;
 import com.nofrontier.book.core.events.OrderCancelledEvent;
@@ -67,13 +66,14 @@ public class Order extends AbstractAggregateRoot<Order>
 	@Column(nullable = false)
 	private BigDecimal subtotal;
 	
-	@Column(nullable = false)
+	@Column(name = "shipping_rate", nullable = false)
 	private BigDecimal shippingRate;
 	
-	@Column(nullable = false)
+	@Column(name = "total_value", nullable = false)
 	private BigDecimal totalValue;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonBackReference
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "shipping_address_id", nullable = false)
 	private Address shippingAddress;
 
@@ -82,27 +82,27 @@ public class Order extends AbstractAggregateRoot<Order>
 	private OrderStatus orderStatus;
 
 	@CreationTimestamp
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "creation_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime creationDate;
 
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "confirmation_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime confirmationDate;
 	
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "cancellation_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime cancellationDate;
 	
-	@Column(nullable = false, columnDefinition = "datetime")
+	@Column(name = "delivery_date", nullable = false, columnDefinition = "datetime")
 	private OffsetDateTime deliveryDate;
-	
+
 	@JsonBackReference
 	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "payment_method_id", nullable = false)
 	private PaymentMethod paymentMethod;
 
-	@JsonIgnore
-	@ManyToMany
-	@JoinTable(name = "order_payment_method", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
-	private Set<PaymentMethod> paymentMethods = new HashSet<>();
+//	@JsonIgnore
+//	@ManyToMany
+//	@JoinTable(name = "order_payment_method", joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "payment_method_id"))
+//	private Set<PaymentMethod> paymentMethods = new HashSet<>();
 
 	@ManyToMany(fetch = FetchType.EAGER, cascade = (CascadeType.ALL))
     @JoinTable(name = "order_book",

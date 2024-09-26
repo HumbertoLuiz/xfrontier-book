@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nofrontier.book.domain.model.Person;
-import com.nofrontier.book.dto.v1.requests.PersonRequest;
-import com.nofrontier.book.dto.v1.responses.PersonResponse;
+import com.nofrontier.book.dto.v1.PersonDto;
 
 public class MockPerson {
 
@@ -14,12 +13,8 @@ public class MockPerson {
         return mockEntity(0);
     }
     
-    public PersonRequest mockRequest() {
-        return mockRequest(0);
-    }
-    
-    public PersonResponse mockResponse() {
-        return mockResponse(0);
+    public PersonDto mockDto() {
+        return mockDto(0);
     }
     
     public List<Person> mockEntityList() {
@@ -30,18 +25,10 @@ public class MockPerson {
         return persons;
     }
 
-    public List<PersonRequest> mockRequestList() {
-        List<PersonRequest> persons = new ArrayList<>();
+    public List<PersonDto> mockDtoList() {
+        List<PersonDto> persons = new ArrayList<>();
         for (int i = 0; i < 14; i++) {
-            persons.add(mockRequest(i));
-        }
-        return persons;
-    }
-    
-    public List<PersonResponse> mockResponseList() {
-        List<PersonResponse> persons = new ArrayList<>();
-        for (int i = 0; i < 14; i++) {
-            persons.add(mockResponse(i));
+            persons.add(mockDto(i));
         }
         return persons;
     }
@@ -51,45 +38,34 @@ public class MockPerson {
         person.setId(number.longValue());
         person.setFirstName("First Name Test" + number);
         person.setLastName("Last Name Test" + number);
-        person.setGender(((number % 2)==0) ? "Male" : "Female");   
-		person.setCpf("04888053685");
-		person.setBirth(LocalDate.of(1991, 02, 24));
-		person.setPhoneNumber("3436834703");
-		person.setMobileNumber("34988681043");
-		person.setKeyPix("04888053685");
-		person.setEnabled(true);
-	    
+        person.setGender(((number % 2) == 0) ? "Male" : "Female");
+        person.setCpf("04888053685");
         
+        // Variando a data de nascimento com base no número
+        person.setBirth(LocalDate.of(1991, 2, 24));
+        
+        person.setPhoneNumber("3436834703");
+        person.setMobileNumber("34988681043");
+        person.setKeyPix("04888053685");
+        person.setEnabled(true);
         return person;
     }
 
-    public PersonRequest mockRequest(Integer number) {
-        PersonRequest person = new PersonRequest();
-        person.setId(number.longValue());
-        person.setFirstName("First Name Test" + number);
-        person.setLastName("Last Name Test" + number);
-        person.setGender(((number % 2)==0) ? "Male" : "Female");   
-		person.setCpf("04888053685");
-		person.setBirth(LocalDate.of(1991, 02, 24));
-		person.setPhoneNumber("3436834703");
-		person.setMobileNumber("34988681043");
-		person.setKeyPix("04888053685");
-		person.setEnabled(true);       
-        return person;
-    }
-    
-    public PersonResponse mockResponse(Integer number) {
-        PersonResponse person = new PersonResponse();
+    public PersonDto mockDto(Integer number) {
+        PersonDto person = new PersonDto();
         person.setKey(number.longValue());
         person.setFirstName("First Name Test" + number);
         person.setLastName("Last Name Test" + number);
-        person.setGender(((number % 2)==0) ? "Male" : "Female");   
-		person.setCpf("04888053685");
-		person.setBirth(LocalDate.of(1991, 02, 24));
-		person.setPhoneNumber("3436834703");
-		person.setMobileNumber("34988681043");
-		person.setKeyPix("04888053685");
-		person.setEnabled(true);        
+        person.setGender(((number % 2) == 0) ? "Male" : "Female");
+        person.setCpf("04888053685");
+        
+        // Variando a data de nascimento com base no número
+        person.setBirth(LocalDate.of(1991, 2, 24));
+        
+        person.setPhoneNumber("3436834703");
+        person.setMobileNumber("34988681043");
+        person.setKeyPix("04888053685");
+        person.setEnabled(true);     
         return person;
     }
 

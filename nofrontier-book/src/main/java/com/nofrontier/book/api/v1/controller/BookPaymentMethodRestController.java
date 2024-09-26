@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.model.Book;
 import com.nofrontier.book.domain.services.ApiBookPaymentMethodService;
-import com.nofrontier.book.dto.v1.requests.PaymentMethodRequest;
-import com.nofrontier.book.dto.v1.responses.MessageResponse;
+import com.nofrontier.book.dto.v1.PaymentMethodDto;
+import com.nofrontier.book.dto.v1.MessageResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class BookPaymentMethodRestController {
 
 	@PostMapping("/pay")
 	public MessageResponse pay(@RequestBody @Valid Set<Book> books,
-			PaymentMethodRequest request, @PathVariable Long id) {
+			PaymentMethodDto request, @PathVariable Long id) {
 		return service.pay(books, request, id);
 	}
 

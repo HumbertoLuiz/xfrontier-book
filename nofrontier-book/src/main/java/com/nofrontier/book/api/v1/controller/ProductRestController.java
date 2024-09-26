@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nofrontier.book.domain.services.ApiProductService;
-import com.nofrontier.book.dto.v1.requests.ProductRequest;
-import com.nofrontier.book.dto.v1.responses.ProductResponse;
+import com.nofrontier.book.dto.v1.ProductDto;
 import com.nofrontier.book.utils.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,13 +46,13 @@ public class ProductRestController {
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Product", description = "Finds a Product", tags = {
 			"Products"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ProductResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ProductDto.class))),
 					@ApiResponse(description = "No Content", responseCode = "204", content = @Content),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ProductResponse findById(@PathVariable(value = "id") Long id) {
+	public ProductDto findById(@PathVariable(value = "id") Long id) {
 		return productService.findById(id);
 	}
 
@@ -64,12 +63,12 @@ public class ProductRestController {
 	@Operation(summary = "Finds all Products", description = "Finds all Products", tags = {
 			"Products"}, responses = {
 					@ApiResponse(description = "Success", responseCode = "200", content = {
-							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class)))}),
+							@Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))}),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ResponseEntity<PagedModel<EntityModel<ProductResponse>>> findAll(
+	public ResponseEntity<PagedModel<EntityModel<ProductDto>>> findAll(
 			@RequestParam(value = "page", defaultValue = "0") Integer page,
 			@RequestParam(value = "size", defaultValue = "12") Integer size,
 			@RequestParam(value = "direction", defaultValue = "asc") String direction) {
@@ -93,29 +92,29 @@ public class ProductRestController {
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Adds a new Product", description = "Adds a new Product by passing in a JSON, XML or YML representation of the product!", tags = {
 			"Products"}, responses = {
-					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ProductResponse.class))),
+					@ApiResponse(description = "Success", responseCode = "200", content = @Content(schema = @Schema(implementation = ProductDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ProductResponse create(@RequestBody @Valid ProductRequest productRequest) {
-		return productService.create(productRequest);
+	public ProductDto create(@RequestBody @Valid ProductDto productDtoRequest) {
+		return productService.create(productDtoRequest);
 	}
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
+	@PutMapping(value = "/{id}", consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 					MediaType.APPLICATION_YML})
 	@Operation(summary = "Updates a Product", description = "Updates a Product by passing in a JSON, XML or YML representation of the product!", tags = {
 			"Products"}, responses = {
-					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = ProductResponse.class))),
+					@ApiResponse(description = "Updated", responseCode = "200", content = @Content(schema = @Schema(implementation = ProductDto.class))),
 					@ApiResponse(description = "Bad Request", responseCode = "400", content = @Content),
 					@ApiResponse(description = "Unauthorized", responseCode = "401", content = @Content),
 					@ApiResponse(description = "Not Found", responseCode = "404", content = @Content),
 					@ApiResponse(description = "Internal Error", responseCode = "500", content = @Content),})
-	public ProductResponse update(@RequestBody @Valid Long id, ProductRequest productRequest) {
-		return productService.update(id, productRequest);
+	public ProductDto update(@PathVariable(value = "id") Long id, @RequestBody @Valid ProductDto productDtoRequest) {
+		return productService.update(id, productDtoRequest);
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------

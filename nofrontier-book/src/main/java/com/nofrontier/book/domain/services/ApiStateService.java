@@ -28,9 +28,9 @@ import com.nofrontier.book.domain.model.Country;
 import com.nofrontier.book.domain.model.State;
 import com.nofrontier.book.domain.repository.CountryRepository;
 import com.nofrontier.book.domain.repository.StateRepository;
-import com.nofrontier.book.dto.v1.requests.StateRequest;
-import com.nofrontier.book.dto.v1.responses.StateResponse;
+import com.nofrontier.book.dto.v1.StateDto;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -42,7 +42,7 @@ public class ApiStateService {
 	private static final String MSG_STATE_IN_USE = "Code state %d cannot be removed because there is a constraint in use";
 
 	@Autowired
-	PagedResourcesAssembler<StateResponse> assembler;
+	PagedResourcesAssembler<StateDto> assembler;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -51,30 +51,36 @@ public class ApiStateService {
 
 	private final CountryRepository countryRepository;
 
+    @PostConstruct
+    public void configureModelMapper() {
+        modelMapper.typeMap(State.class, StateDto.class)
+                   .addMapping(State::getId, StateDto::setKey);
+    }
+    
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public StateResponse findById(Long id) {
+	public StateDto findById(Long id) {
 		logger.info("Finding one state!");
 		var entity = stateRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException(
 						"No records found for this ID!"));
 		// Maps the saved entity to StateResponse
-		StateResponse stateResponse = modelMapper.map(entity, StateResponse.class);
-		stateResponse.add(linkTo(methodOn(StateRestController.class)
-				.findById(stateResponse.getKey())).withSelfRel());
+		StateDto stateDtoResponse = modelMapper.map(entity, StateDto.class);
+		stateDtoResponse.add(linkTo(methodOn(StateRestController.class)
+				.findById(stateDtoResponse.getKey())).withSelfRel());
 
-		return stateResponse;
+		return stateDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional(readOnly = true)
-	public PagedModel<EntityModel<StateResponse>> findAll(Pageable pageable) {
+	public PagedModel<EntityModel<StateDto>> findAll(Pageable pageable) {
 		logger.info("Finding all states!");
 		var statePage = stateRepository.findAll(pageable);
 		var stateResponsePage = statePage
-				.map(state -> modelMapper.map(state, StateResponse.class));
+				.map(state -> modelMapper.map(state, StateDto.class));
 		stateResponsePage.map(state -> state.add(linkTo(
 				methodOn(StateRestController.class).findById(state.getKey()))
 				.withSelfRel()));
@@ -87,16 +93,16 @@ public class ApiStateService {
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public StateResponse create(StateRequest stateRequest) {
-		if (stateRequest == null) {
+	public StateDto create(StateDto stateDtoRequest) {
+		if (stateDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Creating a new state!");
 
-		var entity = modelMapper.map(stateRequest, State.class);
+		var entity = modelMapper.map(stateDtoRequest, State.class);
 
 		// Get country by ID from the request
-		Long countryId = stateRequest.getCountryId();
+		Long countryId = stateDtoRequest.getCountryId();
 		Optional<Country> optionalCountry = countryRepository.findById(countryId);
 		if (optionalCountry.isEmpty()) {
 			// Handle case when state with provided ID does not exist
@@ -110,21 +116,21 @@ public class ApiStateService {
 		var savedEntity = stateRepository.save(entity);
 
 		// Maps the saved entity to StateResponse
-		StateResponse stateResponse = modelMapper.map(savedEntity,
-				StateResponse.class);
+		StateDto stateDtoResponse = modelMapper.map(savedEntity,
+				StateDto.class);
 
 		// Adds the self link to StateResponse
-		stateResponse.add(linkTo(methodOn(StateRestController.class)
-				.findById(stateResponse.getKey())).withSelfRel());
+		stateDtoResponse.add(linkTo(methodOn(StateRestController.class)
+				.findById(stateDtoResponse.getKey())).withSelfRel());
 
-		return stateResponse;
+		return stateDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
 
 	@Transactional
-	public StateResponse update(Long id, StateRequest stateRequest) {
-		if (stateRequest == null) {
+	public StateDto update(Long id, StateDto stateDtoRequest) {
+		if (stateDtoRequest == null) {
 			throw new RequiredObjectIsNullException();
 		}
 		logger.info("Updating one state!");
@@ -134,18 +140,18 @@ public class ApiStateService {
 						"No records found for this ID!"));
 
 		// Updating entity fields with request values
-		entity.setName(stateRequest.getName());
-		entity.setIbgeCode(stateRequest.getIbgeCode());
+		entity.setName(stateDtoRequest.getName());
+		entity.setIbgeCode(stateDtoRequest.getIbgeCode());
 
 		var updatedEntity = stateRepository.save(entity);
 
 		// Converting the updated entity to the response
-		StateResponse stateResponse = modelMapper.map(updatedEntity,
-				StateResponse.class);
-		stateResponse.add(linkTo(methodOn(StateRestController.class)
-				.findById(stateResponse.getKey())).withSelfRel());
+		StateDto stateDtoResponse = modelMapper.map(updatedEntity,
+				StateDto.class);
+		stateDtoResponse.add(linkTo(methodOn(StateRestController.class)
+				.findById(stateDtoResponse.getKey())).withSelfRel());
 
-		return stateResponse;
+		return stateDtoResponse;
 	}
 
 	// -------------------------------------------------------------------------------------------------------------
