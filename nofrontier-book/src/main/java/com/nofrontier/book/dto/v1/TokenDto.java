@@ -24,12 +24,12 @@ public class TokenDto implements Serializable {
 	
 	private Boolean authenticated;
 
-	@JsonSerialize(using = (DateSerializer.class))
-	@JsonDeserialize(using = (DateDeserializer.class))
+	@JsonSerialize(using = DateSerializer.class)
+	@JsonDeserialize(using = DateDeserializer.class)
 	private Date created;
     
-	@JsonSerialize(using = (DateSerializer.class))
-	@JsonDeserialize(using = (DateDeserializer.class))
+	@JsonSerialize(using = DateSerializer.class)
+	@JsonDeserialize(using = DateDeserializer.class)
 	private Date expiration;
     
 	private String accessToken;
