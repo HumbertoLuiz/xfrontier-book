@@ -28,11 +28,11 @@ jobs:
         cache: maven
         
     - name: Build Application JAR
-      working-directory: ./NOFRONTIER-BOOK/nofrontier-book
+      working-directory: ./nofrontier-book
       run: mvn clean package
 
     - name: Docker Compose Build
-      working-directory: ./NOFRONTIER-BOOK
+      working-directory: ./
       run: docker compose build
 
     - name: Push to Docker Hub Container Registry
