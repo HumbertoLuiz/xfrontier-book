@@ -28,7 +28,7 @@ jobs:
         cache: maven
         
     - name: Build Application JAR
-      working-directory: ./nofrontier-book
+      working-directory: ./xfrontier-book
       run: mvn clean package
 
     - name: Docker Compose Build
@@ -37,8 +37,8 @@ jobs:
 
     - name: Push to Docker Hub Container Registry
       run: |
-        docker tag ${{ secrets.DOCKER_USERNAME }}/nofrontier-book:latest ${{ secrets.DOCKER_USERNAME }}/nofrontier-book:${{ github.run_id }}
+        docker tag ${{ secrets.DOCKER_USERNAME }}/xfrontier-book:latest ${{ secrets.DOCKER_USERNAME }}/xfrontier-book:${{ github.run_id }}
 
-        docker push ${{ secrets.DOCKER_USERNAME }}/nofrontier-book:${{ github.run_id }}
-        docker push ${{ secrets.DOCKER_USERNAME }}/nofrontier-book:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/xfrontier-book:${{ github.run_id }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/xfrontier-book:latest
 
