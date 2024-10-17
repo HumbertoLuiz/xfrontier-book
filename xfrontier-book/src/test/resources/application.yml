@@ -9,7 +9,7 @@ server:
   
 #não colocar espaço depois da virgula entre os domínios
 cors:
-  originPatterns: http://localhost:3000,http://localhost:8080,https://nofrontier.com.br
+  originPatterns: http://localhost:3000,http://localhost:8080,https://xfrontier.com.br
 file:
   upload-dir: /home/runner/work/UploadDir
 

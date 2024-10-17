@@ -17,12 +17,12 @@ services:
     expose:
       - "3308"
     networks:
-      - nofrontier-network
-  nofrontier-book:
-    image: cabula/nofrontier-book
+      - xfrontier-network
+  xfrontier-book:
+    image: cabula/xfrontier-book
     restart: always
-    build: ./nofrontier-book
-    working_dir: /nofrontier-book
+    build: ./xfrontier-book
+    working_dir: /xfrontier-book
     environment:
       TZ: America/Sao_Paulo
       SPRING.DATASOURCE.URL: jdbc:mysql://db:3308/book-db?allowPublicKeyRetrieval=true&useSSL=false&useTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
@@ -41,9 +41,9 @@ services:
     depends_on:
       - db
     networks:
-      - nofrontier-network
+      - xfrontier-network
 networks:
-  nofrontier-network:
+  xfrontier-network:
     driver: bridge
     
     
