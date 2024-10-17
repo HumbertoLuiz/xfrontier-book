@@ -7,6 +7,7 @@ Technologies used
  - Spring Security 6.3.3
  - Maven 3.9.6
  - MySQL 8.3.0
+ - jdk 23
  
 ## Application.yml
 
