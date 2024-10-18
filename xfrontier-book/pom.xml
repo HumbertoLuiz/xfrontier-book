@@ -13,7 +13,7 @@
 	<groupId>br.com.xfrontier.book</groupId>
 	<artifactId>xfrontier-book</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>nofrontier-book</name>
+	<name>xfrontier-book</name>
 	<description>Project Book App</description>
 
 	<url/>
