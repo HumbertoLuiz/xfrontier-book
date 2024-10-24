@@ -28,7 +28,7 @@ jobs:
         cache: maven
         
     - name: Build Application JAR
-      working-directory: ./xfrontier_book_server
+      working-directory: ./xfrontier-book
       run: mvn clean package
 
     - name: Docker Compose Build
