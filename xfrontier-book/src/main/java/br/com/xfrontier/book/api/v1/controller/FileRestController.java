@@ -25,7 +25,7 @@ import br.com.xfrontier.book.domain.services.FileStorageService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
-@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "https://xfrontier.com.br"})
 @Tag(name = "File Endpoint")
 @RestController
 @RequestMapping("/api/file/v1")

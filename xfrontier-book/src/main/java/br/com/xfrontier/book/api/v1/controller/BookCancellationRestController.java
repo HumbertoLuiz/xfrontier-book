@@ -13,7 +13,7 @@ import br.com.xfrontier.book.dto.v1.BookCancellationRequest;
 import br.com.xfrontier.book.dto.v1.MessageResponse;
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/books/{id}/cancel/v1")
 public class BookCancellationRestController {

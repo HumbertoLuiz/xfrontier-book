@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.xfrontier.book.core.services.storage.providers.LocalStorageService;
 import br.com.xfrontier.book.domain.repository.PictureRepository;
 
-@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/uploads")
 //@Profile("dev")

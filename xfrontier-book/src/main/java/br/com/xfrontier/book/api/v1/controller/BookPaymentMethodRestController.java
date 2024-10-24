@@ -16,7 +16,7 @@ import br.com.xfrontier.book.dto.v1.MessageResponse;
 import br.com.xfrontier.book.dto.v1.PaymentMethodDto;
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/books/{id}/payment/v1")
 public class BookPaymentMethodRestController {

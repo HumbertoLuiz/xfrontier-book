@@ -31,7 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/books/v1")
 @Tag(name = "Books", description = "Endpoints for Managing Books")

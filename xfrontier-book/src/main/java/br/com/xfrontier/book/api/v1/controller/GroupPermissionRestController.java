@@ -29,7 +29,7 @@ import br.com.xfrontier.book.domain.model.Group;
 import br.com.xfrontier.book.domain.services.ApiGroupService;
 import br.com.xfrontier.book.dto.v1.PermissionDto;
 
-@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping(path = "/api/groups/{groupId}/permissions/v1", produces = MediaType.APPLICATION_JSON_VALUE)
 public class GroupPermissionRestController {
