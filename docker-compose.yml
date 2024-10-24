@@ -1,4 +1,4 @@
-version: '3.9.9'
+version: "3.9"
 services:
   db:
     image: mysql:8.3.0
@@ -36,7 +36,7 @@ services:
       SPRING_FLYWAY_USER: root
       SPRING_FLYWAY_PASSWORD: admin123
     ports:
-      - "80:80"
+      - "8080:8080"
     command: mvn spring-boot:run
     depends_on:
       - db
