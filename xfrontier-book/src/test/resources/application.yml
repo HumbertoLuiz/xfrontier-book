@@ -93,34 +93,35 @@ spring:
           starttls:
             enable: true 
       
-com:
-  nofrontier:    
+br:
+  com:
+    xfrontier:    
      
 # Google Matrix API
-    googleMatrix:
-      apiKey: YOUR_GOOGLE_MATRIX_KEY
+      googleMatrix:
+        apiKey: YOUR_GOOGLE_MATRIX_KEY
         
 # Payme
-    payme:
-      apiKey: YOUR_API_KEY
+      payme:
+        apiKey: YOUR_API_KEY
 
 # AWS S3
-    s3:
-      accessKey: YOUR_S3_ACCESS
-      secretKey: YOUR_S3_SECRET
-      bucket: YOUR_S3_BUCKET
-      region: YOUR_S3_REGION
+      s3:
+        accessKey: YOUR_S3_ACCESS
+        secretKey: YOUR_S3_SECRET
+        bucket: YOUR_S3_BUCKET
+        region: YOUR_S3_REGION
       
 # HOST
-    backend:
-      host: http://localhost:8080
-    frontend:
-      host: http://localhost:3000
+      backend:
+        host: http://localhost:8080
+      frontend:
+        host: http://localhost:3000
 
 # Email
-    email:
-      impl: fake
-      sender: NoFrontierFood <naoresponder@nofrontier.com.br>
+      email:
+        impl: fake
+        sender: NoFrontierFood <naoresponder@nofrontier.com.br>
  
 springdoc:
   pathsToMatch: 

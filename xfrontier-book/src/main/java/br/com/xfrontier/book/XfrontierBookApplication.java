@@ -15,7 +15,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import br.com.xfrontier.book.infrastructure.repository.CustomJpaRepositoryImpl;
 
 @ComponentScan({
-		"com.nofrontier.book", 
+		"br.com.xfrontier.book", 
 		"br.com.xfrontier.book.config",
 		"br.com.xfrontier.book.api.v1.controller",
 		"br.com.xfrontier.book.domain.model",
@@ -29,7 +29,7 @@ import br.com.xfrontier.book.infrastructure.repository.CustomJpaRepositoryImpl;
 		"br.com.xfrontier.book.infrastructure.service"})
 @EnableJpaRepositories(basePackages = "br.com.xfrontier.book.domain.repository", repositoryBaseClass = CustomJpaRepositoryImpl.class)
 @SpringBootApplication(scanBasePackages = {
-		"com.nofrontier.book",
+		"br.com.xfrontier.book",
 		"br.com.xfrontier.book.config", 
 		"br.com.xfrontier.book.api.v1.controller",
 		"br.com.xfrontier.book.domain.model",

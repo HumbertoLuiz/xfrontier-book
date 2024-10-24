@@ -30,7 +30,7 @@ public class OpenApiConfig {
                                 .name("Apache 2.0")
                                 .url("http://springdoc.com"))
                         ).externalDocs(new ExternalDocumentation()
-                                .description("NoFrontier")
+                                .description("XFrontier")
                                 .url("https://xfrontier.com.br/doc"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new io.swagger.v3.oas.models.Components()

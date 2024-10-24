@@ -3,6 +3,7 @@ package br.com.xfrontier.book.api.v1.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.xfrontier.book.domain.services.ApiAuthService;
 import br.com.xfrontier.book.dto.v1.AccountCredentialsDto;
 import br.com.xfrontier.book.utils.MediaType;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,6 +30,7 @@ public class AuthRestController {
 	@Autowired
     ApiAuthService apiAuthService;
 
+	@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 	@PostMapping(value = "/signin", consumes = {MediaType.APPLICATION_JSON,
 	MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -51,6 +52,7 @@ public class AuthRestController {
 			return token;
 	}
 	
+	@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 	@PutMapping(value = "/refresh/{email}", consumes = {MediaType.APPLICATION_JSON,
 	MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -73,6 +75,7 @@ public class AuthRestController {
 			return token;
 	}
 
+	@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 	@PostMapping(value = "/logout", consumes = {MediaType.APPLICATION_JSON,
 	MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,

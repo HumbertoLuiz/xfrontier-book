@@ -88,6 +88,7 @@ public class BookRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
+	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds all Books", description = "Finds all Books", tags = {
@@ -131,6 +132,7 @@ public class BookRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
+	@CrossOrigin(origins = "http://localhost:8080")
 	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -148,6 +150,7 @@ public class BookRestController {
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
+	@CrossOrigin(origins = "http://localhost:8080")
 	@DeleteMapping(value = "/{id}")
 	@Operation(summary = "Deletes a Book", description = "Deletes a Book by passing in a JSON, XML or YML representation of the book!", tags = {
 			"Books"}, responses = {
