@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/me/v1")
 @Tag(name = "Me", description = "Endpoints for Managing Me")
@@ -24,7 +25,6 @@ public class MeRestController {
     @Autowired
     private ApiMeService apiMeService;
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a logged user", description = "Finds a logged user", tags = {

@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/books/v1")
 @Tag(name = "Books", description = "Endpoints for Managing Books")
@@ -41,7 +42,6 @@ public class BookRestController {
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Book", description = "Finds a Book", tags = {
@@ -58,7 +58,6 @@ public class BookRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value = "/findBookByAuthor/{author}", produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
 			MediaType.APPLICATION_YML})
@@ -88,7 +87,6 @@ public class BookRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds all Books", description = "Finds all Books", tags = {
@@ -115,7 +113,6 @@ public class BookRestController {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -132,7 +129,6 @@ public class BookRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@PutMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -150,7 +146,6 @@ public class BookRestController {
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@DeleteMapping(value = "/{id}")
 	@Operation(summary = "Deletes a Book", description = "Deletes a Book by passing in a JSON, XML or YML representation of the book!", tags = {
 			"Books"}, responses = {

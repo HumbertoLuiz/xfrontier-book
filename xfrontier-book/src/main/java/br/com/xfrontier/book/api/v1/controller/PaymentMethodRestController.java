@@ -2,6 +2,7 @@ package br.com.xfrontier.book.api.v1.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.xfrontier.book.domain.services.ApiPaymentMethodService;
 import br.com.xfrontier.book.dto.v1.PaymentMethodDto;
 import br.com.xfrontier.book.utils.MediaType;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,19 +31,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/payments/v1")
 @Tag(name = "Payments", description = "Endpoints for Managing Payments")
 public class PaymentMethodRestController {
 
-    private final ApiPaymentMethodService apiPaymentMethodService;
+	@Autowired
+    private ApiPaymentMethodService apiPaymentMethodService;
     
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a PaymentMethod", description = "Finds a PaymentMethod", tags = {
@@ -86,8 +85,6 @@ public class PaymentMethodRestController {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = {"http://localhost:8080",
-			"https://xfrontier.com.br"})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,

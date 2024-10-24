@@ -1,5 +1,6 @@
 package br.com.xfrontier.book.api.v1.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.xfrontier.book.domain.services.ApiCategoryService;
 import br.com.xfrontier.book.dto.v1.CategoryDto;
 import br.com.xfrontier.book.utils.MediaType;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,19 +29,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/categories/v1")
 @Tag(name = "Categories", description = "Endpoints for Managing Categories")
 public class CategoryRestController {
 
-	private final ApiCategoryService categoryService;
+	@Autowired
+	private ApiCategoryService categoryService;
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Category", description = "Finds a Category", tags = {
@@ -84,8 +83,6 @@ public class CategoryRestController {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = {"http://localhost:8080",
-			"https://xfrontier.com.br"})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,

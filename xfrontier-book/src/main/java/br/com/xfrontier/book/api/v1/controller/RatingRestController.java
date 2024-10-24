@@ -1,6 +1,7 @@
 package br.com.xfrontier.book.api.v1.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import br.com.xfrontier.book.dto.v1.MessageResponse;
 
 import jakarta.validation.Valid;
 
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/books/{id}/ratings")
 public class RatingRestController {

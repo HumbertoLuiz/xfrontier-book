@@ -2,6 +2,7 @@ package br.com.xfrontier.book.api.v1.controller;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,7 +29,6 @@ import br.com.xfrontier.book.dto.v1.MessageResponse;
 import br.com.xfrontier.book.dto.v1.UpdateUserRequest;
 import br.com.xfrontier.book.dto.v1.UserDto;
 import br.com.xfrontier.book.utils.MediaType;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,19 +36,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/users/v1")
 @Tag(name = "Users", description = "Endpoints for Managing Users")
 public class UserRestController {
 
-	private final ApiUserService apiUserService;
+	@Autowired
+	private ApiUserService apiUserService;
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a User", description = "Finds a User", tags = {
@@ -92,8 +91,6 @@ public class UserRestController {
 
 	// -------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = {"http://localhost:8080",
-			"https://xfrontier.com.br"})
 	@PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,

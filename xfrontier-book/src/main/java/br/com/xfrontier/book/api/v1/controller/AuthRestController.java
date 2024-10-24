@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authentication", description = "Endpoints for Managing Authentication")
@@ -30,7 +31,6 @@ public class AuthRestController {
 	@Autowired
     ApiAuthService apiAuthService;
 
-	@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 	@PostMapping(value = "/signin", consumes = {MediaType.APPLICATION_JSON,
 	MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -52,7 +52,6 @@ public class AuthRestController {
 			return token;
 	}
 	
-	@CrossOrigin(origins = {"http://localhost:8080"})
 	@PutMapping(value = "/refresh/{email}", consumes = {MediaType.APPLICATION_JSON,
 	MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
@@ -75,7 +74,6 @@ public class AuthRestController {
 			return token;
 	}
 
-	@CrossOrigin(origins = {"http://localhost:8080"})
 	@PostMapping(value = "/logout", consumes = {MediaType.APPLICATION_JSON,
 	MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 			MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,

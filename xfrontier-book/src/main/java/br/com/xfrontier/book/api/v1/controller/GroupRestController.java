@@ -1,5 +1,6 @@
 package br.com.xfrontier.book.api.v1.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.xfrontier.book.domain.services.ApiGroupService;
 import br.com.xfrontier.book.dto.v1.GroupDto;
 import br.com.xfrontier.book.utils.MediaType;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,19 +29,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:8080", "https://xfrontier.com.br"})
 @RestController
 @RequestMapping("/api/groups/v1")
 @Tag(name = "Groups", description = "Endpoints for Managing Groups")
 public class GroupRestController {
 
-	private final ApiGroupService apiGroupService;
+	@Autowired
+	private ApiGroupService apiGroupService;
 
 	// ------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = "http://localhost:8080")
 	@GetMapping(value = "/{id}", produces = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML})
 	@Operation(summary = "Finds a Group", description = "Finds a Group", tags = {
@@ -84,8 +83,6 @@ public class GroupRestController {
 
 	// --------------------------------------------------------------------------------------------------------------------------------------------------
 
-	@CrossOrigin(origins = {"http://localhost:8080",
-			"https://xfrontier.com.br"})
 	@PostMapping(consumes = {MediaType.APPLICATION_JSON,
 			MediaType.APPLICATION_XML, MediaType.APPLICATION_YML}, produces = {
 					MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
